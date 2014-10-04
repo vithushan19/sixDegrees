@@ -1,17 +1,15 @@
-package com.example.therottengame;
+package com.shav.therottengame;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import android.annotation.SuppressLint;
+
+import com.shav.therottengame.R;
+
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import com.example.therottengame.R;
 
 public class ListViewActivity extends Activity {
 
