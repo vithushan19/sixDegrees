@@ -142,6 +142,12 @@ public class MainActivity extends Activity implements
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		switchToMainScreen();
+	}
+
+	@Override
 	public void onClick(View v) {
 		Intent intent;
 
@@ -167,7 +173,7 @@ public class MainActivity extends Activity implements
 		} else if (id == R.id.button_invite_players) {
 			// show list of invitable players
 			intent = Games.RealTimeMultiplayer.getSelectOpponentsIntent(
-					mGoogleApiClient, 1, 3);
+					mGoogleApiClient, 1, 7);
 			switchToScreen(R.id.screen_wait);
 			startActivityForResult(intent, RC_SELECT_PLAYERS);
 		} else if (id == R.id.button_see_invitations) {
@@ -668,21 +674,8 @@ public class MainActivity extends Activity implements
 		mMultiplayer = multiplayer;
 		updateScoreDisplay();
 		broadcastScore(false);
-		switchToScreen(R.id.screen_game);
-
-		findViewById(R.id.button_click_me).setVisibility(View.VISIBLE);
-
-		// run the gameTick() method every second to update the game.
-		final Handler h = new Handler();
-		h.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				if (mSecondsLeft <= 0)
-					return;
-				gameTick();
-				h.postDelayed(this, 1000);
-			}
-		}, 1000);
+		Intent intent = new Intent(this, ListViewActivity.class);
+		startActivity(intent);
 	}
 
 	// Game tick -- update countdown, check if game ended.
@@ -818,6 +811,7 @@ public class MainActivity extends Activity implements
 			findViewById(id).setVisibility(
 					screenId == id ? View.VISIBLE : View.GONE);
 		}
+
 		mCurScreen = screenId;
 
 		// should we show the invitation popup?
