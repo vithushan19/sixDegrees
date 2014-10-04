@@ -1,4 +1,4 @@
-package com.example.therottengame;
+package com.shav.therottengame;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.IntentSender;
 import android.util.Log;
 
+import com.shav.therottengame.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;

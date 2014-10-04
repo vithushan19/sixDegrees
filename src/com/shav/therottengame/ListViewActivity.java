@@ -1,6 +1,8 @@
-package com.example.therottengame;
+package com.shav.therottengame;
 
 import java.util.ArrayList;
+
+import com.shav.therottengame.R;
 
 import android.app.Activity;
 import android.os.Bundle;

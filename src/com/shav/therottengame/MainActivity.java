@@ -1,4 +1,4 @@
-package com.example.therottengame;
+package com.shav.therottengame;
 
 /* Copyright (C) 2013 Google Inc.
  *
@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.shav.therottengame.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
