@@ -23,7 +23,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.shav.therottengame.activity.GameActivity" >
+        <activity android:name="com.shav.therottengame.activity.GameActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity android:name="com.shav.therottengame.activity.GameOverActivity" >
         </activity>
