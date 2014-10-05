@@ -49,7 +49,6 @@ public class ApiRequester {
 		actor = actor.replaceAll("\\'+", "").toLowerCase();
 
 		try {
-			System.out.println(actor);
 			Document doc = Jsoup.connect(
 					"http://www.rottentomatoes.com/celebrity/" + actor + "/")
 					.get();
