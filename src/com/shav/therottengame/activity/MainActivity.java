@@ -1,4 +1,4 @@
-package com.shav.therottengame;
+package com.shav.therottengame.activity;
 
 /* Copyright (C) 2013 Google Inc.
  *
@@ -52,25 +52,14 @@ import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.android.gms.plus.Plus;
+import com.shav.therottengame.BaseGameUtils;
+import com.shav.therottengame.MainButtonAdapter;
+import com.shav.therottengame.R;
+import com.shav.therottengame.RottenGoogleClient;
+import com.shav.therottengame.R.id;
+import com.shav.therottengame.R.layout;
+import com.shav.therottengame.R.string;
 
-/**
- * Button Clicker 2000. A minimalistic game showing the multiplayer features of
- * the Google Play game services API. The objective of this game is clicking a
- * button. Whoever clicks the button the most times within a 20 second interval
- * wins. It's that simple. This game can be played with 2, 3 or 4 players. The
- * code is organized in sections in order to make understanding as clear as
- * possible. We start with the integration section where we show how the game is
- * integrated with the Google Play game services API, then move on to
- * game-specific UI and logic.l
- *
- * INSTRUCTIONS: To run this sample, please set up a project in the Developer
- * Console. Then, place your app ID on res/values/ids.xml. Also, change the
- * package name to the package name you used to create the client ID in
- * Developer Console. Make sure you sign the APK with the certificate whose
- * fingerprint you entered in Developer Console when creating your Client Id.
- *
- * @author Bruno Oliveira (btco), 2013-04-26
- */
 public class MainActivity extends Activity implements
 		GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener, View.OnClickListener,
@@ -714,8 +703,14 @@ public class MainActivity extends Activity implements
 	}
 
 	@Override
-	public void onRealTimeMessageReceived(RealTimeMessage arg0) {
-		// TODO Auto-generated method stub
-		Toast.makeText(this, "YOU LOSE", Toast.LENGTH_SHORT).show();
+	public void onRealTimeMessageReceived(RealTimeMessage rtm) {
+		// If we receive a message before sending one out, this means we lose the game
+		loseGame(rtm.getSenderParticipantId());
+	}
+	
+	private void loseGame (String winnerId) {
+		Intent intent = new Intent(this, GameOverActivity.class);
+		intent.putExtra("Won", false);
+		intent.putExtra("Room", mRoom);
 	}
 }

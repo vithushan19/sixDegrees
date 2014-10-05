@@ -1,17 +1,18 @@
-package com.shav.therottengame;
+package com.shav.therottengame.activity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,6 +25,12 @@ import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.Room;
+import com.shav.therottengame.ListViewAdapter;
+import com.shav.therottengame.R;
+import com.shav.therottengame.RottenGoogleClient;
+import com.shav.therottengame.R.anim;
+import com.shav.therottengame.R.id;
+import com.shav.therottengame.R.layout;
 import com.shav.therottengame.network.ApiRequester;
 
 public class GameActivity extends ListActivity implements
@@ -41,7 +48,7 @@ public class GameActivity extends ListActivity implements
 
 	private Room mRoom;
 	private GoogleApiClient mGoogleApiClient;
-
+	
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[1];
 	// My participant ID in the currently active game
@@ -72,16 +79,14 @@ public class GameActivity extends ListActivity implements
 		mListView.setAdapter(mAdapter);
 		mApiRequester = new ApiRequester();
 
+
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, final View view,
 					int position, long id) {
 				String text = (String) parent.getItemAtPosition(position);
 				if (text.equals(mEndingActor)) {
-					Toast.makeText(getApplicationContext(), "You Won",
-							Toast.LENGTH_LONG).show();
-					broadcastScore(true);
-					return;
+					winGame();
 				}
 				if (mCurrentRequestType == RequestType.MOVIE) {
 					new NetworkTask().execute("movies", text);
@@ -93,12 +98,23 @@ public class GameActivity extends ListActivity implements
 
 			}
 		});
+		
 		mGoogleApiClient = RottenGoogleClient.getInstance(this);
 
 		Intent intent = getIntent();
 		if (intent != null) {
 			mRoom = intent.getParcelableExtra("Room");
 		}
+	}
+
+	protected void winGame() {
+		Toast.makeText(getApplicationContext(), "You Won",
+				Toast.LENGTH_LONG).show();
+		broadcastScore(true);
+		Intent intent = new Intent(this, GameOverActivity.class);
+		intent.putExtra("Won", true);
+		intent.putExtra("Room", mRoom);
+		return;		
 	}
 
 	protected void onStop() {
@@ -118,16 +134,7 @@ public class GameActivity extends ListActivity implements
 
 	@Override
 	public void onRealTimeMessageReceived(RealTimeMessage rtm) {
-		byte[] buf = rtm.getMessageData();
-		Log.d(TAG, "Message received: " + (char) buf[0]);
 
-		if ((char) buf[0] == 'F') {
-			mFinishedParticipants.add(rtm.getSenderParticipantId());
-			if (rtm.getSenderParticipantId() != mMyId) {
-				Toast.makeText(this, "YOU LOST", Toast.LENGTH_SHORT).show();
-			}
-
-		}
 	}
 
 	// Broadcast my score to everybody else.

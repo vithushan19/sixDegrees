@@ -16,7 +16,7 @@ public class ListViewAdapter extends BaseAdapter {
 	private final Context mContext;
 	private List<String> mData;
 	
-	ListViewAdapter(Context context, List<String> data){
+	public ListViewAdapter(Context context, List<String> data){
 		super();
 		mContext = context;
 		mData = data;
