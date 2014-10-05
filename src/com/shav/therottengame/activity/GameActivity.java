@@ -23,6 +23,7 @@ import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.Room;
+import com.shav.therottengame.Actors;
 import com.shav.therottengame.ListViewAdapter;
 import com.shav.therottengame.R;
 import com.shav.therottengame.RottenGoogleClient;
@@ -64,15 +65,14 @@ GoogleApiClient.OnConnectionFailedListener {
 		TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
 		TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
 		mCurrentList = new ArrayList<String>();
-		String start = "Brad Pitt";
+		Actors actors = new Actors();
+		String start = actors.getFirstActor();
 		startingActortv.setText(start);
-		mCurrentList.add(start);
-		String end = "Drew Barrymore";
+		String end = actors.getLastActor();
 		endingActortv.setText(end);
 		mStartingActor = start;
 		mEndingActor = end;
 		mClickCount = 0;
-		mCurrentRequestType = RequestType.MOVIE;
 		mAdapter = new ListViewAdapter(this, mCurrentList);
 		mListView.setAdapter(mAdapter);
 		mApiRequester = new ApiRequester();
@@ -102,6 +102,9 @@ GoogleApiClient.OnConnectionFailedListener {
 		if (intent != null) {
 			mRoom = intent.getParcelableExtra("Room");
 		}
+		new NetworkTask().execute("movies", start);
+		mCurrentRequestType = RequestType.ACTOR;
+		
 	}
 
 	protected void winGame() {
@@ -203,6 +206,7 @@ GoogleApiClient.OnConnectionFailedListener {
 	        mAdapter.replaceAndRefreshData(mCurrentList);
 	        progressDialog.setVisibility(View.GONE);
 	        mListView.setVisibility(View.VISIBLE);
+	        mListView.setSelection(0);
 	     }
 	 }
 
