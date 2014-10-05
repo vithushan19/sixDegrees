@@ -1,15 +1,17 @@
 package com.shav.therottengame;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ public class ListViewActivity extends Activity {
 	private int mClickCount;
 	private RequestType mCurrentRequestType;
 	private ApiRequester mApiRequester;
+	private ProgressBar progressDialog;
 	
 	private enum RequestType {
 		ACTOR,
@@ -51,6 +54,7 @@ public class ListViewActivity extends Activity {
 		mAdapter = new ListViewAdapter(this, mCurrentList);
 		mListView.setAdapter(mAdapter);
 		mApiRequester = new ApiRequester();
+		progressDialog = (ProgressBar) findViewById(R.id.progressDialog);
 		
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -71,9 +75,18 @@ public class ListViewActivity extends Activity {
 				
 			}
 		});
+		
+		
 	}
 	
 	 private class NetworkTask extends AsyncTask<String, Void, List<String>> {
+		 @Override
+		 protected void onPreExecute()
+		 {
+			 mListView.setVisibility(View.GONE);
+		     progressDialog.setVisibility(View.VISIBLE);                
+		 }; 
+		    
 	     protected List<String> doInBackground(String... strings) {
 	    	 String downloadType = strings[0];
 	    	 String query = strings[1];
@@ -82,11 +95,14 @@ public class ListViewActivity extends Activity {
 	    	 } else {
 	    		 return mApiRequester.getActorsForMovies(query);
 	    	 }
+	    	 
 	     }
 
 	     protected void onPostExecute(List<String> result) {
 	        mCurrentList = result;
 	        mAdapter.replaceAndRefreshData(mCurrentList);
+	        progressDialog.setVisibility(View.GONE);
+	        mListView.setVisibility(View.VISIBLE);
 	     }
 	 }
 

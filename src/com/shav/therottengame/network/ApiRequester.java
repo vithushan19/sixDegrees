@@ -33,13 +33,20 @@ public class ApiRequester {
 		List<String> movies = new ArrayList<String>();
         for (int i = 1; i < actor.length(); i++) {
             if (Character.isUpperCase(actor.charAt(i)) && !Character.isWhitespace(actor.charAt(i - 1))) {
+            	if (actor.charAt(i-1) == 'c') {//possibly a McSomething
+            		continue;
+            	}
                 actor = actor.substring(0, i) + " " + actor.substring(i, actor.length());
                 i++;
             }
         }
 		actor = actor.replaceAll("\\s+","_").toLowerCase();
-//        actor = actor.replace(" ", "_").toLowerCase();l
-        try {
+		actor = actor.replaceAll("\\.+", "").toLowerCase();
+		actor = actor.replaceAll("\\-+", "").toLowerCase();
+		actor = actor.replaceAll("\\'+", "").toLowerCase();
+
+		try {
+        	System.out.println(actor);
             Document doc = Jsoup.connect("http://www.rottentomatoes.com/celebrity/" + actor + "/").get();
             Elements films = doc.select("#filmographyTbl a");
             int i = 0;
