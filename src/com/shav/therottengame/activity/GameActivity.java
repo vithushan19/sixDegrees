@@ -85,6 +85,7 @@ GoogleApiClient.OnConnectionFailedListener {
 				String text = (String) parent.getItemAtPosition(position);
 				if (text.equals(mEndingActor)) {
 					winGame();
+					return;
 				}
 				if (mCurrentRequestType == RequestType.MOVIE) {
 					new NetworkTask().execute("movies", text);
@@ -105,12 +106,11 @@ GoogleApiClient.OnConnectionFailedListener {
 	}
 
 	protected void winGame() {
-		Toast.makeText(getApplicationContext(), "You Won",
-				Toast.LENGTH_LONG).show();
 		broadcastScore(true);
 		Intent intent = new Intent(this, GameOverActivity.class);
 		intent.putExtra("Won", true);
 		intent.putExtra("Room", mRoom);
+		startActivity(intent);
 		return;		
 	}
 
@@ -136,7 +136,10 @@ GoogleApiClient.OnConnectionFailedListener {
 
 	// Broadcast my score to everybody else.
 	void broadcastScore(boolean finalScore) {
-
+		if (mRoom == null) {
+			return;
+		}
+		
 		// First byte in message indicates whether it's a final score or not
 		mMsgBuf[0] = (byte) (finalScore ? 'F' : 'U');
 		mMyId = mRoom.getParticipantId(Games.Players

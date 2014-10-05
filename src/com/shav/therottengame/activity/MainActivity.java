@@ -712,5 +712,6 @@ public class MainActivity extends Activity implements
 		Intent intent = new Intent(this, GameOverActivity.class);
 		intent.putExtra("Won", false);
 		intent.putExtra("Room", mRoom);
+		startActivity(intent);
 	}
 }
