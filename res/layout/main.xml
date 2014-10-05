@@ -16,18 +16,25 @@
             android:id="@+id/textViewStarting"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="0.4"
             android:text="Starting Actor"
             android:padding="10dp"
             android:textSize="20sp"
             android:gravity="center"
             android:textColor="@color/AccentColor" />
+        
+        <ImageView
+            android:id="@+id/arrowImage"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:layout_width="0dp"
+            android:src="@drawable/arrowright" />
 
         <TextView
             android:id="@+id/textViewEnding"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="0.4"
             android:text="Ending Actor"
             android:padding="10dp"
             android:gravity="center"
