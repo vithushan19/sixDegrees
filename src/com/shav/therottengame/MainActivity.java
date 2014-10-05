@@ -25,14 +25,17 @@ import java.util.Set;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.shav.therottengame.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -58,7 +61,7 @@ import com.google.android.gms.plus.Plus;
  * code is organized in sections in order to make understanding as clear as
  * possible. We start with the integration section where we show how the game is
  * integrated with the Google Play game services API, then move on to
- * game-specific UI and logic.
+ * game-specific UI and logic.l
  *
  * INSTRUCTIONS: To run this sample, please set up a project in the Developer
  * Console. Then, place your app ID on res/values/ids.xml. Also, change the
@@ -123,6 +126,8 @@ public class MainActivity extends Activity implements
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
 
+	private ListView mGridView;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -139,55 +144,83 @@ public class MainActivity extends Activity implements
 		for (int id : CLICKABLES) {
 			findViewById(id).setOnClickListener(this);
 		}
+
+		int[] buttonTitles = { R.string.single_player, R.string.quick_game,
+				R.string.invite_players, R.string.see_invitations,
+				R.string.sign_out };
+		mGridView = (ListView) findViewById(R.id.main_gridview);
+		mGridView.setAdapter(new MainButtonAdapter(this, buttonTitles));
+
+		mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Intent intent;
+
+				switch (position) {
+				case 0:
+					// Single player
+					resetGameVars();
+					startGame(false);
+					break;
+				case 1:
+					// Quick game
+					startQuickGame();
+					break;
+				case 2:
+					// Invite Friends
+					intent = Games.RealTimeMultiplayer
+							.getSelectOpponentsIntent(mGoogleApiClient, 1, 7);
+					switchToScreen(R.id.screen_wait);
+					startActivityForResult(intent, RC_SELECT_PLAYERS);
+					break;
+				case 3:
+					// See invitations
+					intent = Games.Invitations
+							.getInvitationInboxIntent(mGoogleApiClient);
+					switchToScreen(R.id.screen_wait);
+					startActivityForResult(intent, RC_INVITATION_INBOX);
+					break;
+				case 4:
+					// Sign out
+					// user wants to sign out
+					// // sign out.
+					Log.d(TAG, "Sign-out button clicked");
+					mSignInClicked = false;
+					Games.signOut(mGoogleApiClient);
+					mGoogleApiClient.disconnect();
+					switchToScreen(R.id.screen_sign_in);
+					break;
+				}
+			}
+		});
 	}
 
 	@Override
 	public void onClick(View v) {
-		Intent intent;
-
-		int id = v.getId();
-		if (id == R.id.button_single_player
-				|| id == R.id.button_single_player_2) {
-			// play a single-player game
+		switch (v.getId()) {
+		case R.id.button_single_player:
 			resetGameVars();
 			startGame(false);
-		} else if (id == R.id.button_sign_in) {
+			break;
+		case R.id.button_sign_in:
 			// start the sign-in flow
 			Log.d(TAG, "Sign-in button clicked");
 			mSignInClicked = true;
 			mGoogleApiClient.connect();
-		} else if (id == R.id.button_sign_out) {
-			// user wants to sign out
-			// sign out.
-			Log.d(TAG, "Sign-out button clicked");
-			mSignInClicked = false;
-			Games.signOut(mGoogleApiClient);
-			mGoogleApiClient.disconnect();
-			switchToScreen(R.id.screen_sign_in);
-		} else if (id == R.id.button_invite_players) {
-			// show list of invitable players
-			intent = Games.RealTimeMultiplayer.getSelectOpponentsIntent(
-					mGoogleApiClient, 1, 3);
-			switchToScreen(R.id.screen_wait);
-			startActivityForResult(intent, RC_SELECT_PLAYERS);
-		} else if (id == R.id.button_see_invitations) {
-			// show list of pending invitations
-			intent = Games.Invitations
-					.getInvitationInboxIntent(mGoogleApiClient);
-			switchToScreen(R.id.screen_wait);
-			startActivityForResult(intent, RC_INVITATION_INBOX);
-		} else if (id == R.id.button_accept_popup_invitation) {
+			break;
+		case R.id.button_accept_popup_invitation:
 			// user wants to accept the invitation shown on the invitation popup
 			// (the one we got through the OnInvitationReceivedListener).
 			acceptInviteToRoom(mIncomingInvitationId);
 			mIncomingInvitationId = null;
-		} else if (id == R.id.button_quick_game) {
-			// user wants to play against a random opponent right now
-			startQuickGame();
-		} else if (id == R.id.button_click_me) {
-			// (gameplay) user clicked the "click me" button
-			scoreOnePoint();
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		switchToMainScreen();
 	}
 
 	void startQuickGame() {
@@ -668,21 +701,8 @@ public class MainActivity extends Activity implements
 		mMultiplayer = multiplayer;
 		updateScoreDisplay();
 		broadcastScore(false);
-		switchToScreen(R.id.screen_game);
-
-		findViewById(R.id.button_click_me).setVisibility(View.VISIBLE);
-
-		// run the gameTick() method every second to update the game.
-		final Handler h = new Handler();
-		h.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				if (mSecondsLeft <= 0)
-					return;
-				gameTick();
-				h.postDelayed(this, 1000);
-			}
-		}, 1000);
+		Intent intent = new Intent(this, ListViewActivity.class);
+		startActivity(intent);
 	}
 
 	// Game tick -- update countdown, check if game ended.
@@ -802,10 +822,8 @@ public class MainActivity extends Activity implements
 	// This array lists everything that's clickable, so we can install click
 	// event handlers.
 	final static int[] CLICKABLES = { R.id.button_accept_popup_invitation,
-			R.id.button_invite_players, R.id.button_quick_game,
-			R.id.button_see_invitations, R.id.button_sign_in,
-			R.id.button_sign_out, R.id.button_click_me,
-			R.id.button_single_player, R.id.button_single_player_2 };
+			R.id.button_sign_in, R.id.button_click_me,
+			R.id.button_single_player };
 
 	// This array lists all the individual screens our game has.
 	final static int[] SCREENS = { R.id.screen_game, R.id.screen_main,
@@ -818,6 +836,7 @@ public class MainActivity extends Activity implements
 			findViewById(id).setVisibility(
 					screenId == id ? View.VISIBLE : View.GONE);
 		}
+
 		mCurScreen = screenId;
 
 		// should we show the invitation popup?
@@ -891,7 +910,7 @@ public class MainActivity extends Activity implements
 	// Sets the flag to keep this screen on. It's recommended to do that during
 	// the
 	// handshake when setting up a game, because if the screen turns off, the
-	// game will be
+	// game will beh
 	// cancelled.
 	void keepScreenOn() {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
