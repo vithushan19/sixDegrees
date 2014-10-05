@@ -21,7 +21,13 @@ public class ListViewActivity extends Activity {
 	private String mStartingActor;
 	private String mEndingActor;
 	private int mClickCount;
+	private RequestType mCurrentRequestType;
 	private ApiRequester mApiRequester;
+	
+	private enum RequestType {
+		ACTOR,
+		MOVIE,
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +41,7 @@ public class ListViewActivity extends Activity {
 			mCurrentList.add(values[i]);
 		}
 		mClickCount = 0;
+		mCurrentRequestType = RequestType.MOVIE;
 		mAdapter = new ListViewAdapter(this, mCurrentList);
 		mListView.setAdapter(mAdapter);
 		mApiRequester = new ApiRequester();
@@ -44,10 +51,12 @@ public class ListViewActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, final View view,
 					int position, long id) { 
 				String text = (String) parent.getItemAtPosition(position);
-				if (mClickCount % 2 == 0) {
+				if (mCurrentRequestType == RequestType.MOVIE) {
 					new NetworkTask().execute("movies", text);
+					mCurrentRequestType = RequestType.ACTOR;
 				} else {
 					new NetworkTask().execute("actors", text);
+					mCurrentRequestType = RequestType.MOVIE;
 				}
 				
 			}
