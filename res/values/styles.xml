@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <color name="AccentColor">#FFCC00</color>
-    <color name="GoldColor">#336699</color>
+    <color name="BlueColor">#336699</color>
     <color name="PopupColor">@color/AccentColor</color>
     <color name="PopupTextColor">#ffffff</color>
     <color name="ButtonTextColor">#000000</color>
