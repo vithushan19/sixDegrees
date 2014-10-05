@@ -1,5 +1,6 @@
 package com.shav.therottengame;
 
+import java.util.Calendar;
 import java.util.Random;
 
 public class Actors {
@@ -41,11 +42,18 @@ public class Actors {
 		"Zac Efron",
 	};
 	
+	Random rand;
+	
 	private String mFirstActor, mLastActor;
 	
+	public Actors() {
+		rand = new Random();
+		Calendar now = Calendar.getInstance();
+		int month = now.get(Calendar.MINUTE);
+		rand.setSeed(month);
+	}
+	
 	public String getFirstActor() {
-	    Random rand = new Random();
-	    rand.setSeed(System.currentTimeMillis());
 	    int randomNum = rand.nextInt(actorsList.length);
 	    mFirstActor = actorsList[randomNum];
 		return mFirstActor;
@@ -54,8 +62,6 @@ public class Actors {
 	public String getLastActor() {
 		mLastActor = mFirstActor;
 		while(mFirstActor.equals(mLastActor)) {
-			Random rand = new Random();
-		    rand.setSeed(System.currentTimeMillis());
 		    int randomNum = rand.nextInt(actorsList.length);
 		    mLastActor = actorsList[randomNum];
 		}
