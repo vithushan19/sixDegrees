@@ -29,6 +29,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -145,6 +147,14 @@ public class MainActivity extends Activity implements
 				R.string.invite_players, R.string.see_invitations, R.string.sign_out };
 		mGridView = (GridView) findViewById(R.id.main_gridview);
 		mGridView.setAdapter(new MainButtonAdapter(this, buttonTitles));
+		mGridView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				Log.d("TASK", "tks");
+			}
+		});
 	}
 
 	@Override

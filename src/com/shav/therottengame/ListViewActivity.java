@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shav.therottengame.network.ApiRequester;
 
@@ -34,12 +36,16 @@ public class ListViewActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		mListView = (ListView) findViewById(R.id.listview);
-		String[] values = new String[] { "Hugh Jackman" };
-
+		TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
+		TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
 		mCurrentList = new ArrayList<String>();
-		for (int i = 0; i < values.length; ++i) {
-			mCurrentList.add(values[i]);
-		}
+		String start = "Hugh Jackman";
+		startingActortv.setText(start);
+		mCurrentList.add(start);
+		String end = "Brad Pitt";
+		endingActortv.setText(end);
+		mStartingActor = start;
+		mEndingActor = end;
 		mClickCount = 0;
 		mCurrentRequestType = RequestType.MOVIE;
 		mAdapter = new ListViewAdapter(this, mCurrentList);
@@ -51,6 +57,10 @@ public class ListViewActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, final View view,
 					int position, long id) { 
 				String text = (String) parent.getItemAtPosition(position);
+				if (text.equals(mEndingActor)){
+					Toast.makeText(getApplicationContext(), "You Won", Toast.LENGTH_LONG).show();
+					return;
+				}
 				if (mCurrentRequestType == RequestType.MOVIE) {
 					new NetworkTask().execute("movies", text);
 					mCurrentRequestType = RequestType.ACTOR;
