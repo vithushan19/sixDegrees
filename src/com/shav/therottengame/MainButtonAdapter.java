@@ -18,7 +18,7 @@ public class MainButtonAdapter extends BaseAdapter {
 		this.mainButtons = buttonTitles;
 	}
 
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public TextView getView(int position, View convertView, ViewGroup parent) {
 
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -31,10 +31,11 @@ public class MainButtonAdapter extends BaseAdapter {
 
 			// get layout from mobile.xml
 			gridView = (TextView) inflater.inflate(R.layout.main_button, null);
-
+			
 			// set value into textview
 			gridView.setText(context.getString(mainButtons[position]));
 			gridView.setGravity(Gravity.CENTER);
+			
 			switch (position) {
 			case 0:
 			case 2:
@@ -57,7 +58,7 @@ public class MainButtonAdapter extends BaseAdapter {
 		} else {
 			gridView = (TextView) convertView;
 		}
-
+		
 		return gridView;
 	}
 
@@ -68,7 +69,7 @@ public class MainButtonAdapter extends BaseAdapter {
 
 	@Override
 	public Object getItem(int position) {
-		return null;
+		return mainButtons[position];
 	}
 
 	@Override
@@ -76,4 +77,5 @@ public class MainButtonAdapter extends BaseAdapter {
 		return 0;
 	}
 
+	
 }
