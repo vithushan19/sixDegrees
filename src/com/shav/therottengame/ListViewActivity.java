@@ -70,7 +70,7 @@ public class ListViewActivity extends Activity {
 	    	 if (downloadType == "movies") {
  	    		 return mApiRequester.getMoviesForActor(query);
 	    	 } else {
-	    		 return null;
+	    		 return mApiRequester.getActorsForMovies(query);
 	    	 }
 	     }
 
