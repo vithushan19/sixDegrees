@@ -39,10 +39,10 @@ public class ListViewActivity extends Activity {
 		TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
 		TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
 		mCurrentList = new ArrayList<String>();
-		String start = "Hugh Jackman";
+		String start = "Brad Pitt";
 		startingActortv.setText(start);
 		mCurrentList.add(start);
-		String end = "Brad Pitt";
+		String end = "Drew Barrymore";
 		endingActortv.setText(end);
 		mStartingActor = start;
 		mEndingActor = end;

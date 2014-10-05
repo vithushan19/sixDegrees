@@ -917,7 +917,7 @@ public class MainActivity extends Activity implements
 	// Sets the flag to keep this screen on. It's recommended to do that during
 	// the
 	// handshake when setting up a game, because if the screen turns off, the
-	// game will be
+	// game will beh
 	// cancelled.
 	void keepScreenOn() {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -931,7 +931,7 @@ public class MainActivity extends Activity implements
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.button_sign_in:
+		case R.id.button_single_player:
 			resetGameVars();
 			startGame(false);
 			break;
