@@ -58,7 +58,7 @@ import com.google.android.gms.plus.Plus;
  * code is organized in sections in order to make understanding as clear as
  * possible. We start with the integration section where we show how the game is
  * integrated with the Google Play game services API, then move on to
- * game-specific UI and logic.
+ * game-specific UI and logic.l
  *
  * INSTRUCTIONS: To run this sample, please set up a project in the Developer
  * Console. Then, place your app ID on res/values/ids.xml. Also, change the

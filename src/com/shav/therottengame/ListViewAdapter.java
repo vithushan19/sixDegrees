@@ -24,6 +24,7 @@ public class ListViewAdapter extends BaseAdapter {
 	
 	public void replaceAndRefreshData(List<String> data){
 		mData = new ArrayList<String>();
+		mData.addAll(data);
 		notifyDataSetChanged();
 	}
 	

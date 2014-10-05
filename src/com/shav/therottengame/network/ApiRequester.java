@@ -28,7 +28,8 @@ public class ApiRequester {
                 i++;
             }
         }
-        actor = actor.replace(" ", "_").toLowerCase();
+		actor.replaceAll("\\s+","_").toLowerCase();
+//        actor = actor.replace(" ", "_").toLowerCase();l
         try {
             Document doc = Jsoup.connect("http://www.rottentomatoes.com/celebrity/" + actor + "/").get();
             Elements films = doc.select("#filmographyTbl a");
@@ -40,7 +41,7 @@ public class ApiRequester {
                     movies.add(e.text());
             }
         } catch (IOException e) {
-
+        	e.printStackTrace();
         }
         
         return movies;
@@ -75,7 +76,7 @@ public class ApiRequester {
 	        
 
 	    } catch (Exception e) {
-	    	
+	    	e.printStackTrace();
 	    }
 		return jObject;
 	}
@@ -85,7 +86,7 @@ public class ApiRequester {
 		     * To convert the InputStream to String we use the BufferedReader.readLine()
 		     * method. We iterate until the BufferedReader return null which means
 		     * there's no more data to read. Each line will appended to a StringBuilder
-		     * and returned as String.
+		     * and returned as String.l
 		     */
 		    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		    StringBuilder sb = new StringBuilder();
