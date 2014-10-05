@@ -5,16 +5,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import android.app.Activity;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,15 +29,15 @@ import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.shav.therottengame.ListViewAdapter;
 import com.shav.therottengame.R;
 import com.shav.therottengame.RottenGoogleClient;
-import com.shav.therottengame.R.anim;
 import com.shav.therottengame.R.id;
 import com.shav.therottengame.R.layout;
 import com.shav.therottengame.network.ApiRequester;
 
 public class GameActivity extends ListActivity implements
-		RealTimeMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,
-		GoogleApiClient.OnConnectionFailedListener {
+RealTimeMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,
+GoogleApiClient.OnConnectionFailedListener {
 	private String TAG = "Vithushan";
+	
 	private ListViewAdapter mAdapter;
 	private ListView mListView;
 	private List<String> mCurrentList;
@@ -45,7 +46,8 @@ public class GameActivity extends ListActivity implements
 	private int mClickCount;
 	private RequestType mCurrentRequestType;
 	private ApiRequester mApiRequester;
-
+	private ProgressBar progressDialog;
+	
 	private Room mRoom;
 	private GoogleApiClient mGoogleApiClient;
 	
@@ -53,11 +55,12 @@ public class GameActivity extends ListActivity implements
 	byte[] mMsgBuf = new byte[1];
 	// My participant ID in the currently active game
 	String mMyId = null;
-
+	
 	private enum RequestType {
-		ACTOR, MOVIE,
+		ACTOR,
+		MOVIE,
 	}
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -78,12 +81,12 @@ public class GameActivity extends ListActivity implements
 		mAdapter = new ListViewAdapter(this, mCurrentList);
 		mListView.setAdapter(mAdapter);
 		mApiRequester = new ApiRequester();
-
-
+		progressDialog = (ProgressBar) findViewById(R.id.progressDialog);
+		
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, final View view,
-					int position, long id) {
+					int position, long id) { 
 				String text = (String) parent.getItemAtPosition(position);
 				if (text.equals(mEndingActor)) {
 					winGame();
@@ -95,10 +98,9 @@ public class GameActivity extends ListActivity implements
 					new NetworkTask().execute("actors", text);
 					mCurrentRequestType = RequestType.MOVIE;
 				}
-
+				
 			}
 		});
-		
 		mGoogleApiClient = RottenGoogleClient.getInstance(this);
 
 		Intent intent = getIntent();
@@ -164,23 +166,6 @@ public class GameActivity extends ListActivity implements
 		}
 	}
 
-	private class NetworkTask extends AsyncTask<String, Void, List<String>> {
-		protected List<String> doInBackground(String... strings) {
-			String downloadType = strings[0];
-			String query = strings[1];
-			if (downloadType == "movies") {
-				return mApiRequester.getMoviesForActor(query);
-			} else {
-				return mApiRequester.getActorsForMovies(query);
-			}
-		}
-
-		protected void onPostExecute(List<String> result) {
-			mCurrentList = result;
-			mAdapter.replaceAndRefreshData(mCurrentList);
-		}
-	}
-
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		// TODO Auto-generated method stub
@@ -198,5 +183,32 @@ public class GameActivity extends ListActivity implements
 		// TODO Auto-generated method stub
 
 	}
+	
+	 private class NetworkTask extends AsyncTask<String, Void, List<String>> {
+		 @Override
+		 protected void onPreExecute()
+		 {
+			 mListView.setVisibility(View.GONE);
+		     progressDialog.setVisibility(View.VISIBLE);                
+		 }; 
+		    
+	     protected List<String> doInBackground(String... strings) {
+	    	 String downloadType = strings[0];
+	    	 String query = strings[1];
+	    	 if (downloadType == "movies") {
+ 	    		 return mApiRequester.getMoviesForActor(query);
+	    	 } else {
+	    		 return mApiRequester.getActorsForMovies(query);
+	    	 }
+	    	 
+	     }
+
+	     protected void onPostExecute(List<String> result) {
+	        mCurrentList = result;
+	        mAdapter.replaceAndRefreshData(mCurrentList);
+	        progressDialog.setVisibility(View.GONE);
+	        mListView.setVisibility(View.VISIBLE);
+	     }
+	 }
 
 }
