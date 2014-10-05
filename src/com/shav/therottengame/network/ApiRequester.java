@@ -22,10 +22,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import android.util.Log;
+
 public class ApiRequester {
 	private static final String MOVIE_NOT_FOUND = "!@#NotFound$%^";
 	public static final String API_KEY = "hj8fvx6ujvzc5pdqqjddhy43";
-	public static final String BASE_URL = "http://rottentomatoes.com/api/public/v1.0/";
+	public static final String BASE_URL = "http://api.rottentomatoes.com/api/public/v1.0/";
 	
 	public List<String> getMoviesForActor (String actor) {
 		List<String> movies = new ArrayList<String>();
@@ -62,7 +64,9 @@ public class ApiRequester {
 		} 
 		JSONObject jResponse = makeRequest(BASE_URL + "movies.json?apikey=" + API_KEY + "&q=" + movie + "&page_limit=1");
 		try {
-			return jResponse.getJSONArray("movies").getString(0);
+			String selfUrl = jResponse.getJSONArray("movies").getJSONObject(0).getJSONObject("links").getString("self");
+			int movieIdIndex = selfUrl.indexOf("movies/") + 6;
+			return selfUrl.substring(movieIdIndex, selfUrl.length() - ".json".length());
 		} catch (JSONException e) {
 			return MOVIE_NOT_FOUND;
 		}
@@ -104,7 +108,6 @@ public class ApiRequester {
 	        HttpEntity entity = response.getEntity();
 	        // If the response does not enclose an entity, there is no need
 	        // to worry about connection release
-
 	        if (entity != null) {
 
 	            // A Simple JSON Response Read
@@ -113,7 +116,6 @@ public class ApiRequester {
 	            jObject = new JSONObject(result);
 	            instream.close();
 	        }
-	        
 
 	    } catch (Exception e) {
 	    	e.printStackTrace();
