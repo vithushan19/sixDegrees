@@ -5,14 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import android.app.Activity;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -29,8 +26,6 @@ import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.shav.therottengame.ListViewAdapter;
 import com.shav.therottengame.R;
 import com.shav.therottengame.RottenGoogleClient;
-import com.shav.therottengame.R.id;
-import com.shav.therottengame.R.layout;
 import com.shav.therottengame.network.ApiRequester;
 
 public class GameActivity extends ListActivity implements
