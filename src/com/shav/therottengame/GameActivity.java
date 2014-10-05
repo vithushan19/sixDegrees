@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import com.shav.therottengame.network.ApiRequester;
 
-public class ListViewActivity extends Activity {
+public class GameActivity extends Activity {
 	
 	private ListViewAdapter mAdapter;
 	private ListView mListView;
