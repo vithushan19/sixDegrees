@@ -106,9 +106,9 @@ public class MainActivity extends Activity implements
 	// Set to false to require the user to click the button in order to sign in.
 	private boolean mAutoStartSignInFlow = true;
 
-	// Room ID where the currently active game is taking place; null if we're
+	// Room where the currently active game is taking place; null if we're
 	// not playing.
-	String mRoomId = null;
+	Room mRoom = null;
 
 	// Are we playing in multiplayer mode?
 	boolean mMultiplayer = false;
@@ -134,11 +134,7 @@ public class MainActivity extends Activity implements
 		setContentView(R.layout.activity_main);
 
 		// Create the Google Api Client with access to Plus and Games
-		mGoogleApiClient = new GoogleApiClient.Builder(this)
-				.addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this).addApi(Plus.API)
-				.addScope(Plus.SCOPE_PLUS_LOGIN).addApi(Games.API)
-				.addScope(Games.SCOPE_GAMES).build();
+		mGoogleApiClient = RottenGoogleClient.getInstance(this);
 
 		// set up a click listener for everything we care about
 		for (int id : CLICKABLES) {
@@ -262,17 +258,7 @@ public class MainActivity extends Activity implements
 				// ready to start playing
 				Log.d(TAG, "Starting game (waiting room returned OK).");
 				startGame(true);
-			} else if (responseCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
-				// player indicated that they want to leave the room
-				leaveRoom();
-			} else if (responseCode == Activity.RESULT_CANCELED) {
-				// Dialog was cancelled (user pressed back key, for instance).
-				// In our game,
-				// this means leaving the room too. In more elaborate games,
-				// this could mean
-				// something else (like minimizing the waiting room UI).
-				leaveRoom();
-			}
+			} 
 			break;
 		case RC_SIGN_IN:
 			Log.d(TAG,
@@ -376,9 +362,6 @@ public class MainActivity extends Activity implements
 	public void onStop() {
 		Log.d(TAG, "**** got onStop");
 
-		// if we're in a room, leave it.
-		leaveRoom();
-
 		// stop trying to keep the screen on
 		stopKeepingScreenOn();
 
@@ -407,31 +390,6 @@ public class MainActivity extends Activity implements
 			mGoogleApiClient.connect();
 		}
 		super.onStart();
-	}
-
-	// Handle back key to make sure we cleanly leave a game if we are in the
-	// middle of one
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent e) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && mCurScreen == R.id.screen_game) {
-			leaveRoom();
-			return true;
-		}
-		return super.onKeyDown(keyCode, e);
-	}
-
-	// Leave the room.
-	void leaveRoom() {
-		Log.d(TAG, "Leaving room.");
-		mSecondsLeft = 0;
-		stopKeepingScreenOn();
-		if (mRoomId != null) {
-			Games.RealTimeMultiplayer.leave(mGoogleApiClient, this, mRoomId);
-			mRoomId = null;
-			switchToScreen(R.id.screen_wait);
-		} else {
-			switchToMainScreen();
-		}
 	}
 
 	// Show the waiting room UI to track the progress of other players as they
@@ -538,17 +496,7 @@ public class MainActivity extends Activity implements
 	@Override
 	public void onConnectedToRoom(Room room) {
 		Log.d(TAG, "onConnectedToRoom.");
-
-		// get room ID, participants and my ID:
-		mRoomId = room.getRoomId();
-		mParticipants = room.getParticipants();
-		mMyId = room.getParticipantId(Games.Players
-				.getCurrentPlayerId(mGoogleApiClient));
-
-		// print out the list of participants (for debug purposes)
-		Log.d(TAG, "Room ID: " + mRoomId);
-		Log.d(TAG, "My ID " + mMyId);
-		Log.d(TAG, "<< CONNECTED TO ROOM>>");
+		mRoom = room;
 	}
 
 	// Called when we've successfully left the room (this happens a result of
@@ -566,7 +514,6 @@ public class MainActivity extends Activity implements
 	// screen.
 	@Override
 	public void onDisconnectedFromRoom(Room room) {
-		mRoomId = null;
 		showGameError();
 	}
 
@@ -599,7 +546,6 @@ public class MainActivity extends Activity implements
 			showGameError();
 			return;
 		}
-		updateRoom(room);
 	}
 
 	@Override
@@ -624,12 +570,10 @@ public class MainActivity extends Activity implements
 	// etc.
 	@Override
 	public void onPeerDeclined(Room room, List<String> arg1) {
-		updateRoom(room);
 	}
 
 	@Override
 	public void onPeerInvitedToRoom(Room room, List<String> arg1) {
-		updateRoom(room);
 	}
 
 	@Override
@@ -642,41 +586,26 @@ public class MainActivity extends Activity implements
 
 	@Override
 	public void onPeerJoined(Room room, List<String> arg1) {
-		updateRoom(room);
 	}
 
 	@Override
 	public void onPeerLeft(Room room, List<String> peersWhoLeft) {
-		updateRoom(room);
 	}
 
 	@Override
 	public void onRoomAutoMatching(Room room) {
-		updateRoom(room);
 	}
 
 	@Override
 	public void onRoomConnecting(Room room) {
-		updateRoom(room);
 	}
 
 	@Override
 	public void onPeersConnected(Room room, List<String> peers) {
-		updateRoom(room);
 	}
 
 	@Override
 	public void onPeersDisconnected(Room room, List<String> peers) {
-		updateRoom(room);
-	}
-
-	void updateRoom(Room room) {
-		if (room != null) {
-			mParticipants = room.getParticipants();
-		}
-		if (mParticipants != null) {
-			updatePeerScoresDisplay();
-		}
 	}
 
 	/*
@@ -699,39 +628,9 @@ public class MainActivity extends Activity implements
 	// Start the gameplay phase of the game.
 	void startGame(boolean multiplayer) {
 		mMultiplayer = multiplayer;
-		updateScoreDisplay();
-		broadcastScore(false);
 		Intent intent = new Intent(this, ListViewActivity.class);
+		intent.putExtra("Room", mRoom);
 		startActivity(intent);
-	}
-
-	// Game tick -- update countdown, check if game ended.
-	void gameTick() {
-		if (mSecondsLeft > 0)
-			--mSecondsLeft;
-
-		// update countdown
-		((TextView) findViewById(R.id.countdown))
-				.setText("0:" + (mSecondsLeft < 10 ? "0" : "")
-						+ String.valueOf(mSecondsLeft));
-
-		if (mSecondsLeft <= 0) {
-			// finish game
-			findViewById(R.id.button_click_me).setVisibility(View.GONE);
-			broadcastScore(true);
-		}
-	}
-
-	// indicates the player scored one point
-	void scoreOnePoint() {
-		if (mSecondsLeft <= 0)
-			return; // too late!
-		++mScore;
-		updateScoreDisplay();
-		updatePeerScoresDisplay();
-
-		// broadcast our new score to our peers
-		broadcastScore(false);
 	}
 
 	/*
@@ -746,74 +645,7 @@ public class MainActivity extends Activity implements
 	// Participants who sent us their final score.
 	Set<String> mFinishedParticipants = new HashSet<String>();
 
-	// Called when we receive a real-time message from the network.
-	// Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'
-	// indicating
-	// whether it's a final or interim score. The second byte is the score.
-	// There is also the
-	// 'S' message, which indicates that the game should start.
-	@Override
-	public void onRealTimeMessageReceived(RealTimeMessage rtm) {
-		byte[] buf = rtm.getMessageData();
-		String sender = rtm.getSenderParticipantId();
-		Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
-
-		if (buf[0] == 'F' || buf[0] == 'U') {
-			// score update.
-			int existingScore = mParticipantScore.containsKey(sender) ? mParticipantScore
-					.get(sender) : 0;
-			int thisScore = (int) buf[1];
-			if (thisScore > existingScore) {
-				// this check is necessary because packets may arrive out of
-				// order, so we
-				// should only ever consider the highest score we received, as
-				// we know in our
-				// game there is no way to lose points. If there was a way to
-				// lose points,
-				// we'd have to add a "serial number" to the packet.
-				mParticipantScore.put(sender, thisScore);
-			}
-
-			// update the scores on the screen
-			updatePeerScoresDisplay();
-
-			// if it's a final score, mark this participant as having finished
-			// the game
-			if ((char) buf[0] == 'F') {
-				mFinishedParticipants.add(rtm.getSenderParticipantId());
-			}
-		}
-	}
-
-	// Broadcast my score to everybody else.
-	void broadcastScore(boolean finalScore) {
-		if (!mMultiplayer)
-			return; // playing single-player mode
-
-		// First byte in message indicates whether it's a final score or not
-		mMsgBuf[0] = (byte) (finalScore ? 'F' : 'U');
-
-		// Second byte is the score.
-		mMsgBuf[1] = (byte) mScore;
-
-		// Send to every other participant.
-		for (Participant p : mParticipants) {
-			if (p.getParticipantId().equals(mMyId))
-				continue;
-			if (p.getStatus() != Participant.STATUS_JOINED)
-				continue;
-			if (finalScore) {
-				// final score notification must be sent via reliable message
-				Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient,
-						null, mMsgBuf, mRoomId, p.getParticipantId());
-			} else {
-				// it's an interim score notification, so we can use unreliable
-				Games.RealTimeMultiplayer.sendUnreliableMessage(
-						mGoogleApiClient, mMsgBuf, mRoomId,
-						p.getParticipantId());
-			}
-		}
-	}
+	
 
 	/*
 	 * UI SECTION. Methods that implement the game's UI.
@@ -863,46 +695,6 @@ public class MainActivity extends Activity implements
 		}
 	}
 
-	// updates the label that shows my score
-	void updateScoreDisplay() {
-		((TextView) findViewById(R.id.my_score)).setText(formatScore(mScore));
-	}
-
-	// formats a score as a three-digit number
-	String formatScore(int i) {
-		if (i < 0)
-			i = 0;
-		String s = String.valueOf(i);
-		return s.length() == 1 ? "00" + s : s.length() == 2 ? "0" + s : s;
-	}
-
-	// updates the screen with the scores from our peers
-	void updatePeerScoresDisplay() {
-		((TextView) findViewById(R.id.score0)).setText(formatScore(mScore)
-				+ " - Me");
-		int[] arr = { R.id.score1, R.id.score2, R.id.score3 };
-		int i = 0;
-
-		if (mRoomId != null) {
-			for (Participant p : mParticipants) {
-				String pid = p.getParticipantId();
-				if (pid.equals(mMyId))
-					continue;
-				if (p.getStatus() != Participant.STATUS_JOINED)
-					continue;
-				int score = mParticipantScore.containsKey(pid) ? mParticipantScore
-						.get(pid) : 0;
-				((TextView) findViewById(arr[i])).setText(formatScore(score)
-						+ " - " + p.getDisplayName());
-				++i;
-			}
-		}
-
-		for (; i < arr.length; ++i) {
-			((TextView) findViewById(arr[i])).setText("");
-		}
-	}
-
 	/*
 	 * MISC SECTION. Miscellaneous methods.
 	 */
@@ -919,5 +711,11 @@ public class MainActivity extends Activity implements
 	// Clears the flag that keeps the screen on.
 	void stopKeepingScreenOn() {
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+	}
+
+	@Override
+	public void onRealTimeMessageReceived(RealTimeMessage arg0) {
+		// TODO Auto-generated method stub
+		Toast.makeText(this, "YOU LOSE", Toast.LENGTH_SHORT).show();
 	}
 }

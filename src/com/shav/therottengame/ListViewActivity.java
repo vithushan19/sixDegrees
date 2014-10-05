@@ -1,22 +1,34 @@
 package com.shav.therottengame;
 
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.multiplayer.Participant;
+import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
+import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
+import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.shav.therottengame.network.ApiRequester;
 
-public class ListViewActivity extends Activity {
-	
+public class ListViewActivity extends Activity implements
+		RealTimeMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,
+		GoogleApiClient.OnConnectionFailedListener {
+	private String TAG = "Vithushan";
 	private ListViewAdapter mAdapter;
 	private ListView mListView;
 	private List<String> mCurrentList;
@@ -25,12 +37,19 @@ public class ListViewActivity extends Activity {
 	private int mClickCount;
 	private RequestType mCurrentRequestType;
 	private ApiRequester mApiRequester;
-	
+
+	private Room mRoom;
+	private GoogleApiClient mGoogleApiClient;
+
+	// Message buffer for sending messages
+	byte[] mMsgBuf = new byte[1];
+	// My participant ID in the currently active game
+	String mMyId = null;
+
 	private enum RequestType {
-		ACTOR,
-		MOVIE,
+		ACTOR, MOVIE,
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,14 +70,16 @@ public class ListViewActivity extends Activity {
 		mAdapter = new ListViewAdapter(this, mCurrentList);
 		mListView.setAdapter(mAdapter);
 		mApiRequester = new ApiRequester();
-		
+
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, final View view,
-					int position, long id) { 
+					int position, long id) {
 				String text = (String) parent.getItemAtPosition(position);
-				if (text.equals(mEndingActor)){
-					Toast.makeText(getApplicationContext(), "You Won", Toast.LENGTH_LONG).show();
+				if (text.equals(mEndingActor)) {
+					Toast.makeText(getApplicationContext(), "You Won",
+							Toast.LENGTH_LONG).show();
+					broadcastScore(true);
 					return;
 				}
 				if (mCurrentRequestType == RequestType.MOVIE) {
@@ -68,26 +89,106 @@ public class ListViewActivity extends Activity {
 					new NetworkTask().execute("actors", text);
 					mCurrentRequestType = RequestType.MOVIE;
 				}
-				
+
 			}
 		});
-	}
-	
-	 private class NetworkTask extends AsyncTask<String, Void, List<String>> {
-	     protected List<String> doInBackground(String... strings) {
-	    	 String downloadType = strings[0];
-	    	 String query = strings[1];
-	    	 if (downloadType == "movies") {
- 	    		 return mApiRequester.getMoviesForActor(query);
-	    	 } else {
-	    		 return mApiRequester.getActorsForMovies(query);
-	    	 }
-	     }
+		mGoogleApiClient = RottenGoogleClient.getInstance(this);
 
-	     protected void onPostExecute(List<String> result) {
-	        mCurrentList = result;
-	        mAdapter.replaceAndRefreshData(mCurrentList);
-	     }
-	 }
+		Intent intent = getIntent();
+		if (intent != null) {
+			mRoom = intent.getParcelableExtra("Room");
+		}
+	}
+
+	protected void onStop() {
+		super.onStop();
+
+	};
+
+	// Called when we receive a real-time message from the network.
+	// Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'
+	// indicating
+	// whether it's a final or interim score. The second byte is the score.
+	// There is also the
+	// 'S' message, which indicates that the game should start.
+
+	// Participants who sent us their final score.
+	Set<String> mFinishedParticipants = new HashSet<String>();
+
+	@Override
+	public void onRealTimeMessageReceived(RealTimeMessage rtm) {
+		byte[] buf = rtm.getMessageData();
+		Log.d(TAG, "Message received: " + (char) buf[0]);
+
+		if ((char) buf[0] == 'F') {
+			mFinishedParticipants.add(rtm.getSenderParticipantId());
+			if (rtm.getSenderParticipantId() != mMyId) {
+				Toast.makeText(this, "YOU LOST", Toast.LENGTH_SHORT).show();
+			}
+
+		}
+	}
+
+	// Broadcast my score to everybody else.
+	void broadcastScore(boolean finalScore) {
+
+		// First byte in message indicates whether it's a final score or not
+		mMsgBuf[0] = (byte) (finalScore ? 'F' : 'U');
+		mMyId = mRoom.getParticipantId(Games.Players
+				.getCurrentPlayerId(mGoogleApiClient));
+
+		// Send to every other participant.
+		for (Participant p : mRoom.getParticipants()) {
+			if (p.getParticipantId().equals(mMyId))
+				continue;
+			if (p.getStatus() != Participant.STATUS_JOINED)
+				continue;
+			if (finalScore) {
+				// final score notification must be sent via reliable message
+				Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient,
+						null, mMsgBuf, mRoom.getRoomId(), p.getParticipantId());
+			} else {
+				// it's an interim score notification, so we can use unreliable
+				Games.RealTimeMultiplayer.sendUnreliableMessage(
+						mGoogleApiClient, mMsgBuf, mRoom.getRoomId(),
+						p.getParticipantId());
+			}
+		}
+	}
+
+	private class NetworkTask extends AsyncTask<String, Void, List<String>> {
+		protected List<String> doInBackground(String... strings) {
+			String downloadType = strings[0];
+			String query = strings[1];
+			if (downloadType == "movies") {
+				return mApiRequester.getMoviesForActor(query);
+			} else {
+				return mApiRequester.getActorsForMovies(query);
+			}
+		}
+
+		protected void onPostExecute(List<String> result) {
+			mCurrentList = result;
+			mAdapter.replaceAndRefreshData(mCurrentList);
+		}
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onConnected(Bundle arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onConnectionSuspended(int arg0) {
+		// TODO Auto-generated method stub
+
+	}
 
 }
