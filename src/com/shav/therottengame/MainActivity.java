@@ -628,7 +628,7 @@ public class MainActivity extends Activity implements
 	// Start the gameplay phase of the game.
 	void startGame(boolean multiplayer) {
 		mMultiplayer = multiplayer;
-		Intent intent = new Intent(this, ListViewActivity.class);
+		Intent intent = new Intent(this, GameActivity.class);
 		intent.putExtra("Room", mRoom);
 		startActivity(intent);
 	}

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,7 +26,7 @@ import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceived
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.shav.therottengame.network.ApiRequester;
 
-public class ListViewActivity extends Activity implements
+public class GameActivity extends ListActivity implements
 		RealTimeMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener {
 	private String TAG = "Vithushan";
@@ -53,8 +54,8 @@ public class ListViewActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-		mListView = (ListView) findViewById(R.id.listview);
+		setContentView(R.layout.activity_game);
+		mListView = (ListView) findViewById(android.R.id.list);
 		TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
 		TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
 		mCurrentList = new ArrayList<String>();
