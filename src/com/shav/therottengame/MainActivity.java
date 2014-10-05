@@ -155,10 +155,27 @@ public class MainActivity extends Activity implements
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				Intent intent;
+
 				switch (position) {
 				case 0:
+					resetGameVars();
 					startGame(false);
 					break;
+				case 1:
+					startQuickGame();
+					break;
+				case 2:
+					intent = Games.RealTimeMultiplayer
+							.getSelectOpponentsIntent(mGoogleApiClient, 1, 7);
+					switchToScreen(R.id.screen_wait);
+					startActivityForResult(intent, RC_SELECT_PLAYERS);
+					break;
+				case 3:
+					intent = Games.Invitations
+							.getInvitationInboxIntent(mGoogleApiClient);
+					switchToScreen(R.id.screen_wait);
+					startActivityForResult(intent, RC_INVITATION_INBOX);
 				}
 			}
 		});
@@ -193,12 +210,7 @@ public class MainActivity extends Activity implements
 	// Games.signOut(mGoogleApiClient);
 	// mGoogleApiClient.disconnect();
 	// switchToScreen(R.id.screen_sign_in);
-	// } else if (id == R.id.button_invite_players) {
-	// // show list of invitable players
-	// intent = Games.RealTimeMultiplayer.getSelectOpponentsIntent(
-	// mGoogleApiClient, 1, 7);
-	// switchToScreen(R.id.screen_wait);
-	// startActivityForResult(intent, RC_SELECT_PLAYERS);
+	//
 	// } else if (id == R.id.button_see_invitations) {
 	// // show list of pending invitations
 	// intent = Games.Invitations
@@ -919,7 +931,12 @@ public class MainActivity extends Activity implements
 
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.button_sign_in:
+			resetGameVars();
+			startGame(false);
+			break;
+		}
 
 	}
 }
