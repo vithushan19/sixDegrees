@@ -32,7 +32,9 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -124,7 +126,7 @@ public class MainActivity extends Activity implements
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
 
-	private GridView mGridView;
+	private ListView mGridView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -144,15 +146,20 @@ public class MainActivity extends Activity implements
 		}
 
 		int[] buttonTitles = { R.string.single_player, R.string.quick_game,
-				R.string.invite_players, R.string.see_invitations, R.string.sign_out };
-		mGridView = (GridView) findViewById(R.id.main_gridview);
+				R.string.invite_players, R.string.see_invitations,
+				R.string.sign_out };
+		mGridView = (ListView) findViewById(R.id.main_gridview);
 		mGridView.setAdapter(new MainButtonAdapter(this, buttonTitles));
-		mGridView.setOnItemClickListener(new OnItemClickListener() {
 
+		mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
-				Log.d("TASK", "tks");
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				switch (position) {
+				case 0:
+					startGame(false);
+					break;
+				}
 			}
 		});
 	}
