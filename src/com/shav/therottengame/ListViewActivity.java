@@ -42,7 +42,7 @@ public class ListViewActivity extends Activity {
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, final View view,
-					int position, long id) {
+					int position, long id) { 
 				String text = (String) parent.getItemAtPosition(position);
 				if (mClickCount % 2 == 0) {
 					new NetworkTask().execute("movies", text);
@@ -59,7 +59,7 @@ public class ListViewActivity extends Activity {
 	    	 String downloadType = strings[0];
 	    	 String query = strings[1];
 	    	 if (downloadType == "movies") {
-	    		 return mApiRequester.getMoviesForActor(query);
+ 	    		 return mApiRequester.getMoviesForActor(query);
 	    	 } else {
 	    		 return null;
 	    	 }

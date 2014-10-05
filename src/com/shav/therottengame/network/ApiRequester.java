@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,6 +23,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class ApiRequester {
+	private static final String MOVIE_NOT_FOUND = "!@#NotFound$%^";
+	public static final String API_KEY = "hj8fvx6ujvzc5pdqqjddhy43";
+	public static final String BASE_URL = "http://rottentomatoes.com/api/public/v1.0/";
 	
 	public List<String> getMoviesForActor (String actor) {
 		List<String> movies = new ArrayList<String>();
@@ -28,7 +35,7 @@ public class ApiRequester {
                 i++;
             }
         }
-		actor.replaceAll("\\s+","_").toLowerCase();
+		actor = actor.replaceAll("\\s+","_").toLowerCase();
 //        actor = actor.replace(" ", "_").toLowerCase();l
         try {
             Document doc = Jsoup.connect("http://www.rottentomatoes.com/celebrity/" + actor + "/").get();
@@ -45,6 +52,39 @@ public class ApiRequester {
         }
         
         return movies;
+	}
+	
+	public String getMovieId (String movie) {
+		try {
+			movie = URLEncoder.encode(movie, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} 
+		JSONObject jResponse = makeRequest(BASE_URL + "movies.json?apikey=" + API_KEY + "&q=" + movie + "&page_limit=1");
+		try {
+			return jResponse.getJSONArray("movies").getString(0);
+		} catch (JSONException e) {
+			return MOVIE_NOT_FOUND;
+		}
+	}
+	
+	public List<String> getActorsForMovies (String movie) {
+		
+		String movieId = getMovieId(movie);
+		if (movieId.equals(MOVIE_NOT_FOUND))
+			return null;
+		
+		JSONObject jResponse = makeRequest(BASE_URL + "movies/" + movieId + "/cast.json?apikey=" + API_KEY);
+		List<String> cast = new ArrayList<String>();
+		try {
+			JSONArray jCast = jResponse.getJSONArray("cast");
+			for (int i = 0; i < jCast.length();i++) {
+				cast.add(((JSONObject)jCast.get(i)).getString("name"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return cast;
 	}
 
 	public JSONObject makeRequest (String url) {
