@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.http.message.BasicNameValuePair;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -36,9 +38,9 @@ public class GameActivity extends ListActivity implements
 
 	private ListViewAdapter mAdapter;
 	private ListView mListView;
-	private List<String> mCurrentList;
-	private String mStartingActor;
-	private String mEndingActor;
+	private List<BasicNameValuePair> mCurrentList;
+	private BasicNameValuePair mStartingActor;
+	private BasicNameValuePair mEndingActor;
 	private int mClickCount;
 	private RequestType mCurrentRequestType;
 	private MovieAPIClient mAPIClient;
@@ -63,43 +65,46 @@ public class GameActivity extends ListActivity implements
 		mListView = (ListView) findViewById(android.R.id.list);
 		final TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
 		final TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
-		mCurrentList = new ArrayList<String>();
+		mCurrentList = new ArrayList<BasicNameValuePair>();
 
 		mClickCount = 0;
 		mAdapter = new ListViewAdapter(this, mCurrentList);
 		mListView.setAdapter(mAdapter);
-		
-		final AsyncTask<Void, Void, String> getFirstActorTask = new AsyncTask<Void, Void, String>() {
+
+		final AsyncTask<Void, Void, BasicNameValuePair> getFirstActorTask = new AsyncTask<Void, Void, BasicNameValuePair>() {
 
 			@Override
-			protected String doInBackground(Void... params) {
+			protected BasicNameValuePair doInBackground(Void... params) {
 				return mAPIClient.getFirstActor();
 			}
-			
+
 			@Override
-			protected void onPostExecute(String result) {
+			protected void onPostExecute(BasicNameValuePair result) {
 				super.onPostExecute(result);
 				mStartingActor = result;
-				startingActortv.setText(mStartingActor);
+				new NetworkTask().execute(0, Integer.valueOf(mStartingActor.getValue()));
+				mCurrentRequestType = RequestType.ACTOR;
+				startingActortv.setText(mStartingActor.getName());
 			}
-			
+
 		};
-		
-		final AsyncTask<Void, Void, String> getLastActorTask = new AsyncTask<Void, Void, String>() {
-			
+
+		final AsyncTask<Void, Void, BasicNameValuePair> getLastActorTask = new AsyncTask<Void, Void, BasicNameValuePair>() {
+
 			@Override
-			protected String doInBackground(Void... params) {
-				return  mAPIClient.getLastActor();
+			protected BasicNameValuePair doInBackground(Void... params) {
+				return mAPIClient.getLastActor();
 			}
-			
+
 			@Override
-			protected void onPostExecute(String result) {
+			protected void onPostExecute(BasicNameValuePair result) {
 				super.onPostExecute(result);
 				mEndingActor = result;
-				endingActortv.setText(mEndingActor);
+				endingActortv.setText(mEndingActor.getName());
 			}
-			
+
 		};
+
 		new AsyncTask<Void, Void, Void>() {
 
 			@Override
@@ -126,16 +131,19 @@ public class GameActivity extends ListActivity implements
 
 			public void onItemClick(AdapterView<?> parent, final View view,
 					int position, long id) {
-				String text = (String) parent.getItemAtPosition(position);
-				if (text.equals(mEndingActor)) {
+				String text = ((BasicNameValuePair) parent
+						.getItemAtPosition(position)).getName();
+				int objId = Integer.valueOf(((BasicNameValuePair) parent
+						.getItemAtPosition(position)).getValue());
+				if (text.equals(mEndingActor.getName())) {
 					winGame();
 					return;
 				}
 				if (mCurrentRequestType == RequestType.MOVIE) {
-					new NetworkTask().execute("movies", text);
+					new NetworkTask().execute(0, objId);
 					mCurrentRequestType = RequestType.ACTOR;
 				} else {
-					new NetworkTask().execute("actors", text);
+					new NetworkTask().execute(1, objId);
 					mCurrentRequestType = RequestType.MOVIE;
 				}
 
@@ -147,8 +155,6 @@ public class GameActivity extends ListActivity implements
 		if (intent != null) {
 			mRoom = intent.getParcelableExtra("Room");
 		}
-		new NetworkTask().execute("movies", mStartingActor);
-		mCurrentRequestType = RequestType.ACTOR;
 
 	}
 
@@ -229,23 +235,25 @@ public class GameActivity extends ListActivity implements
 
 	}
 
-	private class NetworkTask extends AsyncTask<String, Void, List<String>> {
+	private class NetworkTask extends
+			AsyncTask<Integer, Void, List<BasicNameValuePair>> {
 		@Override
 		protected void onPreExecute() {
 			mListView.setVisibility(View.GONE);
 			progressDialog.setVisibility(View.VISIBLE);
 		};
 
-		protected List<String> doInBackground(String... strings) {
-			String downloadType = strings[0];
-			String query = strings[1];
-			int id = 0;
+		protected List<BasicNameValuePair> doInBackground(Integer... params) {
+			int downloadType = params[0];
+			int id = params[1];
 
 			try {
-				if (downloadType == "movies") {
-					return mAPIClient.getMoviesForActor(880);
+				// 0 - movies
+				// 1 - actors
+				if (downloadType == 0) {
+					return mAPIClient.getMoviesForActor(id);
 				} else {
-					return mAPIClient.getMovieCast(210577);
+					return mAPIClient.getMovieCast(id);
 				}
 			} catch (MovieDbException e) {
 				// TODO Auto-generated catch block
@@ -255,7 +263,7 @@ public class GameActivity extends ListActivity implements
 			return null;
 		}
 
-		protected void onPostExecute(List<String> result) {
+		protected void onPostExecute(List<BasicNameValuePair> result) {
 			mCurrentList = result;
 			mAdapter.replaceAndRefreshData(mCurrentList);
 			progressDialog.setVisibility(View.GONE);

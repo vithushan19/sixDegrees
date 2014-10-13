@@ -3,6 +3,8 @@ package com.shav.therottengame.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.message.BasicNameValuePair;
+
 import android.util.Log;
 
 import com.omertron.themoviedbapi.MovieDbException;
@@ -16,7 +18,7 @@ public class TMDBClient implements MovieAPIClient {
 	private String API_KEY = "4e83b0a69397058d51b07371e1eb131a";
 	private String BEN_AFFLECK = "880";
 	private String GONE_GIRL = "210577";
-	private List<String> mPopularActors;
+	private List<BasicNameValuePair> mPopularActors;
 	
 	public TMDBClient() throws MovieDbException {
 		tmdb = new TheMovieDbApi(API_KEY);
@@ -24,50 +26,58 @@ public class TMDBClient implements MovieAPIClient {
 	}
 
 	@Override
-	public List<String> getMovieCast(int movieId) throws MovieDbException {
+	public List<BasicNameValuePair> getMovieCast(int movieId) throws MovieDbException {
 
 		List<Person> cast = tmdb.getMovieCasts(movieId, "").getResults();
-		List<String> castNames = new ArrayList<String>();
+		List<BasicNameValuePair> castNames = new ArrayList<BasicNameValuePair>();
 		for (Person person : cast) {
-			castNames.add(person.getName());
+			BasicNameValuePair item = new BasicNameValuePair(person.getName(), String.valueOf(person.getId()));
+			castNames.add(item);
 		}
 
 		return castNames;
 	}
 
 	@Override
-	public List<String> getMoviesForActor(int actorId) throws MovieDbException {
+	public List<BasicNameValuePair> getMoviesForActor(int actorId) throws MovieDbException {
 		List<PersonCredit> movies = tmdb.getPersonCredits(actorId, "")
 				.getResults();
-		List<String> movieNames = new ArrayList<String>();
+		List<BasicNameValuePair> movieList = new ArrayList<BasicNameValuePair>();
 		for (PersonCredit movie : movies) {
-			movieNames.add(movie.getMovieTitle());
+			BasicNameValuePair item = new BasicNameValuePair(movie.getMovieTitle(), String.valueOf(movie.getMovieId()));
+			movieList.add(item);
 		}
 
-		return movieNames;
+		return movieList;
 
 	}
 
-	public List<String> getPopularActors() throws MovieDbException {
+	public List<BasicNameValuePair> getPopularActors() throws MovieDbException {
 		List<Person> popularPeople = tmdb.getPersonPopular().getResults();
-		List<String> popularPeopleNames = new ArrayList<String>();
+		List<BasicNameValuePair> popularPeopleList = new ArrayList<BasicNameValuePair>();
 		for (Person popularPerson : popularPeople) {
-			popularPeopleNames.add(popularPerson.getName());
+			BasicNameValuePair item = new BasicNameValuePair(popularPerson.getName(), String.valueOf(popularPerson.getId()));
+			popularPeopleList.add(item);
 			Log.d("VITHUSHAN", popularPerson.getName());
 		}
 		
-		return popularPeopleNames;
+		return popularPeopleList;
+	}
+	
+	public String getActorName (int id) throws MovieDbException {
+		String name = tmdb.getPersonInfo(id, "").getName();
+		return name;
 	}
 	
 	// TODO: Rand this
 	@Override
-	public String getFirstActor() {
-	    return mPopularActors.get(0);
+	public BasicNameValuePair getFirstActor() {
+	    return mPopularActors.get(9);
 	}
 	
 	@Override
-	public String getLastActor() {
-		return mPopularActors.get(1);
+	public BasicNameValuePair getLastActor() {
+		return mPopularActors.get(16);
 		
 	}
 	

@@ -3,6 +3,8 @@ package com.shav.therottengame;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.message.BasicNameValuePair;
+
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -14,16 +16,16 @@ import android.widget.TextView;
 public class ListViewAdapter extends BaseAdapter {
 	
 	private final Context mContext;
-	private List<String> mData;
+	private List<BasicNameValuePair> mData;
 	
-	public ListViewAdapter(Context context, List<String> data){
+	public ListViewAdapter(Context context, List<BasicNameValuePair> data){
 		super();
 		mContext = context;
 		mData = data;
 	}
 	
-	public void replaceAndRefreshData(List<String> data){
-		mData = new ArrayList<String>();
+	public void replaceAndRefreshData(List<BasicNameValuePair> data){
+		mData = new ArrayList<BasicNameValuePair>();
 		mData.addAll(data);
 		notifyDataSetChanged();
 	}
@@ -38,8 +40,8 @@ public class ListViewAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public String getItem(int arg0) {
-		return mData.get(arg0);
+	public BasicNameValuePair getItem(int pos) {
+		return mData.get(pos);
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public class ListViewAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        holder.textView.setText(getItem(position));
+        holder.textView.setText(getItem(position).getName());
         return convertView;
     }
 
