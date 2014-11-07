@@ -18,13 +18,15 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <color name="AccentColor">#FFCC00</color>
-    <color name="BlueColor">#336699</color>
+    <color name="BlueColor">#6699FF</color>
     <color name="PopupColor">@color/AccentColor</color>
     <color name="PopupTextColor">#ffffff</color>
     <color name="ButtonTextColor">#000000</color>
     <color name="BlurbColor">#a0a0a0</color>
     <color name="SignOutButtonBackground">#e0e0e0</color>
     <color name="SignOutButtonTextColor">#404040</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
 
     <dimen name="TitleSize">30sp</dimen>
 
