@@ -49,8 +49,8 @@ public class TMDBClient implements MovieAPIClient {
 		List<IHollywoodObject> movieList = new ArrayList<IHollywoodObject>();
 		for (PersonCredit movie : movies) {
 			URL url = tmdb.createImageUrl(movie.getPosterPath(), "w92");
-			Movie item = new Movie(String.valueOf(movie
-					.getMovieId()), movie.getMovieTitle(), url.toString());
+			Movie item = new Movie(String.valueOf(movie.getMovieId()),
+					movie.getMovieTitle(), url.toString());
 			movieList.add(item);
 		}
 
@@ -63,9 +63,11 @@ public class TMDBClient implements MovieAPIClient {
 		List<Actor> popularPeopleList = new ArrayList<Actor>();
 		for (Person popularPerson : popularPeople) {
 			String id = String.valueOf(popularPerson.getId());
-			Actor item = new Actor(id, popularPerson.getName(),
-					popularPerson.getProfilePath());
+			URL url = tmdb
+					.createImageUrl(popularPerson.getProfilePath(), "w92");
+			Actor item = new Actor(id, popularPerson.getName(), url.toString());
 			popularPeopleList.add(item);
+
 		}
 
 		return popularPeopleList;

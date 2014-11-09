@@ -26,8 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:paddingTop="10dp"
-                android:src="@drawable/question_mark" />
+                android:paddingTop="10dp" />
 
             <TextView
                 android:id="@+id/textViewStarting"
@@ -54,8 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
-                android:layout_gravity="center"
-                android:src="@drawable/question_mark" />
+                android:layout_gravity="center"/>
 
             <TextView
                 android:id="@+id/textViewEnding"

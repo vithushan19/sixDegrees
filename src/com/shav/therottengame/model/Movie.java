@@ -7,6 +7,9 @@ public class Movie implements IHollywoodObject {
 	Triplet<String, String, String> data = null;
 
 	public Movie(String id, String name, String imgURL) {
+		if ("http://image.tmdb.org/t/p/w92".equals(imgURL)) {
+			imgURL = "";
+		}
 		data = new Triplet<String, String, String>(id, name, imgURL);
 	}
 

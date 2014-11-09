@@ -73,11 +73,10 @@ public class ListViewAdapter extends BaseAdapter {
         holder.textView.setText(getItem(position).getName());
         
 
-        if ("http://image.tmdb.org/t/p/w92".equals(getItem(position).getImageURL())) {
+        if (StringUtils.isEmpty(getItem(position).getImageURL())) {
         	// TODO get a better asset/
         	holder.imageView.setImageResource(R.drawable.question_mark);
         } else {
-        	//holder.imageView.setImageResource(R.drawable.question_mark);
         	Picasso.with(mContext).load(getItem(position).getImageURL()).into(holder.imageView);
         }
         Log.d("VITH", getItem(position).getImageURL());

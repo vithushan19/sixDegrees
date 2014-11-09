@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.app.ListActivity;
@@ -13,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,6 +35,7 @@ import com.shav.therottengame.api.TMDBClient;
 import com.shav.therottengame.model.Actor;
 import com.shav.therottengame.model.IHollywoodObject;
 import com.shav.therottengame.util.javatuples.Triplet;
+import com.squareup.picasso.Picasso;
 
 public class GameActivity extends ListActivity implements
 		RealTimeMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,
@@ -68,6 +71,8 @@ public class GameActivity extends ListActivity implements
 		mListView = (ListView) findViewById(android.R.id.list);
 		final TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
 		final TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
+		final ImageView startingImageView = (ImageView) findViewById(R.id.imageview_starting_actor);
+		final ImageView endingImageView = (ImageView) findViewById(R.id.imageview_ending_actor);
 		mCurrentList = new ArrayList<IHollywoodObject>();
 
 		mClickCount = 0;
@@ -89,6 +94,13 @@ public class GameActivity extends ListActivity implements
 						Integer.valueOf(mStartingActor.getId()));
 				mCurrentRequestType = RequestType.ACTOR;
 				startingActortv.setText(mStartingActor.getName());
+				
+				if (StringUtils.isEmpty(mStartingActor.getImageURL())) {
+					startingImageView.setImageResource(R.drawable.question_mark);
+				} else {
+		        	Picasso.with(getBaseContext()).load(mStartingActor.getImageURL()).into(startingImageView);
+				}
+				
 			}
 
 		};
@@ -105,6 +117,12 @@ public class GameActivity extends ListActivity implements
 				super.onPostExecute(result);
 				mEndingActor = result;
 				endingActortv.setText(mEndingActor.getName());
+				
+				if (StringUtils.isEmpty(mEndingActor.getImageURL())) {
+					startingImageView.setImageResource(R.drawable.question_mark);
+				} else {
+		        	Picasso.with(getBaseContext()).load(mEndingActor.getImageURL()).into(endingImageView);
+				}
 			}
 
 		};
