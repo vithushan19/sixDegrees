@@ -10,7 +10,7 @@
         android:id="@+id/textview_status"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/AccentColor"
+        android:background="@color/GoldColor"
         android:gravity="center"
         android:padding="40dp"
         android:layout_centerInParent="true"

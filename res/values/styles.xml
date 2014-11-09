@@ -17,9 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <color name="AccentColor">#FFCC00</color>
+    <color name="GoldColor">#FFCCFF</color>
     <color name="BlueColor">#6699FF</color>
-    <color name="PopupColor">@color/AccentColor</color>
+    <color name="DarkBlueColor">#66CCFF</color>
+    <color name="PopupColor">@color/GoldColor</color>
     <color name="PopupTextColor">#ffffff</color>
     <color name="ButtonTextColor">#000000</color>
     <color name="BlurbColor">#a0a0a0</color>
@@ -64,7 +65,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:text">@string/game_title</item>
-        <item name="android:textColor">@color/AccentColor</item>
+        <item name="android:textColor">@color/GoldColor</item>
         <item name="android:textSize">@dimen/TitleSize</item>
         <item name="android:layout_marginBottom">40dp</item>
     </style>
@@ -89,7 +90,7 @@
     <style name="GameButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@color/AccentColor</item>
+        <item name="android:background">@color/GoldColor</item>
         <item name="android:textColor">@color/ButtonTextColor</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
@@ -114,7 +115,7 @@
 
     <style name="InvPopupButton" parent="@style/GameButton">
         <item name="android:background">@color/ButtonTextColor</item>
-        <item name="android:textColor">@color/AccentColor</item>
+        <item name="android:textColor">@color/GoldColor</item>
     </style>
 
     <style name="SignOutButton" parent="@style/GameButton">
@@ -182,7 +183,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">30sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/AccentColor</item>
+        <item name="android:textColor">@color/GoldColor</item>
         <item name="android:layout_marginBottom">10dp</item>
     </style>
 
@@ -195,7 +196,7 @@
     <style name="SectionLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/AccentColor</item>
+        <item name="android:textColor">@color/GoldColor</item>
         <item name="android:textSize">20sp</item>
         <item name="android:layout_marginBottom">20dp</item>
     </style>

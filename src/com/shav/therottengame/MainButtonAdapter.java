@@ -41,7 +41,7 @@ public class MainButtonAdapter extends BaseAdapter {
 			case 2:
 			case 4:
 				gridView.setBackgroundColor(context.getResources().getColor(
-						R.color.AccentColor));
+						R.color.GoldColor));
 				gridView.setTextColor(context.getResources().getColor(
 						R.color.BlueColor));
 				break;
@@ -51,7 +51,7 @@ public class MainButtonAdapter extends BaseAdapter {
 				gridView.setBackgroundColor(context.getResources().getColor(
 						R.color.BlueColor));
 				gridView.setTextColor(context.getResources().getColor(
-						R.color.AccentColor));
+						R.color.GoldColor));
 
 			}
 
