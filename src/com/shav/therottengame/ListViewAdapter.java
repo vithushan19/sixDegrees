@@ -3,6 +3,8 @@ package com.shav.therottengame;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -69,7 +71,16 @@ public class ListViewAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         holder.textView.setText(getItem(position).getName());
-        Picasso.with(mContext).load(getItem(position).getImageURL()).into(holder.imageView);
+        
+
+        if ("http://image.tmdb.org/t/p/w92".equals(getItem(position).getImageURL())) {
+        	// TODO get a better asset/
+        	holder.imageView.setImageResource(R.drawable.question_mark);
+        } else {
+        	//holder.imageView.setImageResource(R.drawable.question_mark);
+        	Picasso.with(mContext).load(getItem(position).getImageURL()).into(holder.imageView);
+        }
+        Log.d("VITH", getItem(position).getImageURL());
         return convertView;
     }
 
