@@ -30,6 +30,9 @@ import com.shav.therottengame.R;
 import com.shav.therottengame.RottenGoogleClient;
 import com.shav.therottengame.api.MovieAPIClient;
 import com.shav.therottengame.api.TMDBClient;
+import com.shav.therottengame.model.Actor;
+import com.shav.therottengame.model.IHollywoodObject;
+import com.shav.therottengame.util.javatuples.Triplet;
 
 public class GameActivity extends ListActivity implements
 		RealTimeMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,
@@ -38,9 +41,9 @@ public class GameActivity extends ListActivity implements
 
 	private ListViewAdapter mAdapter;
 	private ListView mListView;
-	private List<BasicNameValuePair> mCurrentList;
-	private BasicNameValuePair mStartingActor;
-	private BasicNameValuePair mEndingActor;
+	private List<IHollywoodObject> mCurrentList;
+	private Actor mStartingActor;
+	private Actor mEndingActor;
 	private int mClickCount;
 	private RequestType mCurrentRequestType;
 	private MovieAPIClient mAPIClient;
@@ -65,39 +68,40 @@ public class GameActivity extends ListActivity implements
 		mListView = (ListView) findViewById(android.R.id.list);
 		final TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
 		final TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
-		mCurrentList = new ArrayList<BasicNameValuePair>();
+		mCurrentList = new ArrayList<IHollywoodObject>();
 
 		mClickCount = 0;
 		mAdapter = new ListViewAdapter(this, mCurrentList);
 		mListView.setAdapter(mAdapter);
 
-		final AsyncTask<Void, Void, BasicNameValuePair> getFirstActorTask = new AsyncTask<Void, Void, BasicNameValuePair>() {
+		final AsyncTask<Void, Void, Actor> getFirstActorTask = new AsyncTask<Void, Void, Actor>() {
 
 			@Override
-			protected BasicNameValuePair doInBackground(Void... params) {
+			protected Actor doInBackground(Void... params) {
 				return mAPIClient.getFirstActor();
 			}
 
 			@Override
-			protected void onPostExecute(BasicNameValuePair result) {
+			protected void onPostExecute(Actor result) {
 				super.onPostExecute(result);
 				mStartingActor = result;
-				new NetworkTask().execute(0, Integer.valueOf(mStartingActor.getValue()));
+				new NetworkTask().execute(0,
+						Integer.valueOf(mStartingActor.getId()));
 				mCurrentRequestType = RequestType.ACTOR;
 				startingActortv.setText(mStartingActor.getName());
 			}
 
 		};
 
-		final AsyncTask<Void, Void, BasicNameValuePair> getLastActorTask = new AsyncTask<Void, Void, BasicNameValuePair>() {
+		final AsyncTask<Void, Void, Actor> getLastActorTask = new AsyncTask<Void, Void, Actor>() {
 
 			@Override
-			protected BasicNameValuePair doInBackground(Void... params) {
+			protected Actor doInBackground(Void... params) {
 				return mAPIClient.getLastActor();
 			}
 
 			@Override
-			protected void onPostExecute(BasicNameValuePair result) {
+			protected void onPostExecute(Actor result) {
 				super.onPostExecute(result);
 				mEndingActor = result;
 				endingActortv.setText(mEndingActor.getName());
@@ -131,10 +135,10 @@ public class GameActivity extends ListActivity implements
 
 			public void onItemClick(AdapterView<?> parent, final View view,
 					int position, long id) {
-				String text = ((BasicNameValuePair) parent
+				String text = ((IHollywoodObject) parent
 						.getItemAtPosition(position)).getName();
-				int objId = Integer.valueOf(((BasicNameValuePair) parent
-						.getItemAtPosition(position)).getValue());
+				int objId = Integer.valueOf(((IHollywoodObject) parent
+						.getItemAtPosition(position)).getId());
 				if (text.equals(mEndingActor.getName())) {
 					winGame();
 					return;
@@ -158,6 +162,7 @@ public class GameActivity extends ListActivity implements
 
 	}
 
+	// TODO change this to a postgame fragment
 	protected void winGame() {
 		broadcastScore(true);
 		Intent intent = new Intent(this, GameOverActivity.class);
@@ -236,14 +241,14 @@ public class GameActivity extends ListActivity implements
 	}
 
 	private class NetworkTask extends
-			AsyncTask<Integer, Void, List<BasicNameValuePair>> {
+			AsyncTask<Integer, Void, List<IHollywoodObject>> {
 		@Override
 		protected void onPreExecute() {
 			mListView.setVisibility(View.GONE);
 			progressDialog.setVisibility(View.VISIBLE);
 		};
 
-		protected List<BasicNameValuePair> doInBackground(Integer... params) {
+		protected List<IHollywoodObject> doInBackground(Integer... params) {
 			int downloadType = params[0];
 			int id = params[1];
 
@@ -263,7 +268,7 @@ public class GameActivity extends ListActivity implements
 			return null;
 		}
 
-		protected void onPostExecute(List<BasicNameValuePair> result) {
+		protected void onPostExecute(List<IHollywoodObject> result) {
 			mCurrentList = result;
 			mAdapter.replaceAndRefreshData(mCurrentList);
 			progressDialog.setVisibility(View.GONE);

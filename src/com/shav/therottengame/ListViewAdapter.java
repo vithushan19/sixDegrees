@@ -3,35 +3,40 @@ package com.shav.therottengame;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.message.BasicNameValuePair;
-
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.shav.therottengame.model.IHollywoodObject;
+import com.squareup.picasso.Picasso;
 
 public class ListViewAdapter extends BaseAdapter {
 	
 	private final Context mContext;
-	private List<BasicNameValuePair> mData;
+	private List<IHollywoodObject> mData;
 	
-	public ListViewAdapter(Context context, List<BasicNameValuePair> data){
+	public ListViewAdapter(Context context, List<IHollywoodObject> mCurrentList){
 		super();
 		mContext = context;
-		mData = data;
+		mData = mCurrentList;
 	}
 	
-	public void replaceAndRefreshData(List<BasicNameValuePair> data){
-		mData = new ArrayList<BasicNameValuePair>();
+	public void replaceAndRefreshData(List<IHollywoodObject> data){
+		mData = new ArrayList<IHollywoodObject>();
 		mData.addAll(data);
 		notifyDataSetChanged();
 	}
 	
 	private static class ViewHolder {
         TextView textView;
+        ImageView imageView;
     }
 	
 	@Override
@@ -40,7 +45,7 @@ public class ListViewAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public BasicNameValuePair getItem(int pos) {
+	public IHollywoodObject getItem(int pos) {
 		return mData.get(pos);
 	}
 
@@ -57,11 +62,14 @@ public class ListViewAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.listrow, parent, false);
             holder = new ViewHolder();
             holder.textView = (TextView) convertView.findViewById(R.id.textViewRow);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.imageViewRow);
             convertView.setTag(holder);
+            
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
         holder.textView.setText(getItem(position).getName());
+        Picasso.with(mContext).load(getItem(position).getImageURL()).into(holder.imageView);
         return convertView;
     }
 
