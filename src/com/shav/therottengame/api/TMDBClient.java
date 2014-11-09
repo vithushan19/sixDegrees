@@ -35,7 +35,9 @@ public class TMDBClient implements MovieAPIClient {
 			URL url = tmdb.createImageUrl(person.getProfilePath(), "w92");
 			Actor item = new Actor(String.valueOf(person.getId()),
 					person.getName(), url.toString());
-			castNames.add(item);
+			if (!castNames.contains(item)) {
+				castNames.add(item);
+			}
 		}
 
 		return castNames;
@@ -51,7 +53,9 @@ public class TMDBClient implements MovieAPIClient {
 			URL url = tmdb.createImageUrl(movie.getPosterPath(), "w92");
 			Movie item = new Movie(String.valueOf(movie.getMovieId()),
 					movie.getMovieTitle(), url.toString());
-			movieList.add(item);
+			if (!movieList.contains(item)) {
+				movieList.add(item);
+			}
 		}
 
 		return movieList;
@@ -66,8 +70,10 @@ public class TMDBClient implements MovieAPIClient {
 			URL url = tmdb
 					.createImageUrl(popularPerson.getProfilePath(), "w92");
 			Actor item = new Actor(id, popularPerson.getName(), url.toString());
-			popularPeopleList.add(item);
-
+			
+			if (!popularPeopleList.contains(item)) {
+				popularPeopleList.add(item);
+			}
 		}
 
 		return popularPeopleList;

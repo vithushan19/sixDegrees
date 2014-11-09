@@ -27,7 +27,20 @@ public class Movie implements IHollywoodObject {
 	public String getImageURL() {
 		return data.getValue2();
 	}
-
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Movie) {
+			Movie a = (Movie) o;
+			if (a.getId().equals(getId())) {
+				if (a.getName().equals(getName())) {
+					return true;
+				}
+			}
+		}
+		return false;
+		
+	}
 }
 
 
