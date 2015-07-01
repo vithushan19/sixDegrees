@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.shav.therottengame"
+    package="com.vithushan.therottengame"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.shav.therottengame.activity.GameActivity"
+            android:name="com.vithushan.therottengame.activity.GameActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,12 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--         <activity android:name="com.shav.therottengame.activity.GameActivity" -->
-<!--             android:screenOrientation="portrait" > -->
-<!--         </activity> -->
-        <activity android:name="com.shav.therottengame.activity.GameOverActivity" >
-        </activity>
-
+       
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

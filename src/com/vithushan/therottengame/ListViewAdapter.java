@@ -1,4 +1,4 @@
-package com.shav.therottengame;
+package com.vithushan.therottengame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +15,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.omertron.themoviedbapi.TheMovieDbApi;
-import com.shav.therottengame.model.IHollywoodObject;
 import com.squareup.picasso.Picasso;
+import com.vithushan.therottengame.model.IHollywoodObject;
 
 public class ListViewAdapter extends BaseAdapter {
 	
@@ -79,7 +78,6 @@ public class ListViewAdapter extends BaseAdapter {
         } else {
         	Picasso.with(mContext).load(getItem(position).getImageURL()).into(holder.imageView);
         }
-        Log.d("VITH", getItem(position).getImageURL());
         return convertView;
     }
 
