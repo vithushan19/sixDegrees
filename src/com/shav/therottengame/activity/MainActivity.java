@@ -123,7 +123,7 @@ public class MainActivity extends Activity implements
 		setContentView(R.layout.activity_main);
 
 		// Create the Google Api Client with access to Plus and Games
-		mGoogleApiClient = RottenGoogleClient.getInstance(this);
+		//mGoogleApiClient = RottenGoogleClient.getInstance(this);
 
 		// set up a click listener for everything we care about
 		for (int id : CLICKABLES) {
@@ -376,7 +376,7 @@ public class MainActivity extends Activity implements
 			Log.w(TAG, "GameHelper: client was already connected on onStart()");
 		} else {
 			Log.d(TAG, "Connecting client.");
-			mGoogleApiClient.connect();
+			//mGoogleApiClient.connect();
 		}
 		super.onStart();
 	}

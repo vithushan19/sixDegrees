@@ -5,16 +5,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -23,78 +26,149 @@ import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.Room;
-import com.shav.therottengame.Actors;
+import com.omertron.themoviedbapi.MovieDbException;
 import com.shav.therottengame.ListViewAdapter;
 import com.shav.therottengame.R;
 import com.shav.therottengame.RottenGoogleClient;
-import com.shav.therottengame.network.ApiRequester;
+import com.shav.therottengame.api.MovieAPIClient;
+import com.shav.therottengame.api.TMDBClient;
+import com.shav.therottengame.model.Actor;
+import com.shav.therottengame.model.IHollywoodObject;
+import com.shav.therottengame.util.javatuples.Triplet;
+import com.squareup.picasso.Picasso;
 
 public class GameActivity extends ListActivity implements
-RealTimeMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,
-GoogleApiClient.OnConnectionFailedListener {
+		RealTimeMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,
+		GoogleApiClient.OnConnectionFailedListener {
 	private String TAG = "Vithushan";
-	
+
 	private ListViewAdapter mAdapter;
 	private ListView mListView;
-	private List<String> mCurrentList;
-	private String mStartingActor;
-	private String mEndingActor;
+	private List<IHollywoodObject> mCurrentList;
+	private Actor mStartingActor;
+	private Actor mEndingActor;
 	private int mClickCount;
 	private RequestType mCurrentRequestType;
-	private ApiRequester mApiRequester;
+	private MovieAPIClient mAPIClient;
 	private ProgressBar progressDialog;
-	
+
 	private Room mRoom;
 	private GoogleApiClient mGoogleApiClient;
-	
+
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[1];
 	// My participant ID in the currently active game
 	String mMyId = null;
-	
+
 	private enum RequestType {
-		ACTOR,
-		MOVIE,
+		ACTOR, MOVIE,
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
 		mListView = (ListView) findViewById(android.R.id.list);
-		TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
-		TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
-		mCurrentList = new ArrayList<String>();
-		Actors actors = new Actors();
-		String start = actors.getFirstActor();
-		startingActortv.setText(start);
-		String end = actors.getLastActor();
-		endingActortv.setText(end);
-		mStartingActor = start;
-		mEndingActor = end;
+		final TextView startingActortv = (TextView) findViewById(R.id.textViewStarting);
+		final TextView endingActortv = (TextView) findViewById(R.id.textViewEnding);
+		final ImageView startingImageView = (ImageView) findViewById(R.id.imageview_starting_actor);
+		final ImageView endingImageView = (ImageView) findViewById(R.id.imageview_ending_actor);
+		mCurrentList = new ArrayList<IHollywoodObject>();
+
 		mClickCount = 0;
 		mAdapter = new ListViewAdapter(this, mCurrentList);
 		mListView.setAdapter(mAdapter);
-		mApiRequester = new ApiRequester();
+
+		final AsyncTask<Void, Void, Actor> getFirstActorTask = new AsyncTask<Void, Void, Actor>() {
+
+			@Override
+			protected Actor doInBackground(Void... params) {
+				return mAPIClient.getFirstActor();
+			}
+
+			@Override
+			protected void onPostExecute(Actor result) {
+				super.onPostExecute(result);
+				mStartingActor = result;
+				new NetworkTask().execute(0,
+						Integer.valueOf(mStartingActor.getId()));
+				mCurrentRequestType = RequestType.ACTOR;
+				startingActortv.setText(mStartingActor.getName());
+				
+				if (StringUtils.isEmpty(mStartingActor.getImageURL())) {
+					startingImageView.setImageResource(R.drawable.question_mark);
+				} else {
+		        	Picasso.with(getBaseContext()).load(mStartingActor.getImageURL()).into(startingImageView);
+				}
+				
+			}
+
+		};
+
+		final AsyncTask<Void, Void, Actor> getLastActorTask = new AsyncTask<Void, Void, Actor>() {
+
+			@Override
+			protected Actor doInBackground(Void... params) {
+				return mAPIClient.getLastActor();
+			}
+
+			@Override
+			protected void onPostExecute(Actor result) {
+				super.onPostExecute(result);
+				mEndingActor = result;
+				endingActortv.setText(mEndingActor.getName());
+				
+				if (StringUtils.isEmpty(mEndingActor.getImageURL())) {
+					startingImageView.setImageResource(R.drawable.question_mark);
+				} else {
+		        	Picasso.with(getBaseContext()).load(mEndingActor.getImageURL()).into(endingImageView);
+				}
+			}
+
+		};
+
+		new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				try {
+					mAPIClient = new TMDBClient();
+				} catch (MovieDbException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+			protected void onPostExecute(Void result) {
+				getFirstActorTask.execute();
+				getLastActorTask.execute();
+			};
+
+		}.execute();
+
 		progressDialog = (ProgressBar) findViewById(R.id.progressDialog);
-		
+
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, final View view,
-					int position, long id) { 
-				String text = (String) parent.getItemAtPosition(position);
-				if (text.equals(mEndingActor)) {
+					int position, long id) {
+				String text = ((IHollywoodObject) parent
+						.getItemAtPosition(position)).getName();
+				int objId = Integer.valueOf(((IHollywoodObject) parent
+						.getItemAtPosition(position)).getId());
+				if (text.equals(mEndingActor.getName())) {
 					winGame();
 					return;
 				}
 				if (mCurrentRequestType == RequestType.MOVIE) {
-					new NetworkTask().execute("movies", text);
+					new NetworkTask().execute(0, objId);
 					mCurrentRequestType = RequestType.ACTOR;
 				} else {
-					new NetworkTask().execute("actors", text);
+					new NetworkTask().execute(1, objId);
 					mCurrentRequestType = RequestType.MOVIE;
 				}
-				
+
 			}
 		});
 		mGoogleApiClient = RottenGoogleClient.getInstance(this);
@@ -103,18 +177,17 @@ GoogleApiClient.OnConnectionFailedListener {
 		if (intent != null) {
 			mRoom = intent.getParcelableExtra("Room");
 		}
-		new NetworkTask().execute("movies", start);
-		mCurrentRequestType = RequestType.ACTOR;
-		
+
 	}
 
+	// TODO change this to a postgame fragment
 	protected void winGame() {
 		broadcastScore(true);
 		Intent intent = new Intent(this, GameOverActivity.class);
 		intent.putExtra("Won", true);
 		intent.putExtra("Room", mRoom);
 		startActivity(intent);
-		return;		
+		return;
 	}
 
 	protected void onStop() {
@@ -142,7 +215,7 @@ GoogleApiClient.OnConnectionFailedListener {
 		if (mRoom == null) {
 			return;
 		}
-		
+
 		// First byte in message indicates whether it's a final score or not
 		mMsgBuf[0] = (byte) (finalScore ? 'F' : 'U');
 		mMyId = mRoom.getParticipantId(Games.Players
@@ -184,33 +257,42 @@ GoogleApiClient.OnConnectionFailedListener {
 		// TODO Auto-generated method stub
 
 	}
-	
-	 private class NetworkTask extends AsyncTask<String, Void, List<String>> {
-		 @Override
-		 protected void onPreExecute()
-		 {
-			 mListView.setVisibility(View.GONE);
-		     progressDialog.setVisibility(View.VISIBLE);                
-		 }; 
-		    
-	     protected List<String> doInBackground(String... strings) {
-	    	 String downloadType = strings[0];
-	    	 String query = strings[1];
-	    	 if (downloadType == "movies") {
- 	    		 return mApiRequester.getMoviesForActor(query);
-	    	 } else {
-	    		 return mApiRequester.getActorsForMovies(query);
-	    	 }
-	    	 
-	     }
 
-	     protected void onPostExecute(List<String> result) {
-	        mCurrentList = result;
-	        mAdapter.replaceAndRefreshData(mCurrentList);
-	        progressDialog.setVisibility(View.GONE);
-	        mListView.setVisibility(View.VISIBLE);
-	        mListView.setSelection(0);
-	     }
-	 }
+	private class NetworkTask extends
+			AsyncTask<Integer, Void, List<IHollywoodObject>> {
+		@Override
+		protected void onPreExecute() {
+			mListView.setVisibility(View.GONE);
+			progressDialog.setVisibility(View.VISIBLE);
+		};
+
+		protected List<IHollywoodObject> doInBackground(Integer... params) {
+			int downloadType = params[0];
+			int id = params[1];
+
+			try {
+				// 0 - movies
+				// 1 - actors
+				if (downloadType == 0) {
+					return mAPIClient.getMoviesForActor(id);
+				} else {
+					return mAPIClient.getMovieCast(id);
+				}
+			} catch (MovieDbException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			return null;
+		}
+
+		protected void onPostExecute(List<IHollywoodObject> result) {
+			mCurrentList = result;
+			mAdapter.replaceAndRefreshData(mCurrentList);
+			progressDialog.setVisibility(View.GONE);
+			mListView.setVisibility(View.VISIBLE);
+			mListView.setSelection(0);
+		}
+	}
 
 }
