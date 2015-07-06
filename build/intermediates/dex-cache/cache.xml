@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\commons-pool\commons-pool\1.6\4572d589699f09d866a226a14b7f4323c6d8f040\commons-pool-1.6.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="4572d589699f09d866a226a14b7f4323c6d8f040">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\commons-pool-1.6-d94547d3cee4bf82ca4aca2b1eb3d4d12e0e7820.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.0\libs\internal_impl-21.0.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="1609e6d42d0480b0f4188e2c29f75388fa12a8f0">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.0-6bd13b21a86c96ce7233e938fe41416ad72581bd.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\org.yamj\api-common\1.4\74d9424611ea7d6acb6af276ec8d045558a158e8\api-common-1.4.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="74d9424611ea7d6acb6af276ec8d045558a158e8">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\api-common-1.4-a034df1070626d3982e964ae9477d55269f2e01c.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.0\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="686344a780033e4ba22b926cd225f8d4941247e6">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\classes-cfdb466ca69e6b09aa55ee29d3348dd3facc4685.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\Documents\dev\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.0\support-annotations-21.0.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="1a578b9607b36266c63d43a4fa0ab5664dbe911e">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.0-2821d613f4d63a1689b3c711a08a80f28163dbea.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\commons-dbcp\commons-dbcp\1.4\30be73c965cc990b153a100aaaaafcf239f82d39\commons-dbcp-1.4.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="30be73c965cc990b153a100aaaaafcf239f82d39">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\commons-dbcp-1.4-f05eee287b92411a2b30444e33b3b07b81205c3d.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\lib\build\libs\lib.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="021c1ab6a42e5537476df6908c76a98f037488c1">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\lib-c59dd55695e5b6302167edb8dace15e8fca02bf0.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\libs\picasso-2.4.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="f36d2d4e3a36b3259aaf9d004d29b4cdc6c1bfb2">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\picasso-2.4.0-2a57b991ca08c44dff9f2f0ef685fa21cbae0a0b.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\org.slf4j\slf4j-api\1.7.10\5b338f206827d88acd890739f400a9b7664e5984\slf4j-api-1.7.10.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="5b338f206827d88acd890739f400a9b7664e5984">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\slf4j-api-1.7.10-be058e0e2327247d41c9a1a652d7d431c90a7510.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-annotations\2.5.1\71c1992c0cf5e0ce62574e96009572062ba0f4d9\jackson-annotations-2.5.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="71c1992c0cf5e0ce62574e96009572062ba0f4d9">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\jackson-annotations-2.5.1-3910988c0156b9b4db2b43a99ec46a6afa5fc16a.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-lang3\3.3.2\90a3822c38ec8c996e84c16a3477ef632cbc87a3\commons-lang3-3.3.2.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="90a3822c38ec8c996e84c16a3477ef632cbc87a3">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\commons-lang3-3.3.2-61817fe18c39392705295aadfcb4ca4fb2b608d9.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-databind\2.5.1\5e57baebad3898aca8a825adaf2be6fd189442f2\jackson-databind-2.5.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="5e57baebad3898aca8a825adaf2be6fd189442f2">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\jackson-databind-2.5.1-04718e5f369876e943f361b8ec8729d98d3607d5.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\libs\api-themoviedb.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="96d06bb55200eca356c96531cc43feea73da923d">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\api-themoviedb-b257da5dc2f0533893b89cd5c755fd212f53ec7a.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-core\2.5.1\e2a00ad1d7e540ec395e9296a34da484c8888d4d\jackson-core-2.5.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="e2a00ad1d7e540ec395e9296a34da484c8888d4d">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\jackson-core-2.5.1-fe1c11aaa1420895ef9982758bdbdf1745e246df.jar" />
+    </item>
+    <item
+        jar="C:\Users\Vithushan\.gradle\caches\modules-2\files-2.1\commons-codec\commons-codec\1.10\4b95f4897fa13f2cd904aee711aeafc0c5295cd8\commons-codec-1.10.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="4b95f4897fa13f2cd904aee711aeafc0c5295cd8">
+        <dex dex="C:\Users\Vithushan\Documents\dev\workspace\theRottenGame\app\build\intermediates\pre-dexed\debug\commons-codec-1.10-9fec4b833898740888e73d6a39b948292dee0429.jar" />
+    </item>
+
+</items>
