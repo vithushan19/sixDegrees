@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentActivity;
 
 import com.vithushan.therottengame.R;
 
-public class GameActivity extends FragmentActivity {
+public class SelectActorActivity extends FragmentActivity {
 	private String TAG = "Vithushan";
 
 
@@ -15,7 +15,7 @@ public class GameActivity extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_game);
+		setContentView(R.layout.activity_select_actor);
 
 
 	}

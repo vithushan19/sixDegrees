@@ -16,4 +16,6 @@ public interface MovieAPIClient {
 
 	Actor getLastActor();
 
+    List<Actor> getPopularActors();
+
 }

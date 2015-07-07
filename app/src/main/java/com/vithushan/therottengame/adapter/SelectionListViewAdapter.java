@@ -1,13 +1,7 @@
-package com.vithushan.therottengame;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
+package com.vithushan.therottengame.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,44 +10,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.model.IHollywoodObject;
 
-public class ListViewAdapter extends BaseAdapter {
-	
-	private final Context mContext;
-	private List<IHollywoodObject> mData;
-	
-	public ListViewAdapter(Context context, List<IHollywoodObject> mCurrentList){
-		super();
-		mContext = context;
-		mData = mCurrentList;
-	}
-	
-	public void replaceAndRefreshData(List<IHollywoodObject> data){
-		mData = new ArrayList<IHollywoodObject>();
-		mData.addAll(data);
-		notifyDataSetChanged();
-	}
-	
-	private static class ViewHolder {
-        TextView textView;
-        ImageView imageView;
-    }
-	
-	@Override
-	public int getCount() {
-		return mData.size();
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SelectionListViewAdapter extends ListViewAdapter {
+
+    private int selectedItemPosition;
+
+	public SelectionListViewAdapter(Context context, List<IHollywoodObject> mCurrentList){
+		super(context, mCurrentList);
 	}
 
-	@Override
-	public IHollywoodObject getItem(int pos) {
-		return mData.get(pos);
-	}
 
-	@Override
-	public long getItemId(int arg0) {
-		return 0;
-	}
 
 	@Override
     public View getView(final int position, View convertView, ViewGroup parent) {

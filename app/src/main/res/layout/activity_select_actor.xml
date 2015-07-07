@@ -6,9 +6,9 @@
     android:orientation="vertical" >
 
     <fragment
-        android:id="@+id/mainGameFragment"
+        android:id="@+id/selectActorFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class = "com.vithushan.therottengame.fragment.MainGameFragment"/>
+        class = "com.vithushan.therottengame.fragment.SelectActorFragment"/>
 
 </LinearLayout>

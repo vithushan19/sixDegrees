@@ -27,10 +27,13 @@ public class TMDBClient implements MovieAPIClient {
 	private String GONE_GIRL = "210577";
 	private List<Actor> mPopularActors;
 
-	public TMDBClient() throws MovieDbException {
-		tmdb = new TheMovieDbApi(API_KEY, new DefaultHttpClient());
-		mPopularActors = getPopularActors();
-	}
+	public TMDBClient() {
+        try {
+            tmdb = new TheMovieDbApi(API_KEY, new DefaultHttpClient());
+        } catch (MovieDbException e) {
+            e.printStackTrace();
+        }
+    }
 
 	@Override
 	public List<IHollywoodObject> getMovieCast(int movieId)
@@ -75,21 +78,31 @@ public class TMDBClient implements MovieAPIClient {
 
 	}
 
-	public List<Actor> getPopularActors() throws MovieDbException {
-		List<PersonFind> popularPeople = tmdb.getPersonPopular(0).getResults();
-		List<Actor> popularPeopleList = new ArrayList<Actor>();
-		for (PersonFind popularPerson : popularPeople) {
-			String id = String.valueOf(popularPerson.getId());
-			URL url = tmdb
-					.createImageUrl(popularPerson.getProfilePath(), "w92");
-			Actor item = new Actor(id, popularPerson.getName(), url.toString());
-			
-			if (!popularPeopleList.contains(item)) {
-				popularPeopleList.add(item);
-			}
-		}
+	public List<Actor> getPopularActors() {
 
-		return popularPeopleList;
+        if (this.mPopularActors == null) {
+            try {
+                List<PersonFind> popularPeople = tmdb.getPersonPopular(0).getResults();
+                List<Actor> popularPeopleList = new ArrayList<Actor>();
+                for (PersonFind popularPerson : popularPeople) {
+                    String id = String.valueOf(popularPerson.getId());
+                    URL url = tmdb
+                            .createImageUrl(popularPerson.getProfilePath(), "w92");
+                    Actor item = new Actor(id, popularPerson.getName(), url.toString());
+
+                    if (!popularPeopleList.contains(item)) {
+                        popularPeopleList.add(item);
+                    }
+                }
+
+                return popularPeopleList;
+            } catch (MovieDbException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return this.mPopularActors;
+
 	}
 
 	public String getActorName(int id) throws MovieDbException {
@@ -100,7 +113,7 @@ public class TMDBClient implements MovieAPIClient {
 	// TODO: Rand this
 	@Override
 	public Actor getFirstActor() {
-		return mPopularActors.get(4);
+		return getPopularActors().get(4);
 	}
 
 	@Override
