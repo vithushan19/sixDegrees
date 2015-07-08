@@ -68,7 +68,8 @@ public class MainGameFragment extends ListFragment {
 
             @Override
             protected Actor doInBackground(Void... params) {
-                return mAPIClient.getFirstActor();
+                return null;
+                // /return mAPIClient.getFirstActor();
             }
 
             @Override
@@ -95,7 +96,8 @@ public class MainGameFragment extends ListFragment {
 
             @Override
             protected Actor doInBackground(Void... params) {
-                return mAPIClient.getLastActor();
+                return null;
+                //return mAPIClient.getLastActor();
             }
 
             @Override
@@ -185,9 +187,9 @@ public class MainGameFragment extends ListFragment {
                 // 0 - movies
                 // 1 - actors
                 if (downloadType == 0) {
-                    return mAPIClient.getMediaForActor(id);
+                    return null;
                 } else {
-                    return mAPIClient.getCastForMedia(id);
+                   return null;
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block

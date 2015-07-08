@@ -5,8 +5,8 @@ package com.vithushan.therottengame.util;
  */
 public class StringUtil {
     public static boolean isEmpty (String str) {
+        if (str == null) return true;
         str = str.trim();
-        if (str.equals(null)) return true;
         if (str.equals("")) return  false;
         return  false;
     }

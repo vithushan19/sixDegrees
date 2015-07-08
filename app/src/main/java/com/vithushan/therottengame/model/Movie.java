@@ -5,28 +5,33 @@ import com.vithushan.therottengame.util.javatuples.Triplet;
 
 public class Movie implements IHollywoodObject {
 
-	Triplet<String, String, String> data = null;
+	private String id;
+	private String name;
+	private String posterPath;
 
 	public Movie(String id, String name, String imgURL) {
 		if ("http://image.tmdb.org/t/p/w92".equals(imgURL)) {
 			imgURL = "";
 		}
-		data = new Triplet<String, String, String>(id, name, imgURL);
+
+		this.id = id;
+		this.name = name;
+		this.posterPath = imgURL;
 	}
 
 	@Override
 	public String getId() {
-		return data.getValue0();
+		return id;
 	}
 
 	@Override
 	public String getName() {
-		return data.getValue1();
+		return name;
 	}
 
 	@Override
 	public String getImageURL() {
-		return data.getValue2();
+		return posterPath;
 	}
 	
 	@Override

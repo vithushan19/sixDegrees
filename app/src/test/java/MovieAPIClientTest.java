@@ -1,57 +1,75 @@
-import com.vithushan.therottengame.GameModule;
 import com.vithushan.therottengame.api.IMovieAPIClient;
-import com.vithushan.therottengame.api.MovieAPIClient;
-import com.vithushan.therottengame.model.Actor;
+import com.vithushan.therottengame.model.CombinedCredits;
+import com.vithushan.therottengame.model.MediaModel;
+import com.vithushan.therottengame.model.PopularPeople;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-import dagger.Module;
-import dagger.ObjectGraph;
-import dagger.Provides;
+import retrofit.RestAdapter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class MovieAPIClientTest {
+
+
+    private String API_KEY = "4e83b0a69397058d51b07371e1eb131a";
 
     @Inject
     IMovieAPIClient mMovieAPIClient;
 
     @Before
     public void setUp() {
-        ObjectGraph.create(new TestModule()).inject(this);
-    }
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint("http://api.themoviedb.org/3")
+                .build();
 
-    @Module(
-            includes = GameModule.class,
-            injects = MovieAPIClientTest.class,
-            overrides = true
-    )
-    static class TestModule {
-        @Provides
-        @Singleton
-        IMovieAPIClient provideIMovieAPIClient() {
-            return new MovieAPIClient();
-        }
+        mMovieAPIClient = restAdapter.create(IMovieAPIClient.class);
     }
 
     @Test
-    public void testIntentShouldBeCreated() {
+    public void testGetPopularPeopleReturnsList() {
+        PopularPeople actors = mMovieAPIClient.getPopularActors(API_KEY);
+        assertNotNull(actors);
+        assertNotEquals(actors.results.size(), 0);
+    }
 
-        Actor result = mMovieAPIClient.getLastActor();
-        assertEquals(result.getName(), "Vithushan");
+    @Test
+    public void testGetCombinedCredits() {
+        CombinedCredits combinedCredits = mMovieAPIClient.getMediaForActor(18918, API_KEY);
+        assertNotNull(combinedCredits);
+        assertNotNull(combinedCredits.cast);
+        assertNotEquals(combinedCredits.cast.size(),0);
+    }
+
+    @Test
+    public void testGetCastForTV() {
+        MediaModel m = new MediaModel();
+        //TODO try with caps
+        m.type = MediaModel.MediaType.TV;
+        m.id = 8592;
+
+        CombinedCredits combinedCredits = mMovieAPIClient.getCastForTV(m.id, API_KEY);
+        assertNotNull(combinedCredits);
+        assertNotNull(combinedCredits.cast);
+        assertNotEquals(combinedCredits.cast.size(), 0);
+    }
+
+    @Test
+    public void testGetCastForMovie() {
+        MediaModel m = new MediaModel();
+        //TODO try with caps
+        m.type = MediaModel.MediaType.MOVIE;
+        m.id = 21862;
+
+        CombinedCredits combinedCredits = mMovieAPIClient.getCastForMovie(m.id,API_KEY);
+        assertNotNull(combinedCredits);
+        assertNotNull(combinedCredits.cast);
+        assertNotEquals(combinedCredits.cast.size(), 0);
     }
 }
 

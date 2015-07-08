@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,18 +17,29 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.model.IHollywoodObject;
+import com.vithushan.therottengame.util.StringUtil;
 
 public class ListViewAdapter extends BaseAdapter {
 	
 	protected final Context mContext;
 	protected List<IHollywoodObject> mData;
+    private int selectedIndex = -1;
 	
 	public ListViewAdapter(Context context, List<IHollywoodObject> mCurrentList){
 		super();
 		mContext = context;
 		mData = mCurrentList;
 	}
-	
+
+    public void setSelectedIndex (int pos) {
+        selectedIndex = pos;
+    }
+
+    public int getSelectedIndex() {
+        return selectedIndex;
+    }
+
+
 	public void replaceAndRefreshData(List<IHollywoodObject> data){
 		mData = new ArrayList<IHollywoodObject>();
 		mData.addAll(data);
@@ -70,20 +82,20 @@ public class ListViewAdapter extends BaseAdapter {
         }
         holder.textView.setText(getItem(position).getName());
 
-        if (isEmpty(getItem(position).getImageURL())) {
+        if (StringUtil.isEmpty(getItem(position).getImageURL())) {
         	// TODO get a better asset/
         	holder.imageView.setImageResource(R.drawable.question_mark);
         } else {
         	Picasso.with(mContext).load(getItem(position).getImageURL()).into(holder.imageView);
         }
+
+        if(selectedIndex == position){
+            convertView.setBackgroundColor(Color.CYAN);
+        } else {
+            convertView.setBackgroundColor(Color.WHITE);
+        }
+
         return convertView;
     }
-
-	private boolean isEmpty(String str) {
-		str = str.trim();
-		if (str.equals(null)) return true;
-		if (str.equals("")) return true;
-		return false;
-	}
 
 }

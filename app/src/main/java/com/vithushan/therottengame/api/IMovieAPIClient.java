@@ -3,18 +3,28 @@ package com.vithushan.therottengame.api;
 import java.util.List;
 
 import com.vithushan.therottengame.model.Actor;
+import com.vithushan.therottengame.model.CombinedCredits;
 import com.vithushan.therottengame.model.IHollywoodObject;
+import com.vithushan.therottengame.model.MediaModel;
+import com.vithushan.therottengame.model.PopularPeople;
+
+import retrofit.Callback;
+import retrofit.http.GET;
+import retrofit.http.Path;
+import retrofit.http.Query;
 
 public interface IMovieAPIClient {
 
-	List<IHollywoodObject> getCastForMedia(int mediaID);
+    @GET("/tv/{id}/credits")
+	CombinedCredits getCastForTV(@Path("id") int mediaId, @Query("api_key") String apiKey);
 
-	List<IHollywoodObject> getMediaForActor(int actorId);
+    @GET("/movie/{id}/credits")
+    CombinedCredits getCastForMovie(@Path("id") int movieId, @Query("api_key") String apiKey);
 
-	Actor getFirstActor();
+	@GET("/person/{id}/combined_credits")
+	CombinedCredits getMediaForActor(@Path("id") int actorId, @Query("api_key") String apiKey);
 
-	Actor getLastActor();
-
-    List<Actor> getPopularActors();
+	@GET("/person/popular")
+	PopularPeople getPopularActors(@Query("api_key") String apiKey);
 
 }

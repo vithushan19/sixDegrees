@@ -1,31 +1,35 @@
 package com.vithushan.therottengame.model;
 
-import com.vithushan.therottengame.util.javatuples.Triplet;
+public class Actor implements IHollywoodObject{
 
-public class Actor implements com.vithushan.therottengame.model.IHollywoodObject {
+	private String id;
+	private String name;
+	private String profilePath;
 
-	Triplet<String, String, String> data = null;
+
 
 	public Actor(String id, String name, String imgURL) {
 		if ("http://image.tmdb.org/t/p/w92".equals(imgURL)) {
 			imgURL = "";
 		}
-		data = new Triplet<String, String, String>(id, name, imgURL);
+		this.id = id;
+		this.name = name;
+		this.profilePath = imgURL;
 	}
 
 	@Override
 	public String getId() {
-		return data.getValue0();
+		return id;
 	}
 
 	@Override
 	public String getName() {
-		return data.getValue1();
+		return name;
 	}
 
 	@Override
 	public String getImageURL() {
-		return data.getValue2();
+		return profilePath;
 	}
 	
 	@Override

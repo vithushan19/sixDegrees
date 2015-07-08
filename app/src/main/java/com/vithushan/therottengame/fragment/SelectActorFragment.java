@@ -1,21 +1,26 @@
 package com.vithushan.therottengame.fragment;
 
 import android.app.ListFragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.vithushan.therottengame.GameApplication;
 import com.vithushan.therottengame.R;
+import com.vithushan.therottengame.activity.GameActivity;
 import com.vithushan.therottengame.adapter.ListViewAdapter;
 import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.model.Actor;
 import com.vithushan.therottengame.model.IHollywoodObject;
+import com.vithushan.therottengame.model.PopularPeople;
+import com.vithushan.therottengame.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +41,7 @@ public class SelectActorFragment extends ListFragment {
     private ListView mListView;
 
     private ProgressBar mProgress;
+    private Button mButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,6 +49,16 @@ public class SelectActorFragment extends ListFragment {
 
         mListView = (ListView) view.findViewById(android.R.id.list);
 
+        mButton = (Button) view.findViewById(R.id.submit);
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int index = mAdapter.getSelectedIndex();
+                IHollywoodObject res = mAdapter.getItem(index);
+                Intent intent = new Intent(getActivity(), GameActivity.class);
+                startActivity(intent);
+            }
+        });
         mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
         ((GameApplication) getActivity().getApplication()).inject(this);
         mPopularActorList = new ArrayList<IHollywoodObject>();
@@ -58,8 +74,8 @@ public class SelectActorFragment extends ListFragment {
 
             @Override
             protected List<Actor> doInBackground(Void... params) {
-                List<Actor> resultList = mAPIClient.getPopularActors();
-                return resultList;
+                PopularPeople resultList = mAPIClient.getPopularActors(Constants.API_KEY);
+                return resultList.results;
             }
 
             @Override
@@ -75,7 +91,9 @@ public class SelectActorFragment extends ListFragment {
                         new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                //view.setSelected(true);
+
+                                mAdapter.setSelectedIndex(position);
+                                mAdapter.notifyDataSetChanged();
                             }
                         }
                 );
