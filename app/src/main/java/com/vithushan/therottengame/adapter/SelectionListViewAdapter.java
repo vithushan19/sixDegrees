@@ -12,8 +12,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.model.IHollywoodObject;
-
-import org.apache.commons.lang3.StringUtils;
+import com.vithushan.therottengame.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,7 @@ public class SelectionListViewAdapter extends ListViewAdapter {
         holder.textView.setText(getItem(position).getName());
         
 
-        if (StringUtils.isEmpty(getItem(position).getImageURL())) {
+        if (StringUtil.isEmpty(getItem(position).getImageURL())) {
         	// TODO get a better asset/
         	holder.imageView.setImageResource(R.drawable.question_mark);
         } else {

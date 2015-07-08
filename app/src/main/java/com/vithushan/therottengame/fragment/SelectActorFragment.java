@@ -1,22 +1,19 @@
 package com.vithushan.therottengame.fragment;
 
 import android.app.ListFragment;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.vithushan.therottengame.GameApplication;
 import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.adapter.ListViewAdapter;
-import com.vithushan.therottengame.api.MovieAPIClient;
+import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.model.Actor;
 import com.vithushan.therottengame.model.IHollywoodObject;
 
@@ -30,7 +27,8 @@ import javax.inject.Inject;
  */
 public class SelectActorFragment extends ListFragment {
 
-    @Inject MovieAPIClient mAPIClient;
+    @Inject
+    IMovieAPIClient mAPIClient;
 
     private List<IHollywoodObject> mPopularActorList;
 
@@ -44,15 +42,6 @@ public class SelectActorFragment extends ListFragment {
         View view = inflater.inflate(R.layout.fragment_select_actors, container,false);
 
         mListView = (ListView) view.findViewById(android.R.id.list);
-        mListView.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        view.setSelected(true);
-
-                    }
-                }
-        );
 
         mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
         ((GameApplication) getActivity().getApplication()).inject(this);
@@ -80,7 +69,16 @@ public class SelectActorFragment extends ListFragment {
                 }
 
                 mAdapter = new ListViewAdapter(getActivity(), mPopularActorList);
+
                 mListView.setAdapter(mAdapter);
+                mListView.setOnItemClickListener(
+                        new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                //view.setSelected(true);
+                            }
+                        }
+                );
                 mProgress.setVisibility(View.GONE);
             }
         }.execute();

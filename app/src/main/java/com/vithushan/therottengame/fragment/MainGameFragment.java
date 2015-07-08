@@ -15,15 +15,13 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.vithushan.therottengame.GameApplication;
-import com.vithushan.therottengame.activity.GameActivity;
 import com.vithushan.therottengame.adapter.ListViewAdapter;
 import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.activity.GameOverActivity;
-import com.vithushan.therottengame.api.MovieAPIClient;
+import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.model.Actor;
 import com.vithushan.therottengame.model.IHollywoodObject;
 
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,8 @@ public class MainGameFragment extends ListFragment {
     private RequestType mCurrentRequestType;
     private ProgressBar progressDialog;
 
-    @Inject MovieAPIClient mAPIClient;
+    @Inject
+    IMovieAPIClient mAPIClient;
 
 
     private enum RequestType {
@@ -81,7 +80,7 @@ public class MainGameFragment extends ListFragment {
                 mCurrentRequestType = RequestType.ACTOR;
                 startingActortv.setText(mStartingActor.getName());
 
-                if (StringUtils.isEmpty(mStartingActor.getImageURL())) {
+                if (isEmpty(mStartingActor.getImageURL())) {
                     startingImageView.setImageResource(R.drawable.question_mark);
                 } else {
                     //TODO check if getbasebcontext part is needed
@@ -105,7 +104,7 @@ public class MainGameFragment extends ListFragment {
                 mEndingActor = result;
                 endingActortv.setText(mEndingActor.getName());
 
-                if (StringUtils.isEmpty(mEndingActor.getImageURL())) {
+                if (isEmpty(mEndingActor.getImageURL())) {
                     startingImageView.setImageResource(R.drawable.question_mark);
                 } else {
                     Picasso.with(getActivity().getBaseContext()).load(mEndingActor.getImageURL()).into(endingImageView);
@@ -147,6 +146,13 @@ public class MainGameFragment extends ListFragment {
         return view;
     }
 
+    private boolean isEmpty(String str) {
+        str = str.trim();
+        if (str.equals(null)) return true;
+        if (str.equals("")) return true;
+        return false;
+    }
+
     // TODO change this to a postgame fragment
     protected void winGame() {
         Intent intent = new Intent(this.getActivity(), GameOverActivity.class);
@@ -179,9 +185,9 @@ public class MainGameFragment extends ListFragment {
                 // 0 - movies
                 // 1 - actors
                 if (downloadType == 0) {
-                    return mAPIClient.getMoviesForActor(id);
+                    return mAPIClient.getMediaForActor(id);
                 } else {
-                    return mAPIClient.getMovieCast(id);
+                    return mAPIClient.getCastForMedia(id);
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block

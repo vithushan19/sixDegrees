@@ -3,8 +3,6 @@ package com.vithushan.therottengame.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -71,9 +69,8 @@ public class ListViewAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         holder.textView.setText(getItem(position).getName());
-        
 
-        if (StringUtils.isEmpty(getItem(position).getImageURL())) {
+        if (isEmpty(getItem(position).getImageURL())) {
         	// TODO get a better asset/
         	holder.imageView.setImageResource(R.drawable.question_mark);
         } else {
@@ -81,5 +78,12 @@ public class ListViewAdapter extends BaseAdapter {
         }
         return convertView;
     }
+
+	private boolean isEmpty(String str) {
+		str = str.trim();
+		if (str.equals(null)) return true;
+		if (str.equals("")) return true;
+		return false;
+	}
 
 }

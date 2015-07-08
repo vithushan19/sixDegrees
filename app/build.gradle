@@ -12,6 +12,10 @@ android {
         targetSdkVersion 21
     }
 
+    sourceSets {
+        instrumentTest.setRoot('src/test')
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -36,11 +40,25 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:21.0.0'
-    compile files('libs/api-themoviedb.jar')
-    compile files('libs/picasso-2.4.0.jar')
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.0.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
     compile "com.squareup.dagger:dagger:1.2.2"
     provided 'com.squareup.dagger:dagger-compiler:1.2.1'
-    compile project(":lib")
+    // the following is required to use Mockito and JUnit for your
+    // instrumentation unit tests on the JVM
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'org.mockito:mockito-core:1.+'
+    androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile "com.google.dexmaker:dexmaker:1.2"
+    androidTestCompile "com.google.dexmaker:dexmaker-mockito:1.2"
+
+    // the following is required ot use Mockito and JUnit for your unit
+    // tests on the JVM
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.+'
+
 }
 
 

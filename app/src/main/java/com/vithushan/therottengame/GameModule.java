@@ -1,9 +1,8 @@
 package com.vithushan.therottengame;
 
-import com.vithushan.therottengame.activity.GameActivity;
-import com.vithushan.therottengame.activity.SelectActorActivity;
+import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.api.MovieAPIClient;
-import com.vithushan.therottengame.api.TMDBClient;
+import com.vithushan.therottengame.api.TMDBClientI;
 import com.vithushan.therottengame.fragment.MainGameFragment;
 import com.vithushan.therottengame.fragment.SelectActorFragment;
 
@@ -21,7 +20,8 @@ import dagger.Provides;
 )
 
 public class GameModule {
-    @Provides @Singleton MovieAPIClient provideMovieAPIClient() {
-        return new TMDBClient();
+    @Provides @Singleton
+    IMovieAPIClient provideMovieAPIClient() {
+        return new MovieAPIClient();
     }
 }
