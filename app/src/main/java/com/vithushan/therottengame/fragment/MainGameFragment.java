@@ -20,13 +20,19 @@ import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.activity.GameOverActivity;
 import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.model.Actor;
+import com.vithushan.therottengame.model.CombinedCredits;
 import com.vithushan.therottengame.model.IHollywoodObject;
+import com.vithushan.therottengame.model.MediaModel;
+import com.vithushan.therottengame.model.PopularPeople;
+import com.vithushan.therottengame.util.Constants;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import com.vithushan.therottengame.util.StringUtil;
 
 /**
  * Created by Vithushan on 7/5/2015.
@@ -39,7 +45,7 @@ public class MainGameFragment extends ListFragment {
     private Actor mEndingActor;
     private int mClickCount;
     private RequestType mCurrentRequestType;
-    private ProgressBar progressDialog;
+    private ProgressBar mProgress;
 
     @Inject
     IMovieAPIClient mAPIClient;
@@ -58,68 +64,66 @@ public class MainGameFragment extends ListFragment {
         final TextView endingActortv = (TextView) view.findViewById(R.id.textViewEnding);
         final ImageView startingImageView = (ImageView) view.findViewById(R.id.imageview_starting_actor);
         final ImageView endingImageView = (ImageView) view.findViewById(R.id.imageview_ending_actor);
+        mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
         mCurrentList = new ArrayList<IHollywoodObject>();
 
         mClickCount = 0;
         mAdapter = new ListViewAdapter(this.getActivity(), mCurrentList);
         mListView.setAdapter(mAdapter);
 
-        final AsyncTask<Void, Void, Actor> getFirstActorTask = new AsyncTask<Void, Void, Actor>() {
+
+
+
+        new AsyncTask<Void, Void, List<Actor>>()
+
+        {
 
             @Override
-            protected Actor doInBackground(Void... params) {
-                return null;
-                // /return mAPIClient.getFirstActor();
+            protected void onPreExecute() {
+                mProgress.setVisibility(View.VISIBLE);
             }
 
             @Override
-            protected void onPostExecute(Actor result) {
-                super.onPostExecute(result);
+            protected List<Actor> doInBackground(Void... params) {
+                PopularPeople resultList = mAPIClient.getPopularActors(Constants.API_KEY);
+                return resultList.results;
+            }
+
+            @Override
+            protected void onPostExecute(List<Actor> actors) {
+                Actor result = actors.get(4);
+                mEndingActor = result;
+                endingActortv.setText(mEndingActor.getName());
+
+                if (StringUtil.isEmpty(mEndingActor.getImageURL())) {
+                    startingImageView.setImageResource(R.drawable.question_mark);
+                } else {
+                    Picasso.with(getActivity().getBaseContext()).load(mEndingActor.getImageURL()).into(endingImageView);
+                }
+
+
+                result = actors.get(8);
                 mStartingActor = result;
                 new NetworkTask().execute(0,
                         Integer.valueOf(mStartingActor.getId()));
                 mCurrentRequestType = RequestType.ACTOR;
                 startingActortv.setText(mStartingActor.getName());
 
-                if (isEmpty(mStartingActor.getImageURL())) {
+                if (StringUtil.isEmpty(mStartingActor.getImageURL())) {
                     startingImageView.setImageResource(R.drawable.question_mark);
                 } else {
                     //TODO check if getbasebcontext part is needed
                     Picasso.with(getActivity().getBaseContext()).load(mStartingActor.getImageURL()).into(startingImageView);
                 }
 
+                mProgress.setVisibility(View.GONE);
             }
-
-        };
-
-        final AsyncTask<Void, Void, Actor> getLastActorTask = new AsyncTask<Void, Void, Actor>() {
-
-            @Override
-            protected Actor doInBackground(Void... params) {
-                return null;
-                //return mAPIClient.getLastActor();
-            }
-
-            @Override
-            protected void onPostExecute(Actor result) {
-                super.onPostExecute(result);
-                mEndingActor = result;
-                endingActortv.setText(mEndingActor.getName());
-
-                if (isEmpty(mEndingActor.getImageURL())) {
-                    startingImageView.setImageResource(R.drawable.question_mark);
-                } else {
-                    Picasso.with(getActivity().getBaseContext()).load(mEndingActor.getImageURL()).into(endingImageView);
-                }
-            }
-
-        };
+        }.execute();
 
 
         //getFirstActorTask.execute();
         //getLastActorTask.execute();
 
-        progressDialog = (ProgressBar) view.findViewById(R.id.progressDialog);
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -148,13 +152,6 @@ public class MainGameFragment extends ListFragment {
         return view;
     }
 
-    private boolean isEmpty(String str) {
-        str = str.trim();
-        if (str.equals(null)) return true;
-        if (str.equals("")) return true;
-        return false;
-    }
-
     // TODO change this to a postgame fragment
     protected void winGame() {
         Intent intent = new Intent(this.getActivity(), GameOverActivity.class);
@@ -176,7 +173,7 @@ public class MainGameFragment extends ListFragment {
         @Override
         protected void onPreExecute() {
             mListView.setVisibility(View.GONE);
-            progressDialog.setVisibility(View.VISIBLE);
+            mProgress.setVisibility(View.VISIBLE);
         };
 
         protected List<IHollywoodObject> doInBackground(Integer... params) {
@@ -187,9 +184,19 @@ public class MainGameFragment extends ListFragment {
                 // 0 - movies
                 // 1 - actors
                 if (downloadType == 0) {
-                    return null;
+                    CombinedCredits res =  mAPIClient.getMediaForActor(id,Constants.API_KEY);
+                    ArrayList<IHollywoodObject> resList = new ArrayList<>();
+                    for (MediaModel m : res.cast) {
+                        resList.add(m);
+                    }
+                    return resList;
                 } else {
-                   return null;
+                   CombinedCredits res =  mAPIClient.getMediaForActor(id,Constants.API_KEY);
+                    ArrayList<IHollywoodObject> resList = new ArrayList<>();
+                    for (MediaModel m : res.cast) {
+                        resList.add(m);
+                    }
+                   return resList;
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
@@ -202,7 +209,7 @@ public class MainGameFragment extends ListFragment {
         protected void onPostExecute(List<IHollywoodObject> result) {
             mCurrentList = result;
             mAdapter.replaceAndRefreshData(mCurrentList);
-            progressDialog.setVisibility(View.GONE);
+            mProgress.setVisibility(View.GONE);
             mListView.setVisibility(View.VISIBLE);
             mListView.setSelection(0);
         }

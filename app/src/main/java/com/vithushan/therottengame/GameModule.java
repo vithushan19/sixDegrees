@@ -1,6 +1,5 @@
 package com.vithushan.therottengame;
 
-import com.squareup.okhttp.OkHttpClient;
 import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.fragment.MainGameFragment;
 import com.vithushan.therottengame.fragment.SelectActorFragment;
@@ -22,6 +21,7 @@ import retrofit.RestAdapter;
 public class GameModule {
     @Provides @Singleton
     IMovieAPIClient provideMovieAPIClient() {
+
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint("http://api.themoviedb.org/3")
                 .build();

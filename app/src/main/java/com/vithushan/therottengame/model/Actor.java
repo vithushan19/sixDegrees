@@ -4,7 +4,7 @@ public class Actor implements IHollywoodObject{
 
 	private String id;
 	private String name;
-	private String profilePath;
+	private String profile_path;
 
 
 
@@ -14,7 +14,7 @@ public class Actor implements IHollywoodObject{
 		}
 		this.id = id;
 		this.name = name;
-		this.profilePath = imgURL;
+		this.profile_path = imgURL;
 	}
 
 	@Override
@@ -29,7 +29,8 @@ public class Actor implements IHollywoodObject{
 
 	@Override
 	public String getImageURL() {
-		return profilePath;
+		String res = "http://image.tmdb.org/t/p/w92" +  profile_path;
+        return res;
 	}
 	
 	@Override
