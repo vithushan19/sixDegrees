@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_key"
+    android:descendantFocusability="blocksDescendants"
     android:padding="6dp" >
 
     <ImageView
@@ -11,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
+        android:focusable="false"
         android:layout_marginRight="6dip" />
 
     <TextView
@@ -20,6 +22,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@id/imageViewRow"
+        android:focusable="false"
         android:textColor="@color/black"
         android:textSize="18sp" />
 

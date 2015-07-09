@@ -20,6 +20,7 @@ import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.activity.GameOverActivity;
 import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.model.Actor;
+import com.vithushan.therottengame.model.Cast;
 import com.vithushan.therottengame.model.CombinedCredits;
 import com.vithushan.therottengame.model.IHollywoodObject;
 import com.vithushan.therottengame.model.MediaModel;
@@ -44,16 +45,10 @@ public class MainGameFragment extends ListFragment {
     private Actor mStartingActor;
     private Actor mEndingActor;
     private int mClickCount;
-    private RequestType mCurrentRequestType;
     private ProgressBar mProgress;
 
     @Inject
     IMovieAPIClient mAPIClient;
-
-
-    private enum RequestType {
-        ACTOR, MOVIE,
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -68,8 +63,7 @@ public class MainGameFragment extends ListFragment {
         mCurrentList = new ArrayList<IHollywoodObject>();
 
         mClickCount = 0;
-        mAdapter = new ListViewAdapter(this.getActivity(), mCurrentList);
-        mListView.setAdapter(mAdapter);
+
 
 
 
@@ -104,9 +98,7 @@ public class MainGameFragment extends ListFragment {
 
                 result = actors.get(8);
                 mStartingActor = result;
-                new NetworkTask().execute(0,
-                        Integer.valueOf(mStartingActor.getId()));
-                mCurrentRequestType = RequestType.ACTOR;
+                new NetworkTask().execute(mStartingActor);
                 startingActortv.setText(mStartingActor.getName());
 
                 if (StringUtil.isEmpty(mStartingActor.getImageURL())) {
@@ -121,35 +113,34 @@ public class MainGameFragment extends ListFragment {
         }.execute();
 
 
-        //getFirstActorTask.execute();
-        //getLastActorTask.execute();
-
-
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                String text = ((IHollywoodObject) parent
-                        .getItemAtPosition(position)).getName();
-                int objId = Integer.valueOf(((IHollywoodObject) parent
-                        .getItemAtPosition(position)).getId());
-                if (text.equals(mEndingActor.getName())) {
-                    winGame();
-                    return;
-                }
-                if (mCurrentRequestType == RequestType.MOVIE) {
-                    new NetworkTask().execute(0, objId);
-                    mCurrentRequestType = RequestType.ACTOR;
-                } else {
-                    new NetworkTask().execute(1, objId);
-                    mCurrentRequestType = RequestType.MOVIE;
-                }
-
-            }
-        });
 
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mAdapter = new ListViewAdapter(this.getActivity(), mCurrentList);
+        mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                        String text = ((IHollywoodObject) parent
+                                .getItemAtPosition(position)).getName();
+                        IHollywoodObject obj = ((IHollywoodObject) parent
+                                .getItemAtPosition(position));
+                        if (text.equals(mEndingActor.getName())) {
+                            winGame();
+                            return;
+                        }
+
+                        new NetworkTask().execute(obj);
+                    }
+                }
+        );
     }
 
     // TODO change this to a postgame fragment
@@ -169,31 +160,40 @@ public class MainGameFragment extends ListFragment {
 
 
     private class NetworkTask extends
-            AsyncTask<Integer, Void, List<IHollywoodObject>> {
+            AsyncTask<IHollywoodObject, Void, List<IHollywoodObject>> {
         @Override
         protected void onPreExecute() {
             mListView.setVisibility(View.GONE);
             mProgress.setVisibility(View.VISIBLE);
         };
 
-        protected List<IHollywoodObject> doInBackground(Integer... params) {
-            int downloadType = params[0];
-            int id = params[1];
+        protected List<IHollywoodObject> doInBackground(IHollywoodObject... params) {
+
+            IHollywoodObject obj = params[0];
 
             try {
                 // 0 - movies
                 // 1 - actors
-                if (downloadType == 0) {
-                    CombinedCredits res =  mAPIClient.getMediaForActor(id,Constants.API_KEY);
+                if (obj instanceof Actor) {
+                    Actor actor = (Actor) obj;
+                    CombinedCredits res =  mAPIClient.getMediaForActor(actor.getId(),Constants.API_KEY);
                     ArrayList<IHollywoodObject> resList = new ArrayList<>();
                     for (MediaModel m : res.cast) {
                         resList.add(m);
                     }
                     return resList;
-                } else {
-                   CombinedCredits res =  mAPIClient.getMediaForActor(id,Constants.API_KEY);
+                } else if (obj instanceof MediaModel){
+                    MediaModel mediaModel = (MediaModel) obj;
+                    Cast res = null;
+                    if (mediaModel.type.equals(MediaModel.MediaType.movie)) {
+                        res =  mAPIClient.getCastForMovie(obj.getId(),Constants.API_KEY);
+                    } else if (mediaModel.type.equals(MediaModel.MediaType.tv)) {
+                        res = mAPIClient.getCastForTV(obj.getId(), Constants.API_KEY);
+
+                    }
+
                     ArrayList<IHollywoodObject> resList = new ArrayList<>();
-                    for (MediaModel m : res.cast) {
+                    for (Actor m : res.cast) {
                         resList.add(m);
                     }
                    return resList;
