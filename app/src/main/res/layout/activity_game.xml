@@ -1,85 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/linearlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical" >
 
-    <LinearLayout
-        android:id="@+id/linearlayoutTopText"
+    <fragment
+        android:id="@+id/mainGameFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:orientation="horizontal" >
-
-        <LinearLayout
-            android:id="@+id/linearlayout_starting"
-            android:layout_width="0px"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:background="@color/BlueColor"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:id="@+id/imageview_starting_actor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:paddingTop="10dp" />
-
-            <TextView
-                android:id="@+id/textViewStarting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="10dp"
-                android:text="Starting Actor"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/linearlayout_ending"
-            android:layout_width="0px"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:background="@color/DarkBlueColor"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:id="@+id/imageview_ending_actor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="10dp"
-                android:layout_gravity="center"/>
-
-            <TextView
-                android:id="@+id/textViewEnding"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="10dp"
-                android:text="Ending Actor"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progressDialog"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        android:visibility="gone" />
-
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        class = "com.vithushan.therottengame.fragment.MainGameFragment"/>
 
 </LinearLayout>

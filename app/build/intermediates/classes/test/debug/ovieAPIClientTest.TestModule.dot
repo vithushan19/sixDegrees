@@ -1,0 +1,6 @@
+digraph G1 {
+  concentrate = true;
+  MainGameFragment -> IMovieAPIClient;
+  MovieAPIClientTest -> IMovieAPIClient;
+  SelectActorFragment -> IMovieAPIClient;
+}
