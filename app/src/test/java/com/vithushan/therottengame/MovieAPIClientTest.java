@@ -1,3 +1,5 @@
+package com.vithushan.therottengame;
+
 import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.model.Cast;
 import com.vithushan.therottengame.model.CombinedCredits;
