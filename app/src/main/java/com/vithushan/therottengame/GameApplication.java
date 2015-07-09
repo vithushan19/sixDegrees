@@ -12,6 +12,7 @@ import dagger.ObjectGraph;
  */
 public class GameApplication extends Application {
 
+    // Dagger
     private ObjectGraph graph;
 
     @Override public void onCreate() {

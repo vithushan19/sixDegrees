@@ -6,8 +6,6 @@ public class Actor implements IHollywoodObject {
 	private String name;
 	private String profile_path;
 
-
-
 	public Actor(String id, String name, String imgURL) {
 		if ("http://image.tmdb.org/t/p/w92".equals(imgURL)) {
 			imgURL = "";

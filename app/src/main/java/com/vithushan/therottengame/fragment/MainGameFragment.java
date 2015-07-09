@@ -40,13 +40,19 @@ import com.vithushan.therottengame.util.StringUtil;
  * Created by Vithushan on 7/5/2015.
  */
 public class MainGameFragment extends ListFragment {
-    private ListViewAdapter mAdapter;
-    private ListView mListView;
     private List<IHollywoodObject> mCurrentList;
     private Actor mStartingActor;
     private Actor mEndingActor;
     private int mClickCount;
+
     private ProgressBar mProgress;
+    private TextView mStartingActortv;
+    private TextView mEndingActortv;
+    private ImageView mStartingImageView;
+    private ImageView mEndingImageView;
+
+    private ListView mListView;
+    private ListViewAdapter mAdapter;
 
     @Inject
     IMovieAPIClient mAPIClient;
@@ -55,23 +61,26 @@ public class MainGameFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main_game, container,false);
         ((GameApplication) getActivity().getApplication()).inject(this);
+
         mListView = (ListView) view.findViewById(android.R.id.list);
-        final TextView startingActortv = (TextView) view.findViewById(R.id.textViewStarting);
-        final TextView endingActortv = (TextView) view.findViewById(R.id.textViewEnding);
-        final ImageView startingImageView = (ImageView) view.findViewById(R.id.imageview_starting_actor);
-        final ImageView endingImageView = (ImageView) view.findViewById(R.id.imageview_ending_actor);
+        mStartingActortv = (TextView) view.findViewById(R.id.textViewStarting);
+        mEndingActortv = (TextView) view.findViewById(R.id.textViewEnding);
+        mStartingImageView = (ImageView) view.findViewById(R.id.imageview_starting_actor);
+        mEndingImageView = (ImageView) view.findViewById(R.id.imageview_ending_actor);
         mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
+
         mCurrentList = new ArrayList<IHollywoodObject>();
 
         mClickCount = 0;
 
+        return view;
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
 
-
-
-        new AsyncTask<Void, Void, List<Actor>>()
-
-        {
+        new AsyncTask<Void, Void, List<Actor>>() {
 
             @Override
             protected void onPreExecute() {
@@ -86,42 +95,42 @@ public class MainGameFragment extends ListFragment {
 
             @Override
             protected void onPostExecute(List<Actor> actors) {
-                Actor result = actors.get(4);
-                mEndingActor = result;
-                endingActortv.setText(mEndingActor.getName());
+                Actor start = actors.get(4);
+                setupEndingActor(start);
 
-                if (StringUtil.isEmpty(mEndingActor.getImageURL())) {
-                    startingImageView.setImageResource(R.drawable.question_mark);
-                } else {
-                    Picasso.with(getActivity().getBaseContext()).load(mEndingActor.getImageURL()).into(endingImageView);
-                }
-
-
-                result = ((GameActivity)getActivity()).getmSelectedActor();
-                mStartingActor = result;
-                new NetworkTask().execute(mStartingActor);
-                startingActortv.setText(mStartingActor.getName());
-
-                if (StringUtil.isEmpty(mStartingActor.getImageURL())) {
-                    startingImageView.setImageResource(R.drawable.question_mark);
-                } else {
-                    //TODO check if getbasebcontext part is needed
-                    Picasso.with(getActivity().getBaseContext()).load(mStartingActor.getImageURL()).into(startingImageView);
-                }
+                Actor end = ((GameActivity)getActivity()).getmSelectedActor();
+                setupStartingActor(end);
 
                 mProgress.setVisibility(View.GONE);
+            }
+
+            //TODO Duplicate setup code
+            private void setupStartingActor(Actor result) {
+                mStartingActor = result;
+                new NetworkTask().execute(mStartingActor);
+                mStartingActortv.setText(mStartingActor.getName());
+
+                if (StringUtil.isEmpty(mStartingActor.getImageURL())) {
+                    mStartingImageView.setImageResource(R.drawable.question_mark);
+                } else {
+                    //TODO check if getbasebcontext part is needed
+                    Picasso.with(getActivity().getBaseContext()).load(mStartingActor.getImageURL()).into(mStartingImageView);
+                }
+            }
+
+            private void setupEndingActor(Actor result) {
+                mEndingActor = result;
+                mEndingActortv.setText(mEndingActor.getName());
+
+                if (StringUtil.isEmpty(mEndingActor.getImageURL())) {
+                    mEndingImageView.setImageResource(R.drawable.question_mark);
+                } else {
+                    Picasso.with(getActivity().getBaseContext()).load(mEndingActor.getImageURL()).into(mEndingImageView);
+                }
             }
         }.execute();
 
 
-
-
-        return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         mAdapter = new ListViewAdapter(this.getActivity(), mCurrentList);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(
@@ -173,8 +182,6 @@ public class MainGameFragment extends ListFragment {
             IHollywoodObject obj = params[0];
 
             try {
-                // 0 - movies
-                // 1 - actors
                 if (obj instanceof Actor) {
                     Actor actor = (Actor) obj;
                     CombinedCredits res =  mAPIClient.getMediaForActor(actor.getId(),Constants.API_KEY);
@@ -190,7 +197,6 @@ public class MainGameFragment extends ListFragment {
                         res =  mAPIClient.getCastForMovie(obj.getId(),Constants.API_KEY);
                     } else if (mediaModel.type.equals(MediaModel.MediaType.tv)) {
                         res = mAPIClient.getCastForTV(obj.getId(), Constants.API_KEY);
-
                     }
 
                     ArrayList<IHollywoodObject> resList = new ArrayList<>();

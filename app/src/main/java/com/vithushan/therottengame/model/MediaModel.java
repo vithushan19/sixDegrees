@@ -1,6 +1,7 @@
 package com.vithushan.therottengame.model;
 
 import com.google.gson.annotations.SerializedName;
+import com.vithushan.therottengame.util.StringUtil;
 
 /**
  * Created by vnama on 7/8/2015.
@@ -9,8 +10,6 @@ public class MediaModel implements IHollywoodObject {
 
     public String id;
     public String poster_path;
-
-
     public String name;
     public String title;
 
@@ -24,8 +23,7 @@ public class MediaModel implements IHollywoodObject {
 
     @Override
     public String getName() {
-        if (name != null) {
-            if (!name.equals(""))
+        if (!StringUtil.isEmpty(name)) {
             return name;
         }
         return title;

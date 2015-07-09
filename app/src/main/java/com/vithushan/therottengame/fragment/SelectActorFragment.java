@@ -46,11 +46,22 @@ public class SelectActorFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_select_actors, container,false);
-
         mListView = (ListView) view.findViewById(android.R.id.list);
-
         mButton = (Button) view.findViewById(R.id.submit);
+        mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
+
+        ((GameApplication) getActivity().getApplication()).inject(this);
+        mPopularActorList = new ArrayList<IHollywoodObject>();
+
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,13 +72,8 @@ public class SelectActorFragment extends ListFragment {
                 startActivity(intent);
             }
         });
-        mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
-        ((GameApplication) getActivity().getApplication()).inject(this);
-        mPopularActorList = new ArrayList<IHollywoodObject>();
 
-        new AsyncTask<Void, Void, List<Actor>>()
-
-         {
+        new AsyncTask<Void, Void, List<Actor>>() {
 
             @Override
             protected void onPreExecute() {
@@ -99,12 +105,9 @@ public class SelectActorFragment extends ListFragment {
                             }
                         }
                 );
+
                 mProgress.setVisibility(View.GONE);
             }
         }.execute();
-
-
-
-        return view;
     }
 }

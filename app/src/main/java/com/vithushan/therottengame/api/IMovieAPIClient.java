@@ -1,15 +1,9 @@
 package com.vithushan.therottengame.api;
 
-import java.util.List;
-
-import com.vithushan.therottengame.model.Actor;
 import com.vithushan.therottengame.model.Cast;
 import com.vithushan.therottengame.model.CombinedCredits;
-import com.vithushan.therottengame.model.IHollywoodObject;
-import com.vithushan.therottengame.model.MediaModel;
 import com.vithushan.therottengame.model.PopularPeople;
 
-import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
