@@ -1,4 +1,5 @@
 import com.vithushan.therottengame.api.IMovieAPIClient;
+import com.vithushan.therottengame.model.Cast;
 import com.vithushan.therottengame.model.CombinedCredits;
 import com.vithushan.therottengame.model.MediaModel;
 import com.vithushan.therottengame.model.PopularPeople;
@@ -40,7 +41,7 @@ public class MovieAPIClientTest {
 
     @Test
     public void testGetCombinedCredits() {
-        CombinedCredits combinedCredits = mMovieAPIClient.getMediaForActor(18918, API_KEY);
+        CombinedCredits combinedCredits = mMovieAPIClient.getMediaForActor("18918", API_KEY);
         assertNotNull(combinedCredits);
         assertNotNull(combinedCredits.cast);
         assertNotEquals(combinedCredits.cast.size(),0);
@@ -50,10 +51,10 @@ public class MovieAPIClientTest {
     public void testGetCastForTV() {
         MediaModel m = new MediaModel();
         //TODO try with caps
-        m.type = MediaModel.MediaType.TV;
-        m.id = 8592;
+        m.type = MediaModel.MediaType.tv;
+        m.id = "8592";
 
-        CombinedCredits combinedCredits = mMovieAPIClient.getCastForTV(m.id, API_KEY);
+        Cast combinedCredits = mMovieAPIClient.getCastForTV(m.id, API_KEY);
         assertNotNull(combinedCredits);
         assertNotNull(combinedCredits.cast);
         assertNotEquals(combinedCredits.cast.size(), 0);
@@ -63,10 +64,10 @@ public class MovieAPIClientTest {
     public void testGetCastForMovie() {
         MediaModel m = new MediaModel();
         //TODO try with caps
-        m.type = MediaModel.MediaType.MOVIE;
-        m.id = 21862;
+        m.type = MediaModel.MediaType.movie;
+        m.id = "21862";
 
-        CombinedCredits combinedCredits = mMovieAPIClient.getCastForMovie(m.id,API_KEY);
+        Cast combinedCredits = mMovieAPIClient.getCastForMovie(m.id,API_KEY);
         assertNotNull(combinedCredits);
         assertNotNull(combinedCredits.cast);
         assertNotEquals(combinedCredits.cast.size(), 0);

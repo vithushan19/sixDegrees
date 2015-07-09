@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public class MediaModel implements IHollywoodObject {
 
-    public int id;
+    public String id;
     public String poster_path;
 
 

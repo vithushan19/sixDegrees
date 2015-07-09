@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.vithushan.therottengame.GameApplication;
+import com.vithushan.therottengame.activity.GameActivity;
 import com.vithushan.therottengame.adapter.ListViewAdapter;
 import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.activity.GameOverActivity;
@@ -96,7 +97,7 @@ public class MainGameFragment extends ListFragment {
                 }
 
 
-                result = actors.get(8);
+                result = ((GameActivity)getActivity()).getmSelectedActor();
                 mStartingActor = result;
                 new NetworkTask().execute(mStartingActor);
                 startingActortv.setText(mStartingActor.getName());

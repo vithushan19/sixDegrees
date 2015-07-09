@@ -1,6 +1,6 @@
 package com.vithushan.therottengame.model;
 
-public class Actor implements IHollywoodObject{
+public class Actor implements IHollywoodObject {
 
 	private String id;
 	private String name;

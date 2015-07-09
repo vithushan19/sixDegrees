@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.gson.Gson;
 import com.vithushan.therottengame.GameApplication;
 import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.activity.GameActivity;
@@ -54,8 +55,9 @@ public class SelectActorFragment extends ListFragment {
             @Override
             public void onClick(View view) {
                 int index = mAdapter.getSelectedIndex();
-                IHollywoodObject res = mAdapter.getItem(index);
+                Actor res = (Actor)mAdapter.getItem(index);
                 Intent intent = new Intent(getActivity(), GameActivity.class);
+                intent.putExtra("SelectedActor", new Gson().toJson(res));
                 startActivity(intent);
             }
         });
