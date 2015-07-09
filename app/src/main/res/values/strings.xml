@@ -52,5 +52,7 @@
     <string name="gamehelper_license_failed">License check failed.</string>
     <string name="gamehelper_unknown_error">Unknown error.</string>
     <string name="pick_one">Pick one</string>
+    <string name="title_activity_google_play_services">GooglePlayServicesActivity</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

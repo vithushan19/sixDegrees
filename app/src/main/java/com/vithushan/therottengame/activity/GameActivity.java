@@ -2,18 +2,17 @@ package com.vithushan.therottengame.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
 import com.google.gson.Gson;
 import com.vithushan.therottengame.R;
 import com.vithushan.therottengame.model.Actor;
 
-public class GameActivity extends FragmentActivity {
+public class GameActivity extends BaseActivity {
 	private String TAG = "Vithushan";
 	private Actor mSelectedActor;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_game);
