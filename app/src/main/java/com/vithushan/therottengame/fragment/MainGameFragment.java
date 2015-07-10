@@ -1,5 +1,7 @@
 package com.vithushan.therottengame.fragment;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -19,14 +21,12 @@ import com.vithushan.therottengame.GameApplication;
 import com.vithushan.therottengame.activity.GameActivity;
 import com.vithushan.therottengame.adapter.ListViewAdapter;
 import com.vithushan.therottengame.R;
-import com.vithushan.therottengame.activity.GameOverActivity;
 import com.vithushan.therottengame.api.IMovieAPIClient;
 import com.vithushan.therottengame.model.Actor;
 import com.vithushan.therottengame.model.Cast;
 import com.vithushan.therottengame.model.CombinedCredits;
 import com.vithushan.therottengame.model.IHollywoodObject;
 import com.vithushan.therottengame.model.MediaModel;
-import com.vithushan.therottengame.model.PopularPeople;
 import com.vithushan.therottengame.util.Constants;
 
 
@@ -168,11 +168,11 @@ public class MainGameFragment extends ListFragment {
 
     // TODO change this to a postgame fragment
     protected void winGame() {
-        Intent intent = new Intent(this.getActivity(), GameOverActivity.class);
-        intent.putExtra("Won", true);
-        startActivity(intent);
-        return;
+        // Broadcast your selection to other player(s)
+        ((GameActivity)getActivity()).broadcastGameOver();
+        ((GameActivity)getActivity()).gotoGameOverFragment();
     }
+
 
     // Called when we receive a real-time message from the network.
     // Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'

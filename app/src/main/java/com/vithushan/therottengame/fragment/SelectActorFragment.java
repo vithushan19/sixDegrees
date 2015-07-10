@@ -14,8 +14,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.google.android.gms.games.Games;
-import com.google.android.gms.games.multiplayer.Participant;
 import com.google.gson.Gson;
 import com.vithushan.therottengame.GameApplication;
 import com.vithushan.therottengame.R;
@@ -27,7 +25,6 @@ import com.vithushan.therottengame.model.IHollywoodObject;
 import com.vithushan.therottengame.model.PopularPeople;
 import com.vithushan.therottengame.util.Constants;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,7 +85,7 @@ public class SelectActorFragment extends ListFragment implements GameActivity.on
 
                 // If you already have your opponenet's selection, start the mainfragment
                 if (mOppSelectedActor != 0) {
-                    setupAndStartMainFragment();
+                    gotoMainFragment();
                 } else {
                     // Wait for opp selection
                     mButton.setEnabled(false);
@@ -135,7 +132,7 @@ public class SelectActorFragment extends ListFragment implements GameActivity.on
         }.execute();
     }
 
-    private void setupAndStartMainFragment() {
+    private void gotoMainFragment() {
 
         Intent intent = new Intent(getActivity(), GameActivity.class);
         intent.putExtra("SelectedActor", new Gson().toJson(mMySelectedActor));
@@ -158,7 +155,7 @@ public class SelectActorFragment extends ListFragment implements GameActivity.on
     public void onSet() {
         if (this.mMySelectedActor != null) {
             mProgress.setVisibility(View.GONE);
-            setupAndStartMainFragment();
+            gotoMainFragment();
         }
     }
 }

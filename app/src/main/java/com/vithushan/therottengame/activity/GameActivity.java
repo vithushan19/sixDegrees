@@ -19,6 +19,7 @@ import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vithushan.therottengame.R;
+import com.vithushan.therottengame.fragment.MainGameFragment;
 import com.vithushan.therottengame.fragment.SelectActorFragment;
 import com.vithushan.therottengame.model.Actor;
 
@@ -28,6 +29,8 @@ import java.util.Collections;
 
 public class GameActivity extends BaseActivity {
 	private String TAG = "Vithushan";
+
+
 
     public interface onOppSelectedActorSetListener {
         void onSet();
@@ -143,6 +146,7 @@ public class GameActivity extends BaseActivity {
             }
         } else {
             // handle end game broadcast
+
         }
     }
 
@@ -156,10 +160,19 @@ public class GameActivity extends BaseActivity {
      */
 
     public void broadcastSelectedActorToOpp(int actorId) {
+        byte[] msgBuf = IntToByteArray(actorId);
+        broadcastMessageToParticipants(msgBuf);
+    }
+
+    public void broadcastGameOver() {
+        byte[] msgBuf = new byte[1];
+        msgBuf[0] = 'W';
+        broadcastMessageToParticipants(msgBuf);
+    }
+
+    private void broadcastMessageToParticipants(byte[] msgBuf) {
         if (!mMultiplayer)
             return; // playing single-player mode
-
-        byte[] msgBuf = IntToByteArray(actorId);
 
         // Send to every other participant.
         for (Participant p : mParticipants) {
@@ -190,7 +203,6 @@ public class GameActivity extends BaseActivity {
         rtmConfigBuilder.setRoomStatusUpdateListener(this);
         rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
         //switchToScreen(R.id.screen_wait);
-        //keepScreenOn();
         //resetGameVars();
         if (mGoogleApiClient.isConnected()) {
             Log.d(TAG, "CONNECTED");
@@ -236,6 +248,19 @@ public class GameActivity extends BaseActivity {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fragment_container, firstFragment).commit();
+    }
+
+    public void gotoGameOverFragment() {
+        Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra("Won", true);
+
+        MainGameFragment fragment = new MainGameFragment();
+        fragment.setArguments(intent.getExtras());
+
+        // Add the fragment to the 'fragment_container' FrameLayout
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fragment_container, fragment).commit();
     }
 
     // Handle the result of the "Select players UI" we launched when the user clicked the
@@ -295,16 +320,8 @@ public class GameActivity extends BaseActivity {
         acceptInviteToRoom(inv.getInvitationId());
     }
 
-    // Sets the flag to keep this screen on. It's recommended to do that during
-    // the handshake when setting up a game, because if the screen turns off, the
-    // game will be cancelled.
-    void keepScreenOn() {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    // Clears the flag that keeps the screen on.
-    void stopKeepingScreenOn() {
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    public boolean getIsHost() {
+        return this.mHost;
     }
 
     private int byteArrayToInt (byte[] arr) {

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+
 import com.google.android.gms.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -105,12 +107,14 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
 	protected void onStart() {
 		super.onStart();
 		mGoogleApiClient.connect();
+        keepScreenOn();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 		mGoogleApiClient.disconnect();
+        stopKeepingScreenOn();
 	}
 
 
@@ -341,7 +345,7 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
 	public void onRealTimeMessageReceived(RealTimeMessage realTimeMessage) {
 
 	}
-    
+
 	void updateRoom(Room room) {
 		if (room != null) {
 			mParticipants = room.getParticipants();
@@ -360,6 +364,19 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
 
         // show waiting room UI
         startActivityForResult(i, RC_WAITING_ROOM);
+    }
+
+
+    // Sets the flag to keep this screen on. It's recommended to do that during
+    // the handshake when setting up a game, because if the screen turns off, the
+    // game will be cancelled.
+    private void keepScreenOn() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    // Clears the flag that keeps the screen on.
+    private void stopKeepingScreenOn() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
 }
