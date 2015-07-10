@@ -1,5 +1,7 @@
 package com.vithushan.therottengame.fragment;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -12,6 +14,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.multiplayer.Participant;
 import com.google.gson.Gson;
 import com.vithushan.therottengame.GameApplication;
 import com.vithushan.therottengame.R;
@@ -23,6 +27,7 @@ import com.vithushan.therottengame.model.IHollywoodObject;
 import com.vithushan.therottengame.model.PopularPeople;
 import com.vithushan.therottengame.util.Constants;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +36,16 @@ import javax.inject.Inject;
 /**
  * Created by Vithushan on 7/6/2015.
  */
-public class SelectActorFragment extends ListFragment {
+public class SelectActorFragment extends ListFragment implements GameActivity.onOppSelectedActorSetListener {
+
 
     @Inject
     IMovieAPIClient mAPIClient;
 
     private List<IHollywoodObject> mPopularActorList;
+
+    private Actor mMySelectedActor;
+    private int mOppSelectedActor = 0;
 
     private ListViewAdapter mAdapter;
     private ListView mListView;
@@ -47,7 +56,7 @@ public class SelectActorFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_select_actors, container,false);
+        View view = inflater.inflate(R.layout.fragment_select_actors, container, false);
         mListView = (ListView) view.findViewById(android.R.id.list);
         mButton = (Button) view.findViewById(R.id.submit);
         mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
@@ -62,17 +71,33 @@ public class SelectActorFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
+        mButton.setEnabled(true);
+        mProgress.setVisibility(View.INVISIBLE);
+
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Save your selection
                 int index = mAdapter.getSelectedIndex();
-                Actor res = (Actor)mAdapter.getItem(index);
-                Intent intent = new Intent(getActivity(), GameActivity.class);
-                intent.putExtra("SelectedActor", new Gson().toJson(res));
-                startActivity(intent);
+                mMySelectedActor = (Actor) mAdapter.getItem(index);
+
+                // TODO disable submit button after one click
+
+                // Broadcast your selection to other player(s)
+                ((GameActivity)getActivity()).broadcastSelectedActorToOpp(Integer.valueOf(mMySelectedActor.getId()));
+
+                // If you already have your opponenet's selection, start the mainfragment
+                if (mOppSelectedActor != 0) {
+                    setupAndStartMainFragment();
+                } else {
+                    // Wait for opp selection
+                    mButton.setEnabled(false);
+                    mProgress.setVisibility(View.VISIBLE);
+                }
             }
         });
 
+        // Get and display the popular actors for selection
         new AsyncTask<Void, Void, List<Actor>>() {
 
             @Override
@@ -99,7 +124,6 @@ public class SelectActorFragment extends ListFragment {
                         new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                                 mAdapter.setSelectedIndex(position);
                                 mAdapter.notifyDataSetChanged();
                             }
@@ -109,5 +133,32 @@ public class SelectActorFragment extends ListFragment {
                 mProgress.setVisibility(View.GONE);
             }
         }.execute();
+    }
+
+    private void setupAndStartMainFragment() {
+
+        Intent intent = new Intent(getActivity(), GameActivity.class);
+        intent.putExtra("SelectedActor", new Gson().toJson(mMySelectedActor));
+        intent.putExtra("OppSelectedActorId", mOppSelectedActor);
+
+        MainGameFragment fragment = new MainGameFragment();
+        fragment.setArguments(intent.getExtras());
+
+        // Add the fragment to the 'fragment_container' FrameLayout
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fragment_container, fragment).commit();
+    }
+
+    public void setOppSelectedActor(int id) {
+        mOppSelectedActor = id;
+    }
+
+    @Override
+    public void onSet() {
+        if (this.mMySelectedActor != null) {
+            mProgress.setVisibility(View.GONE);
+            setupAndStartMainFragment();
+        }
     }
 }

@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.vithushan.therottengame.GameApplication;
 import com.vithushan.therottengame.activity.GameActivity;
@@ -80,7 +81,13 @@ public class MainGameFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        new AsyncTask<Void, Void, List<Actor>>() {
+        // The actor that you chose
+        final String myActorJSONString = getArguments().getString("SelectedActor");
+        final Actor mySelectedActor = new Gson().fromJson(myActorJSONString, Actor.class);
+
+        // The actor your opponent chose
+        final String oppSelectedActorId = String.valueOf(getArguments().getInt("OppSelectedActorId"));
+        new AsyncTask<Void, Void, Actor>() {
 
             @Override
             protected void onPreExecute() {
@@ -88,19 +95,25 @@ public class MainGameFragment extends ListFragment {
             }
 
             @Override
-            protected List<Actor> doInBackground(Void... params) {
-                PopularPeople resultList = mAPIClient.getPopularActors(Constants.API_KEY);
-                return resultList.results;
+            protected Actor doInBackground(Void... params) {
+
+                Actor oppSelectedActor = mAPIClient.getActor(oppSelectedActorId, Constants.API_KEY);
+
+                return oppSelectedActor;
             }
 
             @Override
-            protected void onPostExecute(List<Actor> actors) {
-                Actor start = actors.get(4);
-                setupEndingActor(start);
+            protected void onPostExecute(Actor actor) {
 
-                Actor end = ((GameActivity)getActivity()).getmSelectedActor();
-                setupStartingActor(end);
+                boolean isHost = ((GameActivity)getActivity()).getIsHost();
 
+                if (isHost) {
+                    setupStartingActor(mySelectedActor);
+                    setupEndingActor(actor);
+                } else {
+                    setupStartingActor(actor);
+                    setupEndingActor(mySelectedActor);
+                }
                 mProgress.setVisibility(View.GONE);
             }
 

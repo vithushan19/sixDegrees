@@ -1,5 +1,6 @@
 package com.vithushan.therottengame.api;
 
+import com.vithushan.therottengame.model.Actor;
 import com.vithushan.therottengame.model.Cast;
 import com.vithushan.therottengame.model.CombinedCredits;
 import com.vithushan.therottengame.model.PopularPeople;
@@ -21,5 +22,8 @@ public interface IMovieAPIClient {
 
 	@GET("/person/popular")
 	PopularPeople getPopularActors(@Query("api_key") String apiKey);
+
+    @GET("/person/{id}")
+    Actor getActor(@Path("id") String actorId, @Query("api_key") String apiKey);
 
 }
