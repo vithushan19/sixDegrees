@@ -19,6 +19,7 @@ import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vithushan.therottengame.R;
+import com.vithushan.therottengame.fragment.GameOverFragment;
 import com.vithushan.therottengame.fragment.MainGameFragment;
 import com.vithushan.therottengame.fragment.SelectActorFragment;
 import com.vithushan.therottengame.model.Actor;
@@ -134,7 +135,6 @@ public class GameActivity extends BaseActivity {
     public void onRealTimeMessageReceived(RealTimeMessage rtm) {
         byte[] buf = rtm.getMessageData();
         String sender = rtm.getSenderParticipantId();
-        Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
 
         // Actor message
         if (buf.length == 4) {
@@ -146,7 +146,7 @@ public class GameActivity extends BaseActivity {
             }
         } else {
             // handle end game broadcast
-
+            gotoGameOverFragment(false);
         }
     }
 
@@ -250,11 +250,11 @@ public class GameActivity extends BaseActivity {
         ft.replace(R.id.fragment_container, firstFragment).commit();
     }
 
-    public void gotoGameOverFragment() {
+    public void gotoGameOverFragment(boolean won) {
         Intent intent = new Intent(this, GameActivity.class);
-        intent.putExtra("Won", true);
+        intent.putExtra("Won", won);
 
-        MainGameFragment fragment = new MainGameFragment();
+        GameOverFragment fragment = new GameOverFragment();
         fragment.setArguments(intent.getExtras());
 
         // Add the fragment to the 'fragment_container' FrameLayout

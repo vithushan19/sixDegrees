@@ -170,7 +170,7 @@ public class MainGameFragment extends ListFragment {
     protected void winGame() {
         // Broadcast your selection to other player(s)
         ((GameActivity)getActivity()).broadcastGameOver();
-        ((GameActivity)getActivity()).gotoGameOverFragment();
+        ((GameActivity)getActivity()).gotoGameOverFragment(true);
     }
 
 
