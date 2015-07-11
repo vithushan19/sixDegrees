@@ -27,10 +27,10 @@ public class Actor implements IHollywoodObject {
 
 	@Override
 	public String getImageURL() {
-		String res = "http://image.tmdb.org/t/p/w92" +  profile_path;
+		String res = "http://image.tmdb.org/t/p/w154" +  profile_path;
         return res;
 	}
-	
+    
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Actor) {

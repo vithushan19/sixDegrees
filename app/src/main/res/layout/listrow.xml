@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
-    android:descendantFocusability="blocksDescendants"
-    android:padding="6dp" >
+    android:orientation="horizontal"
+    android:descendantFocusability="blocksDescendants">
 
     <ImageView
         android:id="@+id/imageViewRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/question_mark"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         android:focusable="false"
@@ -17,13 +17,16 @@
 
     <TextView
         android:id="@+id/textViewRow"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@id/imageViewRow"
         android:focusable="false"
+        android:text="Vithushan Nama"
         android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:gravity="center_vertical" />
 
-</RelativeLayout>
+</LinearLayout>

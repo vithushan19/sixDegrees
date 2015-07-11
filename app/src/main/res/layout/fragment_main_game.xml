@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/linearlayout"
+    android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -18,26 +21,27 @@
             android:layout_width="0px"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:background="@color/BlueColor"
-            android:orientation="vertical" >
+            android:orientation="horizontal"
+            android:background="@drawable/red_gradient">
+
+            <TextView
+                android:id="@+id/textViewStarting"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Starting Actor"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:singleLine="false"
+                android:layout_gravity="center_vertical"
+                android:gravity="center" />
 
             <ImageView
                 android:id="@+id/imageview_starting_actor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:paddingTop="10dp" />
+                android:src="@drawable/question_mark"/>
 
-            <TextView
-                android:id="@+id/textViewStarting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="10dp"
-                android:text="Starting Actor"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -45,41 +49,44 @@
             android:layout_width="0px"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:background="@color/DarkBlueColor"
-            android:orientation="vertical" >
+            android:background="@drawable/blue_gradient"
+            android:orientation="horizontal" >
 
             <ImageView
                 android:id="@+id/imageview_ending_actor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="10dp"
-                android:layout_gravity="center"/>
+                android:src="@drawable/question_mark"/>
 
             <TextView
                 android:id="@+id/textViewEnding"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="10dp"
+                android:layout_gravity="center_vertical"
                 android:text="Ending Actor"
                 android:textColor="@color/black"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:gravity="center" />
         </LinearLayout>
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressDialog"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        android:visibility="gone" />
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <ProgressBar
+            android:id="@+id/progressDialog"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
 
 </LinearLayout>
+

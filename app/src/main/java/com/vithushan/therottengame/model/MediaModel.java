@@ -31,7 +31,7 @@ public class MediaModel implements IHollywoodObject {
 
     @Override
     public String getImageURL() {
-        String res =  "http://image.tmdb.org/t/p/w92" + poster_path;
+        String res =  "http://image.tmdb.org/t/p/w154" + poster_path;
         return res;
     }
 
