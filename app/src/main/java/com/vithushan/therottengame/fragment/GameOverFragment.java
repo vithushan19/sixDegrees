@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 public class GameOverFragment extends Fragment {
 	private TextView mStateTextView;
+	//private  Button mR
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

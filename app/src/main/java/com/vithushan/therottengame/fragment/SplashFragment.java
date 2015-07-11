@@ -15,18 +15,26 @@ import com.vithushan.therottengame.activity.GameActivity;
  */
 public class SplashFragment extends Fragment {
 
-    private String TAG = "VITHUSHAN - SPLASH";
+    private String TAG = "SplashFragment";
     private Button mQuickGame;
+    private Button mSinglePlayer;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_splash, container, false);
+        View view = inflater.inflate(R.layout.fragment_splash, container, false);
         mQuickGame = (Button) view.findViewById(R.id.quick_game_button);
         mQuickGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((GameActivity)getActivity()).createGameRoom();
+            }
+        });
+        mSinglePlayer = (Button) view.findViewById(R.id.button_single_player);
+        mSinglePlayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((GameActivity)getActivity()).startSinglePlayer();
             }
         });
         return view;

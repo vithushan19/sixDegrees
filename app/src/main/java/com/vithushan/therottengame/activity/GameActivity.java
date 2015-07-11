@@ -95,7 +95,6 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
 
 		// Create the Google Api Client with access to Plus and Games
 		mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -189,6 +188,11 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
     // Clears the flag that keeps the screen on.
     private void stopKeepingScreenOn() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    public void startSinglePlayer() {
+        mMultiplayer = false;
+        gotoSelectActorFragment();
     }
 
     public void createGameRoom() {
@@ -333,7 +337,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         if (!multiplayer) return;
 
         selectHost();
-        gotoSelectActorScreen();
+        gotoSelectActorFragment();
     }
 
 
@@ -353,14 +357,14 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         }
     }
 
-    private void gotoSelectActorScreen() {
+    private void gotoSelectActorFragment() {
         // Create a new Fragment to be placed in the activity layout
-        SelectActorFragment firstFragment = new SelectActorFragment();
+        SelectActorFragment selectActorFragment = new SelectActorFragment();
 
         // Add the fragment to the 'fragment_container' FrameLayout
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.fragment_container, firstFragment).commit();
+        ft.replace(R.id.fragment_container, selectActorFragment).commit();
     }
 
     public void gotoGameOverFragment(boolean won) {
@@ -377,7 +381,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
     }
 
     private void gotoSplashFragment() {
-        
+
         SplashFragment fragment = new SplashFragment();
 
         // Add the fragment to the 'fragment_container' FrameLayout
@@ -385,7 +389,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fragment_container, fragment).commit();
     }
-    
+
     // Handle the result of the "Select players UI" we launched when the user clicked the
     // "Invite friends" button. We react by creating a room with those players.
     private void handleSelectPlayersResult(int response, Intent data) {
@@ -447,6 +451,9 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         return this.mHost;
     }
 
+    public boolean getIsMultiplayer() {
+        return this.mMultiplayer;
+    }
     private int byteArrayToInt (byte[] arr) {
         ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
         int num = wrapped.getInt(); // 1

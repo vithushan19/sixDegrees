@@ -27,6 +27,7 @@ import com.vithushan.therottengame.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.inject.Inject;
 
@@ -80,17 +81,31 @@ public class SelectActorFragment extends ListFragment implements GameActivity.on
 
                 // TODO disable submit button after one click
 
-                // Broadcast your selection to other player(s)
-                ((GameActivity)getActivity()).broadcastSelectedActorToOpp(Integer.valueOf(mMySelectedActor.getId()));
+                if (((GameActivity)getActivity()).getIsMultiplayer()) {
+                    // Broadcast your selection to other player(s)
+                    ((GameActivity)getActivity()).broadcastSelectedActorToOpp(Integer.valueOf(mMySelectedActor.getId()));
 
-                // If you already have your opponenet's selection, start the mainfragment
-                if (mOppSelectedActor != 0) {
-                    gotoMainFragment();
+                    // If you already have your opponenet's selection, start the mainfragment
+                    if (mOppSelectedActor != 0) {
+                        gotoMainFragment();
+                    } else {
+                        // Wait for opp selection
+                        mButton.setEnabled(false);
+                        mProgress.setVisibility(View.VISIBLE);
+                    }
                 } else {
-                    // Wait for opp selection
-                    mButton.setEnabled(false);
-                    mProgress.setVisibility(View.VISIBLE);
+                    // If single player, we must set mOppSelectedActor ourselves
+                    String randomActorId = "";
+                    do {
+                        Random r = new Random();
+                        int i1 = r.nextInt(mAdapter.getCount());
+                        randomActorId = mAdapter.getItem(i1).getId();
+                    } while (randomActorId == mMySelectedActor.getId());
+
+                    mOppSelectedActor = Integer.valueOf(randomActorId);
+                    gotoMainFragment();
                 }
+
             }
         });
 
