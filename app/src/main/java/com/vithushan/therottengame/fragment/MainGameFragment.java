@@ -4,6 +4,7 @@ import android.app.ListFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -143,6 +144,7 @@ public class MainGameFragment extends ListFragment {
 
         mAdapter = new ListViewAdapter(this.getActivity(), mCurrentList);
         mListView.setAdapter(mAdapter);
+
         mListView.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
                     @Override
@@ -166,6 +168,7 @@ public class MainGameFragment extends ListFragment {
     // TODO change this to a postgame fragment
     protected void winGame() {
         // Broadcast your selection to other player(s)
+        // TODO save scores/win record
         ((GameActivity)getActivity()).broadcastGameOver();
         ((GameActivity)getActivity()).gotoGameOverFragment(true);
     }

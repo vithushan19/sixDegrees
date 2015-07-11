@@ -2,4 +2,6 @@
 <resources>
     <color name="pressed_color">#4d90fe</color>
     <color name="default_color">#ffffff</color>
+    <color name="sa_green_transparent">#78AB46</color>
+
 </resources>

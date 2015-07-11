@@ -1,8 +1,11 @@
 package com.vithushan.therottengame.activity;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -87,6 +90,11 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
 
+    private RottenConnectionCallback mRottenConnectionCallback;
+    private RottenConnectionFailedListener mRottenConnectionFailedListener;
+    private RottenRoomUpdateListener mRottenRoomUpdateListener;
+    private RottenRoomStatusUpdateListener mRottenRoomStatusUpdateListener;
+    private RottenInvitationReceivedListener mRottenInvitationReceivedListener;
 
 	/*
 		LIFECYCLE METHODS
@@ -96,10 +104,17 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+        mRottenConnectionCallback = new RottenConnectionCallback(this);
+        mRottenConnectionFailedListener = new RottenConnectionFailedListener(this);
+        mRottenRoomUpdateListener = new RottenRoomUpdateListener(this);
+        mRottenRoomStatusUpdateListener = new RottenRoomStatusUpdateListener(this);
+        mRottenInvitationReceivedListener = new RottenInvitationReceivedListener();
+
+
 		// Create the Google Api Client with access to Plus and Games
 		mGoogleApiClient = new GoogleApiClient.Builder(this)
-				.addConnectionCallbacks(new RottenConnectionCallback(this))
-				.addOnConnectionFailedListener(new RottenConnectionFailedListener(this))
+				.addConnectionCallbacks(mRottenConnectionCallback)
+				.addOnConnectionFailedListener(mRottenConnectionFailedListener)
 				.addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
 				.addApi(Games.API).addScope(Games.SCOPE_GAMES)
 
@@ -143,10 +158,10 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 	void acceptInviteToRoom(String invId) {
 		// accept the invitation
 		Log.d(TAG, "Accepting invitation: " + invId);
-		RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(new RottenRoomUpdateListener(this));
+		RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(mRottenRoomUpdateListener);
 		roomConfigBuilder.setInvitationIdToAccept(invId)
 				.setMessageReceivedListener(this)
-				.setRoomStatusUpdateListener(new RottenRoomStatusUpdateListener());
+				.setRoomStatusUpdateListener(mRottenRoomStatusUpdateListener);
 		//switchToScreen(R.id.screen_wait);
 		keepScreenOn();
 		//resetGameVars();
@@ -155,8 +170,14 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 
     // Show error message about game being cancelled and return to main screen.
     void showGameError() {
-        BaseGameUtils.makeSimpleDialog(this, getString(R.string.game_problem));
-        gotoSplashFragment();
+        Dialog dialog = BaseGameUtils.makeSimpleDialog(this, getString(R.string.game_problem));
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                gotoSplashFragment();
+            }
+        });
+        dialog.show();
     }
 
 	void updateRoom(Room room) {
@@ -200,9 +221,9 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
         Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
                 MAX_OPPONENTS, 0);
-        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(new RottenRoomUpdateListener(this));
+        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(mRottenRoomUpdateListener);
         rtmConfigBuilder.setMessageReceivedListener(this);
-        rtmConfigBuilder.setRoomStatusUpdateListener(new RottenRoomStatusUpdateListener());
+        rtmConfigBuilder.setRoomStatusUpdateListener(mRottenRoomStatusUpdateListener);
         rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
         //switchToScreen(R.id.screen_wait);
         //resetGameVars();
@@ -240,12 +261,12 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
                     startGame(true);
                 } else if (responseCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
                     // player indicated that they want to leave the room
-                    //leaveRoom();
+                    leaveRoom();
                 } else if (responseCode == Activity.RESULT_CANCELED) {
                     // Dialog was cancelled (user pressed back key, for instance). In our game,
                     // this means leaving the room too. In more elaborate games, this could mean
                     // something else (like minimizing the waiting room UI).
-                    //leaveRoom();
+                    leaveRoom();
                 }
                 break;
             case RC_SIGN_IN:
@@ -265,6 +286,19 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
                 break;
         }
         super.onActivityResult(requestCode, responseCode, intent);
+    }
+
+    // Leave the room.
+    public void leaveRoom() {
+        Log.d(TAG, "Leaving room.");
+        stopKeepingScreenOn();
+        if (mRoomId != null) {
+            Games.RealTimeMultiplayer.leave(mGoogleApiClient, mRottenRoomUpdateListener, mRoomId);
+            mRoomId = null;
+            //switchToScreen(R.id.screen_wait);
+        } else {
+            gotoSplashFragment();
+        }
     }
 
     /*
@@ -357,7 +391,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         }
     }
 
-    private void gotoSelectActorFragment() {
+    public void gotoSelectActorFragment() {
         // Create a new Fragment to be placed in the activity layout
         SelectActorFragment selectActorFragment = new SelectActorFragment();
 
@@ -390,6 +424,8 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         ft.replace(R.id.fragment_container, fragment).commit();
     }
 
+
+
     // Handle the result of the "Select players UI" we launched when the user clicked the
     // "Invite friends" button. We react by creating a room with those players.
     private void handleSelectPlayersResult(int response, Intent data) {
@@ -417,10 +453,10 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 
         // create the room
         Log.d(TAG, "Creating room...");
-        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(new RottenRoomUpdateListener(this));
+        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(mRottenRoomUpdateListener);
         rtmConfigBuilder.addPlayersToInvite(invitees);
         rtmConfigBuilder.setMessageReceivedListener(this);
-        rtmConfigBuilder.setRoomStatusUpdateListener(new RottenRoomStatusUpdateListener());
+        rtmConfigBuilder.setRoomStatusUpdateListener(mRottenRoomStatusUpdateListener);
         if (autoMatchCriteria != null) {
             rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
         }
@@ -467,6 +503,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         return bytes;
     }
 
+
     private class RottenConnectionCallback implements  GoogleApiClient.ConnectionCallbacks {
 
         GameActivity mActivity;
@@ -483,7 +520,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 
             // register listener so we are notified if we receive an invitation to play
             // while we are in the game
-            Games.Invitations.registerInvitationListener(mGoogleApiClient, new RottenInvitationReceivedListener());
+            Games.Invitations.registerInvitationListener(mGoogleApiClient, mRottenInvitationReceivedListener);
 
             if (connectionHint != null) {
                 Log.d(TAG, "onConnected: connection hint provided. Checking for invite.");
@@ -597,11 +634,25 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         // change requires some action like removing the corresponding player avatar from the screen,
         // etc.
 
+        private GameActivity mActivity;
+
+        public RottenRoomStatusUpdateListener (GameActivity activity) {
+            mActivity = activity;
+        }
+
         // Called when we get disconnected from the room. We return to the main screen.
         @Override
         public void onDisconnectedFromRoom(Room room) {
             mRoomId = null;
-            showGameError();
+            Fragment frag = mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (frag instanceof GameOverFragment) {
+
+            } else {
+                showGameError();
+            }
+
+
+
         }
 
         // Called when we are connected to the room. We're not ready to play yet! (maybe not everybody
@@ -648,6 +699,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         @Override
         public void onPeerLeft(Room room, List<String> peersWhoLeft) {
             updateRoom(room);
+
         }
 
         @Override

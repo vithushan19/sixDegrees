@@ -21,7 +21,6 @@
         android:layout_height="0dp"
         android:choiceMode="singleChoice"
         android:descendantFocusability="beforeDescendants"
-        android:listSelector="#666666"
         android:layout_weight="1"/>
 
     <Button

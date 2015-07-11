@@ -40,7 +40,7 @@
     <string name="dismiss">Dismiss</string>
     <string name="your_score">Your score:</string>
     <string name="error">Error</string>
-    <string name="game_problem">An error occurred while starting the game. Please try again.</string>
+    <string name="game_problem">Error: Could not connect with other player. Please try again.</string>
     <string name="click_me">Click me!</string>
     <string name="is_inviting_you">is challenging you to a game!</string>
     <string name="signin_failure">Unable to sign in. Check your internet connection and try again later.</string>

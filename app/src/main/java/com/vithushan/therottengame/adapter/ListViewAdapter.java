@@ -89,12 +89,11 @@ public class ListViewAdapter extends BaseAdapter {
         	Picasso.with(mContext).load(getItem(position).getImageURL()).into(holder.imageView);
         }
 
-        if(selectedIndex == position){
-            convertView.setBackgroundColor(Color.CYAN);
+        if (position == selectedIndex) {
+            convertView.setBackgroundResource(R.color.sa_green_transparent);
         } else {
-            convertView.setBackgroundColor(Color.WHITE);
+            convertView.setBackgroundResource(R.color.white);
         }
-
         return convertView;
     }
 
