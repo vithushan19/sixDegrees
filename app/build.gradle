@@ -7,7 +7,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "com.vithushan.therottengame"
+        applicationId "com.vithushan.sixdegrees"
         minSdkVersion 14
         targetSdkVersion 21
     }

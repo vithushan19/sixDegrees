@@ -3,21 +3,19 @@
     android:id="@+id/linearlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/BlueColor"
+    android:background="@drawable/blue_gradient"
     android:orientation="vertical" >
 
     <TextView
         android:id="@+id/textview_status"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/GoldColor"
+        android:background="@drawable/blue_gradient"
         android:gravity="center"
         android:padding="40dp"
         android:layout_centerInParent="true"
         android:text="Large Text"
-        android:clickable="true"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/BlueColor" />
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:layout_width="wrap_content"
