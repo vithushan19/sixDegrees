@@ -23,13 +23,14 @@ import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.Cast;
-import com.vithushan.sixdegrees.model.CombinedCredits;
+import com.vithushan.sixdegrees.model.MovieCredits;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
-import com.vithushan.sixdegrees.model.MediaModel;
+import com.vithushan.sixdegrees.model.Movie;
 import com.vithushan.sixdegrees.util.Constants;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
@@ -175,12 +176,27 @@ public class MainGameFragment extends ListFragment {
     protected void winGame() {
         // Broadcast your selection to other player(s)
         // TODO save scores/win record
-        ((GameActivity)getActivity()).broadcastGameOver();
-        ((GameActivity)getActivity()).gotoGameOverFragment(true);
+        mHistory.push(mEndingActor);
+
+        // Broadcast our (winning) history to the other player
+        ((GameActivity)getActivity()).broadcastGameOver(mHistory);
+
+        IHollywoodObject[] historyArr = new IHollywoodObject[mHistory.size()];
+        mHistory.toArray(historyArr);
+
+        // We only want the ids
+        String[] historyIdsArr = new String[historyArr.length];
+        for (int i=0; i<historyArr.length; i++) {
+            historyIdsArr[i] = historyArr[i].getId();
+        }
+        // Pass the id list of the our (winning) history
+        ((GameActivity) getActivity()).gotoGameOverFragment(true, historyIdsArr);
     }
 
     public void handleBackPress() {
         final IHollywoodObject last = mHistory.pop();
+
+        //If we're at the beginning, ask if player wants to leave the game
         if (mHistory.size() == 0) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
 
@@ -212,20 +228,24 @@ public class MainGameFragment extends ListFragment {
             // show it
             alertDialog.show();
         } else {
-
+            //Go to previous IHollywooObject
             IHollywoodObject obj = mHistory.pop();
             new NetworkTask().execute(obj);
         }
 
     }
 
-    // Called when we receive a real-time message from the network.
-    // Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'
-    // indicating
-    // whether it's a final or interim score. The second byte is the score.
-    // There is also the
-    // 'S' message, which indicates that the game should start.
+    public Actor getStartingActor() {
+        return mStartingActor;
+    }
 
+    public Actor getEndingActor() {
+        return mEndingActor;
+    }
+
+    public Stack<IHollywoodObject> getHistory() {
+        return mHistory;
+    }
 
     private class NetworkTask extends
             AsyncTask<IHollywoodObject, Void, List<IHollywoodObject>> {
@@ -244,25 +264,22 @@ public class MainGameFragment extends ListFragment {
                 mHistory.push(obj);
                 if (obj instanceof Actor) {
                     Actor actor = (Actor) obj;
-                    CombinedCredits res =  mAPIClient.getMediaForActor(actor.getId(),Constants.API_KEY);
-                    ArrayList<MediaModel> mediaList = new ArrayList<>();
+                    MovieCredits res =  mAPIClient.getMediaForActor(actor.getId(),Constants.API_KEY);
+                    ArrayList<Movie> mediaList = new ArrayList<>();
                     ArrayList<IHollywoodObject> resList = new ArrayList<>();
-                    for (MediaModel m : res.cast) {
+                    for (Movie m : res.cast) {
                         mediaList.add(m);
                     }
+                    //Sort movies alphabetically
                     Collections.sort(mediaList);
-                    for (MediaModel m : mediaList) {
+                    for (Movie m : mediaList) {
                         resList.add(m);
                     }
                     return resList;
-                } else if (obj instanceof MediaModel){
-                    MediaModel mediaModel = (MediaModel) obj;
+                } else if (obj instanceof Movie){
+                    Movie movie = (Movie) obj;
                     Cast res = null;
-                    if (mediaModel.type.equals(MediaModel.MediaType.movie)) {
-                        res =  mAPIClient.getCastForMovie(obj.getId(),Constants.API_KEY);
-                    } else if (mediaModel.type.equals(MediaModel.MediaType.tv)) {
-                        res = mAPIClient.getCastForTV(obj.getId(), Constants.API_KEY);
-                    }
+                    res =  mAPIClient.getCastForMovie(obj.getId(),Constants.API_KEY);
 
                     ArrayList<IHollywoodObject> resList = new ArrayList<>();
                     for (Actor m : res.cast) {

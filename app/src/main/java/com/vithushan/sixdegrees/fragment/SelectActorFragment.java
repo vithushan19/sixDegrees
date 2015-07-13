@@ -54,12 +54,13 @@ public class SelectActorFragment extends ListFragment implements GameActivity.on
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        ((GameApplication) getActivity().getApplication()).inject(this);
+
         View view = inflater.inflate(R.layout.fragment_select_actors, container, false);
         mListView = (ListView) view.findViewById(android.R.id.list);
         mButton = (Button) view.findViewById(R.id.submit);
         mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
 
-        ((GameApplication) getActivity().getApplication()).inject(this);
         mPopularActorList = new ArrayList<IHollywoodObject>();
 
         return view;
@@ -79,8 +80,6 @@ public class SelectActorFragment extends ListFragment implements GameActivity.on
                 int index = mAdapter.getSelectedIndex();
                 mMySelectedActor = (Actor) mAdapter.getItem(index);
 
-                // TODO disable submit button after one click
-
                 if (((GameActivity)getActivity()).getIsMultiplayer()) {
                     // Broadcast your selection to other player(s)
                     ((GameActivity)getActivity()).broadcastSelectedActorToOpp(Integer.valueOf(mMySelectedActor.getId()));
@@ -98,8 +97,8 @@ public class SelectActorFragment extends ListFragment implements GameActivity.on
                     String randomActorId = "";
                     do {
                         Random r = new Random();
-                        int i1 = r.nextInt(mAdapter.getCount());
-                        randomActorId = mAdapter.getItem(i1).getId();
+                        int i = r.nextInt(mAdapter.getCount());
+                        randomActorId = mAdapter.getItem(i).getId();
                     } while (randomActorId == mMySelectedActor.getId());
 
                     mOppSelectedActor = Integer.valueOf(randomActorId);

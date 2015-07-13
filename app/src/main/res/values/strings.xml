@@ -21,7 +21,7 @@
     <string name="signing_in">Signing in with Google</string>
     <string name="signing_out">Signing out</string>
     <string name="app_name">Six Degrees</string>
-    <string name="app_id">159079209865</string>
+    <string name="app_id">589060275734</string>
     <string name="game_title">The Rotten Game</string>
     <string name="game_blurb">A sample game that tests your ability to click a button. Can you click faster than your friends? Only one way to find out! To play this game with friends, you must sign in with Google.</string>
     <string name="single_player">Single Player</string>
@@ -54,5 +54,8 @@
     <string name="pick_one">Pick one</string>
     <string name="title_activity_google_play_services">GooglePlayServicesActivity</string>
     <string name="title_activity_maps">Map</string>
+    <string name="winning_path">Winning Path</string>
+    <string name="main_menu">Main Menu</string>
+    <string name="rematch">Rematch</string>
 
 </resources>

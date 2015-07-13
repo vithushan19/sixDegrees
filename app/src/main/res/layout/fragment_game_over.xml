@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/linearlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,28 +11,57 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/blue_gradient"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:padding="40dp"
-        android:layout_centerInParent="true"
         android:text="Large Text"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Rematch"
-        android:id="@+id/button_rematch"
-        android:layout_below="@+id/textview_status"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
 
-    <Button
-        android:layout_width="wrap_content"
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rematch"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/button_rematch"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_menu"
+            android:id="@+id/button_main_menu"
+            />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Main Menu"
-        android:id="@+id/button_main_menu"
-        android:layout_below="@+id/textview_status"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:background="@drawable/blue_gradient"
+        android:gravity="center_horizontal"
+        android:padding="15dp"
+        android:text="@string/winning_path" />
 
-</RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progressDialog"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+
+
+</LinearLayout>

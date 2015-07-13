@@ -6,15 +6,21 @@ import com.vithushan.sixdegrees.util.StringUtil;
 /**
  * Created by vnama on 7/8/2015.
  */
-public class MediaModel implements IHollywoodObject, Comparable<MediaModel> {
+public class Movie implements IHollywoodObject, Comparable<Movie> {
 
     public String id;
     public String poster_path;
-    public String name;
     public String title;
 
-    @SerializedName("media_type")
-    public MediaType type;
+    public Movie(String id, String name, String imgURL) {
+        if ("http://image.tmdb.org/t/p/w92".equals(imgURL)) {
+            imgURL = "";
+        }
+        this.id = id;
+        this.title = name;
+        this.poster_path = imgURL;
+    }
+
 
     @Override
     public String getId() {
@@ -23,9 +29,6 @@ public class MediaModel implements IHollywoodObject, Comparable<MediaModel> {
 
     @Override
     public String getName() {
-        if (!StringUtil.isEmpty(name)) {
-            return name;
-        }
         return title;
     }
 
@@ -35,14 +38,7 @@ public class MediaModel implements IHollywoodObject, Comparable<MediaModel> {
         return res;
     }
 
-    public enum MediaType {
-        @SerializedName("movie")
-        movie,
-        @SerializedName("tv")
-        tv
-    }
-
-    public int compareTo(MediaModel other) {
+    public int compareTo(Movie other) {
         return (getName().compareTo(other.getName()));
     }
 }

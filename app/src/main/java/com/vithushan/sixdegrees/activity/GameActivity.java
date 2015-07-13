@@ -1,6 +1,7 @@
 package com.vithushan.sixdegrees.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -34,11 +35,16 @@ import com.vithushan.sixdegrees.fragment.GameOverFragment;
 import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
+import com.vithushan.sixdegrees.model.Actor;
+import com.vithushan.sixdegrees.model.IHollywoodObject;
 
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
 public class GameActivity extends FragmentActivity implements RealTimeMessageReceivedListener {
 
@@ -164,8 +170,6 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         }
     }
 
-
-
     // Accept the given invitation.
 	void acceptInviteToRoom(String invId) {
 		// accept the invitation
@@ -248,8 +252,6 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         Games.RealTimeMultiplayer.create(this.mGoogleApiClient, rtmConfigBuilder.build());
     }
 
-
-
     @Override
     public void onActivityResult(int requestCode, int responseCode,
                                  Intent intent) {
@@ -322,33 +324,108 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         byte[] buf = rtm.getMessageData();
         String sender = rtm.getSenderParticipantId();
 
-        // Actor message
-        if (buf.length == 4) {
+
+        if (buf[0] == 'W') { //Win game
+            // handle end game broadcast
+            MainGameFragment frag = (MainGameFragment) getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (frag instanceof MainGameFragment) {
+
+                ArrayList<String> historyIds = new ArrayList<>();
+
+                for (int i=1; i<buf.length;) {
+                    byte[] subArr = Arrays.copyOfRange(buf,i,i+4);
+                    int num = byteArrayToInt(subArr);
+                    historyIds.add(String.valueOf(num));
+                    i = i+4;
+                }
+
+                String [] historyIdsArr = new String[historyIds.size()];
+                historyIds.toArray(historyIdsArr);
+                gotoGameOverFragment(false, historyIdsArr);
+            }
+        } else if (buf[0] == 'R') { //Rematch Request
+            // handle end game broadcast
+            askForRematch();
+        } else if (buf[0] == 'A') { //Win game
+           gotoSelectActorFragment();
+        } else if (buf[0] == 'D') { //Rematch Request
+            // handle end game broadcast
+            Fragment frag = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (frag instanceof GameOverFragment) {
+                ((GameOverFragment)frag).showRematchDeclined();
+            }
+        } else if (buf.length == 4) { //Actor message
             int oppSelectedActorId = byteArrayToInt(buf);
             SelectActorFragment frag = (SelectActorFragment) getFragmentManager().findFragmentById(R.id.fragment_container);
             if (frag != null) {
                 frag.setOppSelectedActor(oppSelectedActorId);
                 frag.onSet();
             }
-        } else {
-            // handle end game broadcast
-            gotoGameOverFragment(false);
         }
     }
 
+    public byte[] HollywoodListToByteArray (IHollywoodObject[] list) {
+
+        int[] idList = new int[list.length];
+        for (int i=0; i<list.length; i++) {
+            idList[i] = Integer.valueOf(list[i].getId());
+        }
+
+        int idListLength = idList.length;
+        byte[]dst = new byte[(idListLength * 4)+1];
+        dst[0] = 'W';
+        int j=1;
+        for (int i=0; i<idListLength; i++) {
+            int x = idList[i];
+            byte[] xArr = IntToByteArray(x);
+            dst[j] = (byte) (xArr[0]);
+            dst[j+1] = (byte) (xArr[1]);
+            dst[j+2] = (byte) (xArr[2]);
+            dst[j+3] = (byte) (xArr[3]);
+            j = j+4;
+        }
+        return dst;
+    }
     /*
         PUBLIC METHODS
      */
+
+    public void broadcastRematchRequest() {
+        byte[] msgBuf = new byte[1];
+        msgBuf[0] = 'R';
+        broadcastMessageToParticipants(msgBuf);
+    }
+
+    private void broadcastRematchAccepted() {
+        byte[] msgBuf = new byte[1];
+        msgBuf[0] = 'A';
+        broadcastMessageToParticipants(msgBuf);
+    }
+
+    private void broadcastRematchDeclined() {
+        byte[] msgBuf = new byte[1];
+        msgBuf[0] = 'D';
+        broadcastMessageToParticipants(msgBuf);
+    }
 
     public void broadcastSelectedActorToOpp(int actorId) {
         byte[] msgBuf = IntToByteArray(actorId);
         broadcastMessageToParticipants(msgBuf);
     }
 
-    public void broadcastGameOver() {
-        byte[] msgBuf = new byte[1];
-        msgBuf[0] = 'W';
-        broadcastMessageToParticipants(msgBuf);
+    public void broadcastGameOver(Stack<IHollywoodObject> historyStack) {
+        if (historyStack.size() != 0) {
+            Fragment frag = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (frag instanceof MainGameFragment) {
+                IHollywoodObject[] historyArray = new IHollywoodObject[historyStack.size()];
+                historyStack.toArray(historyArray);
+                byte[] historyByteArr = HollywoodListToByteArray(historyArray);
+                broadcastMessageToParticipants(historyByteArr);
+            }
+
+        }
+
+
     }
 
     private void broadcastMessageToParticipants(byte[] msgBuf) {
@@ -387,7 +464,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
     }
 
 
-    //TODO make first person choose random host
+    //TODO make first person choose random host and broadcast that id
     private void selectHost() {
         if (mParticipants != null) {
             ArrayList<String> participantsId = new ArrayList<>();
@@ -414,9 +491,10 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         ft.replace(R.id.fragment_container, selectActorFragment).commit();
     }
 
-    public void gotoGameOverFragment(boolean won) {
+    public void gotoGameOverFragment(boolean won, String[] historyIds) {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("Won", won);
+        intent.putExtra("History", historyIds);
 
         GameOverFragment fragment = new GameOverFragment();
         fragment.setArguments(intent.getExtras());
@@ -438,8 +516,44 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         ft.replace(R.id.fragment_container, fragment).commit();
     }
 
+    private void askForRematch() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        // set title
+        alertDialogBuilder.setTitle("Rematch?");
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage("Your opponent has requested a rematch. Would you like to accept?")
+                .setCancelable(false)
+                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        gotoSelectActorFragment();
+                        broadcastRematchAccepted();
+                    }
+                })
+                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        dialog.cancel();
+                        broadcastRematchDeclined();
+                        Fragment frag = getFragmentManager().findFragmentById(R.id.fragment_container);
+                        if (frag instanceof GameOverFragment) {
+                            ((GameOverFragment)frag).setmRematchDisabled();
+                        }
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+    }
 
 
+    //TODO implement invitations properly
     // Handle the result of the "Select players UI" we launched when the user clicked the
     // "Invite friends" button. We react by creating a room with those players.
     private void handleSelectPlayersResult(int response, Intent data) {
@@ -504,13 +618,14 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
     public boolean getIsMultiplayer() {
         return this.mMultiplayer;
     }
-    private int byteArrayToInt (byte[] arr) {
+
+    public static int byteArrayToInt (byte[] arr) {
         ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
         int num = wrapped.getInt(); // 1
         return num;
     }
 
-    private byte[] IntToByteArray (int num) {
+    public static byte[] IntToByteArray (int num) {
         ByteBuffer dbuf = ByteBuffer.allocate(4);
         dbuf.putInt(num);
         byte[] bytes = dbuf.array(); // { 0, 1 }

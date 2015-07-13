@@ -2,8 +2,8 @@ package com.vithushan.sixdegrees;
 
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.model.Cast;
-import com.vithushan.sixdegrees.model.CombinedCredits;
-import com.vithushan.sixdegrees.model.MediaModel;
+import com.vithushan.sixdegrees.model.Movie;
+import com.vithushan.sixdegrees.model.MovieCredits;
 import com.vithushan.sixdegrees.model.PopularPeople;
 
 import org.junit.Before;
@@ -13,7 +13,6 @@ import javax.inject.Inject;
 
 import retrofit.RestAdapter;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -34,6 +33,7 @@ public class MovieAPIClientTest {
         mMovieAPIClient = restAdapter.create(IMovieAPIClient.class);
     }
 
+
     @Test
     public void testGetPopularPeopleReturnsList() {
         PopularPeople actors = mMovieAPIClient.getPopularActors(API_KEY);
@@ -43,18 +43,16 @@ public class MovieAPIClientTest {
 
     @Test
     public void testGetCombinedCredits() {
-        CombinedCredits combinedCredits = mMovieAPIClient.getMediaForActor("18918", API_KEY);
-        assertNotNull(combinedCredits);
-        assertNotNull(combinedCredits.cast);
-        assertNotEquals(combinedCredits.cast.size(),0);
+        MovieCredits movieCredits = mMovieAPIClient.getMediaForActor("18918", API_KEY);
+        assertNotNull(movieCredits);
+        assertNotNull(movieCredits.cast);
+        assertNotEquals(movieCredits.cast.size(),0);
     }
 
     @Test
     public void testGetCastForTV() {
-        MediaModel m = new MediaModel();
+        Movie m = new Movie("8592","ASDSAD", "SADSAD");
         //TODO try with caps
-        m.type = MediaModel.MediaType.tv;
-        m.id = "8592";
 
         Cast combinedCredits = mMovieAPIClient.getCastForTV(m.id, API_KEY);
         assertNotNull(combinedCredits);
@@ -64,10 +62,8 @@ public class MovieAPIClientTest {
 
     @Test
     public void testGetCastForMovie() {
-        MediaModel m = new MediaModel();
+        Movie m = new Movie("21862", "SASDASD", "SDASDAS");
         //TODO try with caps
-        m.type = MediaModel.MediaType.movie;
-        m.id = "21862";
 
         Cast combinedCredits = mMovieAPIClient.getCastForMovie(m.id,API_KEY);
         assertNotNull(combinedCredits);

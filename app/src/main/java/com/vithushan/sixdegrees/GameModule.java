@@ -1,6 +1,7 @@
 package com.vithushan.sixdegrees;
 
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
+import com.vithushan.sixdegrees.fragment.GameOverFragment;
 import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 
@@ -15,7 +16,7 @@ import retrofit.RestAdapter;
  */
 
 @Module(
-        injects = {MainGameFragment.class, SelectActorFragment.class}
+        injects = {MainGameFragment.class, SelectActorFragment.class, GameOverFragment.class}
 )
 
 public class GameModule {
