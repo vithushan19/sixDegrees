@@ -3,13 +3,13 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "com.vithushan.sixdegrees"
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 22
     }
 
     sourceSets {
@@ -62,6 +62,8 @@ dependencies {
     compile 'com.squareup.dagger:dagger:1.2.2'
     compile 'com.google.android.gms:play-services:7.5.0'
     compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
+    compile 'jp.wasabeef:recyclerview-animators:1.2.1@aar'
 }
 
 

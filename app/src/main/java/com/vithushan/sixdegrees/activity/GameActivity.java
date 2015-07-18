@@ -53,7 +53,6 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
     }
 
 	private String TAG = "Vithushan";
-    int i;
 
 	// Request codes for the UIs that we show with startActivityForResult:
 	final static int RC_SELECT_PLAYERS = 10000;
@@ -167,89 +166,9 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
             ((MainGameFragment) frag).handleBackPress();
         } else if (frag instanceof GameOverFragment) {
             leaveRoom();
+        } else if (frag instanceof SelectActorFragment) {
+            leaveRoom();
         }
-    }
-
-    // Accept the given invitation.
-	void acceptInviteToRoom(String invId) {
-		// accept the invitation
-		Log.d(TAG, "Accepting invitation: " + invId);
-		RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(mSixDegreesRoomUpdateListener);
-		roomConfigBuilder.setInvitationIdToAccept(invId)
-				.setMessageReceivedListener(this)
-				.setRoomStatusUpdateListener(mSixDegreesRoomStatusUpdateListener);
-		//switchToScreen(R.id.screen_wait);
-		keepScreenOn();
-		//resetGameVars();
-		Games.RealTimeMultiplayer.join(mGoogleApiClient, roomConfigBuilder.build());
-	}
-
-    // Show error message about game being cancelled and return to main screen.
-    void showGameError() {
-        Dialog dialog = BaseGameUtils.makeSimpleDialog(this, getString(R.string.game_problem));
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                gotoSplashFragment();
-            }
-        });
-        dialog.show();
-    }
-
-	void updateRoom(Room room) {
-		if (room != null) {
-			mParticipants = room.getParticipants();
-		}
-	}
-
-    // Show the waiting room UI to track the progress of other players as they enter the
-    // room and get connected.
-    void showWaitingRoom(Room room) {
-        // minimum number of players required for our game
-        // For simplicity, we require everyone to join the game before we start it
-        // (this is signaled by Integer.MAX_VALUE).
-        final int MIN_PLAYERS = Integer.MAX_VALUE;
-        Intent i = Games.RealTimeMultiplayer.getWaitingRoomIntent(mGoogleApiClient, room, 0);
-
-        // show waiting room UI
-        startActivityForResult(i, RC_WAITING_ROOM);
-    }
-
-    // Sets the flag to keep this screen on. It's recommended to do that during
-    // the handshake when setting up a game, because if the screen turns off, the
-    // game will be cancelled.
-    private void keepScreenOn() {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    // Clears the flag that keeps the screen on.
-    private void stopKeepingScreenOn() {
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    public void startSinglePlayer() {
-        mMultiplayer = false;
-        gotoSelectActorFragment();
-    }
-
-    public void createGameRoom() {
-        // quick-start a game with 1 randomly selected opponent
-        final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
-        Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
-                MAX_OPPONENTS, 0);
-        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(mSixDegreesRoomUpdateListener);
-        rtmConfigBuilder.setMessageReceivedListener(this);
-        rtmConfigBuilder.setRoomStatusUpdateListener(mSixDegreesRoomStatusUpdateListener);
-        rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
-        //switchToScreen(R.id.screen_wait);
-        //resetGameVars();
-        if (mGoogleApiClient.isConnected()) {
-            Log.d(TAG, "CONNECTED");
-        } else {
-            Log.d(TAG, "NOT CONNECTED");
-            mGoogleApiClient.connect();
-        }
-        Games.RealTimeMultiplayer.create(this.mGoogleApiClient, rtmConfigBuilder.build());
     }
 
     @Override
@@ -265,7 +184,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
             case RC_INVITATION_INBOX:
                 // we got the result from the "select invitation" UI (invitation inbox). We're
                 // ready to accept the selected invitation:
-                handleInvitationInboxResult(responseCode, intent);
+                //handleInvitationInboxResult(responseCode, intent);
                 break;
             case RC_WAITING_ROOM:
                 // we got the result from the "waiting room" UI.
@@ -301,23 +220,6 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         }
         super.onActivityResult(requestCode, responseCode, intent);
     }
-
-    // Leave the room.
-    public void leaveRoom() {
-        Log.d(TAG, "Leaving room.");
-        stopKeepingScreenOn();
-        if (mRoomId != null) {
-            Games.RealTimeMultiplayer.leave(mGoogleApiClient, mSixDegreesRoomUpdateListener, mRoomId);
-            mRoomId = null;
-            //switchToScreen(R.id.screen_wait);
-        } else {
-            gotoSplashFragment();
-        }
-    }
-
-    /*
-        GOOGLE CALLBACKS
-    */
 
     @Override
     public void onRealTimeMessageReceived(RealTimeMessage rtm) {
@@ -364,30 +266,8 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         }
     }
 
-    public byte[] HollywoodListToByteArray (IHollywoodObject[] list) {
-
-        int[] idList = new int[list.length];
-        for (int i=0; i<list.length; i++) {
-            idList[i] = Integer.valueOf(list[i].getId());
-        }
-
-        int idListLength = idList.length;
-        byte[]dst = new byte[(idListLength * 4)+1];
-        dst[0] = 'W';
-        int j=1;
-        for (int i=0; i<idListLength; i++) {
-            int x = idList[i];
-            byte[] xArr = IntToByteArray(x);
-            dst[j] = (byte) (xArr[0]);
-            dst[j+1] = (byte) (xArr[1]);
-            dst[j+2] = (byte) (xArr[2]);
-            dst[j+3] = (byte) (xArr[3]);
-            j = j+4;
-        }
-        return dst;
-    }
     /*
-        PUBLIC METHODS
+            MESSAGE BROADCASTS
      */
 
     public void broadcastRematchRequest() {
@@ -422,10 +302,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
                 byte[] historyByteArr = HollywoodListToByteArray(historyArray);
                 broadcastMessageToParticipants(historyByteArr);
             }
-
         }
-
-
     }
 
     private void broadcastMessageToParticipants(byte[] msgBuf) {
@@ -442,43 +319,12 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
             // final score notification must be sent via reliable message
             Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, msgBuf,
                     mRoomId, p.getParticipantId());
-
         }
     }
-
 
     /*
-        PRIVATE METHODS
+            NAVIGATION
      */
-
-
-
-
-    // Should only be called one enough players are in the room
-    private void startGame(boolean multiplayer) {
-        mMultiplayer = multiplayer;
-        if (!multiplayer) return;
-
-        selectHost();
-        gotoSelectActorFragment();
-    }
-
-
-    //TODO make first person choose random host and broadcast that id
-    private void selectHost() {
-        if (mParticipants != null) {
-            ArrayList<String> participantsId = new ArrayList<>();
-            for (Participant p : mParticipants) {
-                participantsId.add(p.getParticipantId());
-            }
-            Collections.sort(participantsId);
-            String hostId = participantsId.get(0);
-            if (mMyId.equals(hostId)) {
-                mHost = true;
-            }
-
-        }
-    }
 
     public void gotoSelectActorFragment() {
         // Create a new Fragment to be placed in the activity layout
@@ -516,42 +362,9 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         ft.replace(R.id.fragment_container, fragment).commit();
     }
 
-    private void askForRematch() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-        // set title
-        alertDialogBuilder.setTitle("Rematch?");
-
-        // set dialog message
-        alertDialogBuilder
-                .setMessage("Your opponent has requested a rematch. Would you like to accept?")
-                .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        gotoSelectActorFragment();
-                        broadcastRematchAccepted();
-                    }
-                })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        // if this button is clicked, just close
-                        // the dialog box and do nothing
-                        dialog.cancel();
-                        broadcastRematchDeclined();
-                        Fragment frag = getFragmentManager().findFragmentById(R.id.fragment_container);
-                        if (frag instanceof GameOverFragment) {
-                            ((GameOverFragment)frag).setmRematchDisabled();
-                        }
-                    }
-                });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
-    }
-
+    /*
+            INVITATION
+     */
 
     //TODO implement invitations properly
     // Handle the result of the "Select players UI" we launched when the user clicked the
@@ -595,6 +408,22 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         Log.d(TAG, "Room created, waiting for it to be ready...");
     }
 
+
+    // Accept the given invitation.
+    private void acceptInviteToRoom(String invId) {
+        // accept the invitation
+        Log.d(TAG, "Accepting invitation: " + invId);
+        RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(mSixDegreesRoomUpdateListener);
+        roomConfigBuilder.setInvitationIdToAccept(invId)
+                .setMessageReceivedListener(this)
+                .setRoomStatusUpdateListener(mSixDegreesRoomStatusUpdateListener);
+        //switchToScreen(R.id.screen_wait);
+        keepScreenOn();
+        //resetGameVars();
+        Games.RealTimeMultiplayer.join(mGoogleApiClient, roomConfigBuilder.build());
+    }
+
+
     // Handle the result of the invitation inbox UI, where the player can pick an invitation
     // to accept. We react by accepting the selected invitation, if any.
     private void handleInvitationInboxResult(int response, Intent data) {
@@ -611,25 +440,199 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         acceptInviteToRoom(inv.getInvitationId());
     }
 
+
+    /*
+            HELPERS
+     */
+
     public boolean getIsHost() {
-        return this.mHost;
+        return mHost;
     }
 
     public boolean getIsMultiplayer() {
-        return this.mMultiplayer;
+        return mMultiplayer;
     }
 
-    public static int byteArrayToInt (byte[] arr) {
+    private void askForRematch() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        // set title
+        alertDialogBuilder.setTitle("Rematch?");
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage("Your opponent has requested a rematch. Would you like to accept?")
+                .setCancelable(false)
+                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        gotoSelectActorFragment();
+                        broadcastRematchAccepted();
+                    }
+                })
+                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        dialog.cancel();
+                        broadcastRematchDeclined();
+                        Fragment frag = getFragmentManager().findFragmentById(R.id.fragment_container);
+                        if (frag instanceof GameOverFragment) {
+                            ((GameOverFragment)frag).setmRematchDisabled();
+                        }
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+    }
+
+    // Should only be called one enough players are in the room
+    public void startGame(boolean multiplayer) {
+        mMultiplayer = multiplayer;
+        if (multiplayer) {
+            selectHost();
+        }
+        gotoSelectActorFragment();
+    }
+
+
+    // Show error message about game being cancelled and return to main screen.
+    private void showGameError() {
+        Dialog dialog = BaseGameUtils.makeSimpleDialog(this, getString(R.string.game_problem));
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                gotoSplashFragment();
+            }
+        });
+        dialog.show();
+    }
+
+    private void updateRoom(Room room) {
+        if (room != null) {
+            mParticipants = room.getParticipants();
+        }
+    }
+
+    // Show the waiting room UI to track the progress of other players as they enter the
+    // room and get connected.
+    private void showWaitingRoom(Room room) {
+
+        // Number of players required to start the game
+        final int MIN_PLAYERS = 0;
+        Intent i = Games.RealTimeMultiplayer.getWaitingRoomIntent(mGoogleApiClient, room, MIN_PLAYERS);
+
+        // show waiting room UI
+        startActivityForResult(i, RC_WAITING_ROOM);
+    }
+
+    // Leave the room.
+    public void leaveRoom() {
+        Log.d(TAG, "Leaving room.");
+        stopKeepingScreenOn();
+        if (mRoomId != null) {
+            Games.RealTimeMultiplayer.leave(mGoogleApiClient, mSixDegreesRoomUpdateListener, mRoomId);
+            mRoomId = null;
+            //switchToScreen(R.id.screen_wait);
+        } else {
+            gotoSplashFragment();
+        }
+    }
+
+    //TODO make first person choose random host and broadcast that id
+    private void selectHost() {
+        if (mParticipants != null) {
+            ArrayList<String> participantsId = new ArrayList<>();
+            for (Participant p : mParticipants) {
+                participantsId.add(p.getParticipantId());
+            }
+            Collections.sort(participantsId);
+            String hostId = participantsId.get(0);
+            if (mMyId.equals(hostId)) {
+                mHost = true;
+            }
+
+        }
+    }
+
+    public void startQuickGame() {
+        createGameRoom();
+        //switchToScreen(R.id.screen_wait);
+        //resetGameVars();
+    }
+
+    private void createGameRoom() {
+        // quick-start a game with 1 randomly selected opponent
+        final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
+        Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
+                MAX_OPPONENTS, 0);
+        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(mSixDegreesRoomUpdateListener);
+        rtmConfigBuilder.setMessageReceivedListener(this);
+        rtmConfigBuilder.setRoomStatusUpdateListener(mSixDegreesRoomStatusUpdateListener);
+        rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
+
+        if (mGoogleApiClient.isConnected()) {
+            Log.d(TAG, "CONNECTED");
+        } else {
+            Log.d(TAG, "NOT CONNECTED");
+            mGoogleApiClient.connect();
+        }
+        Games.RealTimeMultiplayer.create(this.mGoogleApiClient, rtmConfigBuilder.build());
+    }
+
+
+    // Takes in a list of hollywood objects and produces a byte[] for messaging
+    // The format starts with a 'W' to signal win game, after that every four
+    // bytes represents the integer id of a hollywood object from the list
+    private byte[] HollywoodListToByteArray (IHollywoodObject[] list) {
+
+        int[] idList = new int[list.length];
+        for (int i=0; i<list.length; i++) {
+            idList[i] = Integer.valueOf(list[i].getId());
+        }
+
+        int idListLength = idList.length;
+        byte[]dst = new byte[(idListLength * 4)+1];
+        dst[0] = 'W';
+        int j=1;
+        for (int i=0; i<idListLength; i++) {
+            int x = idList[i];
+            byte[] xArr = IntToByteArray(x);
+            dst[j] = (byte) (xArr[0]);
+            dst[j+1] = (byte) (xArr[1]);
+            dst[j+2] = (byte) (xArr[2]);
+            dst[j+3] = (byte) (xArr[3]);
+            j = j+4;
+        }
+        return dst;
+    }
+
+    private static int byteArrayToInt (byte[] arr) {
         ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
         int num = wrapped.getInt(); // 1
         return num;
     }
 
-    public static byte[] IntToByteArray (int num) {
+    private static byte[] IntToByteArray (int num) {
         ByteBuffer dbuf = ByteBuffer.allocate(4);
         dbuf.putInt(num);
         byte[] bytes = dbuf.array(); // { 0, 1 }
         return bytes;
+    }
+
+    // Sets the flag to keep this screen on. It's recommended to do that during
+    // the handshake when setting up a game, because if the screen turns off, the
+    // game will be cancelled.
+    private void keepScreenOn() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    // Clears the flag that keeps the screen on.
+    private void stopKeepingScreenOn() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
 
@@ -779,9 +782,6 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
             } else {
                 showGameError();
             }
-
-
-
         }
 
         // Called when we are connected to the room. We're not ready to play yet! (maybe not everybody

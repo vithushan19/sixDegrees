@@ -1,16 +1,17 @@
 package com.vithushan.sixdegrees.fragment;
 
 import android.app.AlertDialog;
-import android.app.ListFragment;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -18,8 +19,9 @@ import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.activity.GameActivity;
-import com.vithushan.sixdegrees.adapter.ListViewAdapter;
 import com.vithushan.sixdegrees.R;
+import com.vithushan.sixdegrees.adapter.RecycleViewAdapter;
+import com.vithushan.sixdegrees.animator.SlideAnimator;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.Cast;
@@ -30,9 +32,7 @@ import com.vithushan.sixdegrees.util.Constants;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Stack;
 
 import javax.inject.Inject;
@@ -42,8 +42,8 @@ import com.vithushan.sixdegrees.util.StringUtil;
 /**
  * Created by Vithushan on 7/5/2015.
  */
-public class MainGameFragment extends ListFragment {
-    private List<IHollywoodObject> mCurrentList;
+public class MainGameFragment extends Fragment implements RecycleViewAdapter.ItemClickListener {
+    private ArrayList<IHollywoodObject> mCurrentList;
     private Stack<IHollywoodObject> mHistory;
     private Actor mStartingActor;
     private Actor mEndingActor;
@@ -55,11 +55,13 @@ public class MainGameFragment extends ListFragment {
     private ImageView mStartingImageView;
     private ImageView mEndingImageView;
 
-    private ListView mListView;
-    private ListViewAdapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private RecycleViewAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
 
     @Inject
     IMovieAPIClient mAPIClient;
+    private boolean mIsRefreshing = false;
 
 
     @Override
@@ -67,7 +69,7 @@ public class MainGameFragment extends ListFragment {
         View view = inflater.inflate(R.layout.fragment_main_game, container,false);
         ((GameApplication) getActivity().getApplication()).inject(this);
 
-        mListView = (ListView) view.findViewById(android.R.id.list);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
         mStartingActortv = (TextView) view.findViewById(R.id.textViewStarting);
         mEndingActortv = (TextView) view.findViewById(R.id.textViewEnding);
         mStartingImageView = (ImageView) view.findViewById(R.id.imageview_starting_actor);
@@ -110,6 +112,7 @@ public class MainGameFragment extends ListFragment {
             @Override
             protected void onPostExecute(Actor actor) {
 
+
                 boolean isHost = ((GameActivity)getActivity()).getIsHost();
 
                 if (isHost) {
@@ -148,28 +151,17 @@ public class MainGameFragment extends ListFragment {
             }
         }.execute();
 
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new ListViewAdapter(this.getActivity(), mCurrentList);
-        mListView.setAdapter(mAdapter);
+        mRecyclerView.setItemAnimator(new SlideAnimator());
+        mRecyclerView.getItemAnimator().setAddDuration(500);
+        mRecyclerView.getItemAnimator().setRemoveDuration(500);
 
-        mListView.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                        String text = ((IHollywoodObject) parent
-                                .getItemAtPosition(position)).getName();
-                        IHollywoodObject obj = ((IHollywoodObject) parent
-                                .getItemAtPosition(position));
-                        if (text.equals(mEndingActor.getName())) {
-                            winGame();
-                            return;
-                        }
-
-                        new NetworkTask().execute(obj);
-                    }
-                }
-        );
+        // specify an adapter (see also next example)
+        mAdapter = new RecycleViewAdapter(mCurrentList,getActivity(), this);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     // TODO change this to a postgame fragment
@@ -191,6 +183,16 @@ public class MainGameFragment extends ListFragment {
         }
         // Pass the id list of the our (winning) history
         ((GameActivity) getActivity()).gotoGameOverFragment(true, historyIdsArr);
+    }
+
+    public void onItemClick(IHollywoodObject obj) {
+        String text = obj.getName();
+        if (text.equals(mEndingActor.getName())) {
+            winGame();
+            return;
+        }
+
+        new NetworkTask().execute(obj);
     }
 
     public void handleBackPress() {
@@ -248,15 +250,9 @@ public class MainGameFragment extends ListFragment {
     }
 
     private class NetworkTask extends
-            AsyncTask<IHollywoodObject, Void, List<IHollywoodObject>> {
-        @Override
-        protected void onPreExecute() {
-            mListView.setVisibility(View.GONE);
-            mProgress.setVisibility(View.VISIBLE);
+            AsyncTask<IHollywoodObject, Void, ArrayList<IHollywoodObject>> {
 
-        };
-
-        protected List<IHollywoodObject> doInBackground(IHollywoodObject... params) {
+        protected ArrayList<IHollywoodObject> doInBackground(IHollywoodObject... params) {
 
             IHollywoodObject obj = params[0];
 
@@ -275,6 +271,7 @@ public class MainGameFragment extends ListFragment {
                     for (Movie m : mediaList) {
                         resList.add(m);
                     }
+                    Log.d("FINISHED", "TTT");
                     return resList;
                 } else if (obj instanceof Movie){
                     Movie movie = (Movie) obj;
@@ -296,11 +293,14 @@ public class MainGameFragment extends ListFragment {
             return null;
         }
 
-        protected void onPostExecute(List<IHollywoodObject> result) {
+        protected void onPostExecute(ArrayList<IHollywoodObject> result) {
             mCurrentList = result;
-            mAdapter.replaceAndRefreshData(mCurrentList);
-            mProgress.setVisibility(View.GONE);
-            mListView.setVisibility(View.VISIBLE);
+            mIsRefreshing = true;
+
+            mAdapter.removeAll();
+            mAdapter.refreshWithNewList(mCurrentList);
+            mIsRefreshing = false;
         }
     }
+
 }
