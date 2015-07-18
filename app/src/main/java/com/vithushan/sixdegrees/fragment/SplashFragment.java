@@ -27,14 +27,14 @@ public class SplashFragment extends Fragment {
         mQuickGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((GameActivity)getActivity()).createGameRoom();
+                ((GameActivity)getActivity()).startQuickGame();
             }
         });
         mSinglePlayer = (Button) view.findViewById(R.id.button_single_player);
         mSinglePlayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((GameActivity)getActivity()).startSinglePlayer();
+                ((GameActivity)getActivity()).startGame(false);
             }
         });
         return view;
