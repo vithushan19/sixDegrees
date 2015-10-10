@@ -8,9 +8,12 @@ import com.vithushan.sixdegrees.model.Cast;
 import com.vithushan.sixdegrees.model.MovieCredits;
 import com.vithushan.sixdegrees.model.PopularPeople;
 
+import java.util.List;
+
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
+import rx.Observable;
 
 public interface IMovieAPIClient {
 
@@ -24,7 +27,7 @@ public interface IMovieAPIClient {
     MovieCredits getMediaForActor(@Path("id") String actorId, @Query("api_key") String apiKey);
 
 	@GET("/person/popular")
-	PopularPeople getPopularActors(@Query("api_key") String apiKey);
+    Observable<PopularPeople> getPopularActors(@Query("api_key") String apiKey);
 
     @GET("/person/{id}")
     Actor getActor(@Path("id") String actorId, @Query("api_key") String apiKey);

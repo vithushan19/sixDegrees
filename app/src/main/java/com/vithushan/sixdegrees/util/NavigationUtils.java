@@ -6,11 +6,14 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 
+import com.google.gson.Gson;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.fragment.GameOverFragment;
+import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
+import com.vithushan.sixdegrees.model.Actor;
 
 /**
  * Created by vnama on 10/10/2015.
@@ -26,6 +29,22 @@ public class NavigationUtils {
         FragmentTransaction ft = fm.beginTransaction();
         ft.setCustomAnimations(R.animator.slide_in_left,R.animator.slide_out_right);
         ft.replace(R.id.fragment_container, selectActorFragment).commit();
+    }
+
+    public static void gotoMainFragment(Activity a, Actor mySelectedActor, int oppSelectedActorId) {
+
+        Intent intent = new Intent(a, GameActivity.class);
+        intent.putExtra("SelectedActor", new Gson().toJson(mySelectedActor));
+        intent.putExtra("OppSelectedActorId", oppSelectedActorId);
+
+        MainGameFragment fragment = new MainGameFragment();
+        fragment.setArguments(intent.getExtras());
+
+        // Add the fragment to the 'fragment_container' FrameLayout
+        FragmentManager fm = a.getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.animator.slide_in_left,R.animator.slide_out_right);
+        ft.replace(R.id.fragment_container, fragment).commit();
     }
 
     public static void gotoGameOverFragment(Activity a, boolean won, String[] historyIds) {

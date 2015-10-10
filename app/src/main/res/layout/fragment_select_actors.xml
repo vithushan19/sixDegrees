@@ -6,16 +6,6 @@
     android:background="@color/white"
     android:orientation="vertical" >
 
-    <ProgressBar
-        android:id="@+id/progressDialog"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        android:visibility="gone" />
-
-
     <com.vithushan.sixdegrees.view.MyRecyclerView
         android:id="@+id/my_recycler_view"
         android:layout_width="match_parent"
