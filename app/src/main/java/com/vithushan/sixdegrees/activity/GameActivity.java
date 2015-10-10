@@ -35,18 +35,73 @@ import com.vithushan.sixdegrees.fragment.GameOverFragment;
 import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
-import com.vithushan.sixdegrees.model.Actor;
+import com.vithushan.sixdegrees.googleListeners.ConnectionCallbacksImpl;
+import com.vithushan.sixdegrees.googleListeners.OnConnectionFailedListenerImpl;
+import com.vithushan.sixdegrees.googleListeners.OnInvitationReceivedListenerImpl;
+import com.vithushan.sixdegrees.googleListeners.RealTimeMessageReceivedListenerImpl;
+import com.vithushan.sixdegrees.googleListeners.RoomStatusUpdateListenerImpl;
+import com.vithushan.sixdegrees.googleListeners.RoomUpdateListenerImpl;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
+import com.vithushan.sixdegrees.util.NavigationUtils;
+import com.vithushan.sixdegrees.util.SixDegreesUtils;
 
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Stack;
 
-public class GameActivity extends FragmentActivity implements RealTimeMessageReceivedListener {
+public class GameActivity extends FragmentActivity {
+
+    public void registerInvitationListener() {
+        // register listener so we are notified if we receive an invitation to play
+        // while we are in the game
+        Games.Invitations.registerInvitationListener(mGoogleApiClient, mInvitationReceivedListener);
+    }
+
+    public void connectClient() {
+        mGoogleApiClient.connect();
+    }
+
+    public void connectToRoom(Room room) {
+        // get room ID, participants and my ID:
+        mRoomId = room.getRoomId();
+        mParticipants = room.getParticipants();
+        mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
+
+        // print out the list of participants (for debug purposes)
+        Log.d(TAG, "Room ID: " + mRoomId);
+        Log.d(TAG, "My ID " + mMyId);
+        Log.d(TAG, "<< CONNECTED TO ROOM>>");
+    }
+
+    public void disconnectFromRoom(Room room) {
+        mRoomId = null;
+        Fragment frag = getFragmentManager().findFragmentById(R.id.fragment_container);
+        if (frag instanceof GameOverFragment) {
+
+        } else {
+            showGameError();
+        }
+    }
+
+    public void connectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed() called, result: " + connectionResult);
+
+        if (mResolvingConnectionFailure) {
+            Log.d(TAG, "onConnectionFailed() ignoring connection failure; already resolving.");
+            return;
+        }
+
+        if (mSignInClicked || mAutoStartSignInFlow) {
+            mAutoStartSignInFlow = false;
+            mSignInClicked = false;
+            mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient,
+                    connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
+        }
+
+        //gotoSplashFragment();
+    }
 
     public interface onOppSelectedActorSetListener {
         void onSet();
@@ -96,11 +151,12 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
 
-    private SixDegreesConnectionCallback mSixDegreesConnectionCallback;
-    private SixDegreesConnectionFailedListener mSixDegreesConnectionFailedListener;
-    private SixDegreesRoomUpdateListener mSixDegreesRoomUpdateListener;
-    private SixDegreesRoomStatusUpdateListener mSixDegreesRoomStatusUpdateListener;
-    private SixDegreesInvitationReceivedListener mSixDegreesInvitationReceivedListener;
+    private ConnectionCallbacksImpl mConnectionCallbacks;
+    private GoogleApiClient.OnConnectionFailedListener mConnectionFailedListener;
+    private RoomUpdateListenerImpl mRoomUpdateListener;
+    private RoomStatusUpdateListener mSixDegreesRoomStatusUpdateListener;
+    private OnInvitationReceivedListener mInvitationReceivedListener;
+    private RealTimeMessageReceivedListener mRealTimeMessageReceivedListener;
 
 	/*
 		LIFECYCLE METHODS
@@ -110,20 +166,19 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        mSixDegreesConnectionCallback = new SixDegreesConnectionCallback(this);
-        mSixDegreesConnectionFailedListener = new SixDegreesConnectionFailedListener(this);
-        mSixDegreesRoomUpdateListener = new SixDegreesRoomUpdateListener(this);
-        mSixDegreesRoomStatusUpdateListener = new SixDegreesRoomStatusUpdateListener(this);
-        mSixDegreesInvitationReceivedListener = new SixDegreesInvitationReceivedListener();
-
+        mConnectionCallbacks = new ConnectionCallbacksImpl(this);
+        mConnectionFailedListener = new OnConnectionFailedListenerImpl(this);
+        mRoomUpdateListener = new RoomUpdateListenerImpl(this);
+        mSixDegreesRoomStatusUpdateListener = new RoomStatusUpdateListenerImpl(this);
+        mInvitationReceivedListener = new OnInvitationReceivedListenerImpl();
+        mRealTimeMessageReceivedListener = new RealTimeMessageReceivedListenerImpl(this);
 
 		// Create the Google Api Client with access to Plus and Games
 		mGoogleApiClient = new GoogleApiClient.Builder(this)
-				.addConnectionCallbacks(mSixDegreesConnectionCallback)
-				.addOnConnectionFailedListener(mSixDegreesConnectionFailedListener)
+				.addConnectionCallbacks(mConnectionCallbacks)
+				.addOnConnectionFailedListener(mConnectionFailedListener)
 				.addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
 				.addApi(Games.API).addScope(Games.SCOPE_GAMES)
-
 				.build();
 
         setContentView(R.layout.activity_game);
@@ -149,14 +204,14 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 	protected void onStart() {
 		super.onStart();
 		mGoogleApiClient.connect();
-        keepScreenOn();
+        SixDegreesUtils.keepScreenOn(this);
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 		mGoogleApiClient.disconnect();
-        stopKeepingScreenOn();
+        SixDegreesUtils.stopKeepingScreenOn(this);
 	}
 
     @Override
@@ -221,50 +276,6 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         super.onActivityResult(requestCode, responseCode, intent);
     }
 
-    @Override
-    public void onRealTimeMessageReceived(RealTimeMessage rtm) {
-        byte[] buf = rtm.getMessageData();
-        String sender = rtm.getSenderParticipantId();
-
-
-        if (buf[0] == 'W') { //Win game
-            // handle end game broadcast
-            MainGameFragment frag = (MainGameFragment) getFragmentManager().findFragmentById(R.id.fragment_container);
-            if (frag instanceof MainGameFragment) {
-
-                ArrayList<String> historyIds = new ArrayList<>();
-
-                for (int i=1; i<buf.length;) {
-                    byte[] subArr = Arrays.copyOfRange(buf,i,i+4);
-                    int num = byteArrayToInt(subArr);
-                    historyIds.add(String.valueOf(num));
-                    i = i+4;
-                }
-
-                String [] historyIdsArr = new String[historyIds.size()];
-                historyIds.toArray(historyIdsArr);
-                gotoGameOverFragment(false, historyIdsArr);
-            }
-        } else if (buf[0] == 'R') { //Rematch Request
-            // handle end game broadcast
-            askForRematch();
-        } else if (buf[0] == 'A') { //Win game
-           gotoSelectActorFragment();
-        } else if (buf[0] == 'D') { //Rematch Request
-            // handle end game broadcast
-            Fragment frag = getFragmentManager().findFragmentById(R.id.fragment_container);
-            if (frag instanceof GameOverFragment) {
-                ((GameOverFragment)frag).showRematchDeclined();
-            }
-        } else if (buf.length == 4) { //Actor message
-            int oppSelectedActorId = byteArrayToInt(buf);
-            SelectActorFragment frag = (SelectActorFragment) getFragmentManager().findFragmentById(R.id.fragment_container);
-            if (frag != null) {
-                frag.setOppSelectedActor(oppSelectedActorId);
-                frag.onSet();
-            }
-        }
-    }
 
     /*
             MESSAGE BROADCASTS
@@ -289,7 +300,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
     }
 
     public void broadcastSelectedActorToOpp(int actorId) {
-        byte[] msgBuf = IntToByteArray(actorId);
+        byte[] msgBuf = SixDegreesUtils.IntToByteArray(actorId);
         broadcastMessageToParticipants(msgBuf);
     }
 
@@ -299,7 +310,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
             if (frag instanceof MainGameFragment) {
                 IHollywoodObject[] historyArray = new IHollywoodObject[historyStack.size()];
                 historyStack.toArray(historyArray);
-                byte[] historyByteArr = HollywoodListToByteArray(historyArray);
+                byte[] historyByteArr = SixDegreesUtils.HollywoodListToByteArray(historyArray);
                 broadcastMessageToParticipants(historyByteArr);
             }
         }
@@ -322,45 +333,6 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         }
     }
 
-    /*
-            NAVIGATION
-     */
-
-    public void gotoSelectActorFragment() {
-        // Create a new Fragment to be placed in the activity layout
-        SelectActorFragment selectActorFragment = new SelectActorFragment();
-
-        // Add the fragment to the 'fragment_container' FrameLayout
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.setCustomAnimations(R.animator.slide_in_left,R.animator.slide_out_right);
-        ft.replace(R.id.fragment_container, selectActorFragment).commit();
-    }
-
-    public void gotoGameOverFragment(boolean won, String[] historyIds) {
-        Intent intent = new Intent(this, GameActivity.class);
-        intent.putExtra("Won", won);
-        intent.putExtra("History", historyIds);
-
-        GameOverFragment fragment = new GameOverFragment();
-        fragment.setArguments(intent.getExtras());
-
-        // Add the fragment to the 'fragment_container' FrameLayout
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.setCustomAnimations(R.animator.slide_in_left,R.animator.slide_out_right);
-        ft.replace(R.id.fragment_container, fragment).commit();
-    }
-
-    private void gotoSplashFragment() {
-
-        SplashFragment fragment = new SplashFragment();
-
-        // Add the fragment to the 'fragment_container' FrameLayout
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.fragment_container, fragment).commit();
-    }
 
     /*
             INVITATION
@@ -394,9 +366,9 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 
         // create the room
         Log.d(TAG, "Creating room...");
-        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(mSixDegreesRoomUpdateListener);
+        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(mRoomUpdateListener);
         rtmConfigBuilder.addPlayersToInvite(invitees);
-        rtmConfigBuilder.setMessageReceivedListener(this);
+        rtmConfigBuilder.setMessageReceivedListener(mRealTimeMessageReceivedListener);
         rtmConfigBuilder.setRoomStatusUpdateListener(mSixDegreesRoomStatusUpdateListener);
         if (autoMatchCriteria != null) {
             rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
@@ -410,15 +382,15 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 
 
     // Accept the given invitation.
-    private void acceptInviteToRoom(String invId) {
+    public void acceptInviteToRoom(String invId) {
         // accept the invitation
         Log.d(TAG, "Accepting invitation: " + invId);
-        RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(mSixDegreesRoomUpdateListener);
+        RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(mRoomUpdateListener);
         roomConfigBuilder.setInvitationIdToAccept(invId)
-                .setMessageReceivedListener(this)
+                .setMessageReceivedListener(mRealTimeMessageReceivedListener)
                 .setRoomStatusUpdateListener(mSixDegreesRoomStatusUpdateListener);
         //switchToScreen(R.id.screen_wait);
-        keepScreenOn();
+        SixDegreesUtils.keepScreenOn(this);
         //resetGameVars();
         Games.RealTimeMultiplayer.join(mGoogleApiClient, roomConfigBuilder.build());
     }
@@ -453,7 +425,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         return mMultiplayer;
     }
 
-    private void askForRematch() {
+    public void askForRematch() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
         // set title
@@ -465,7 +437,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
                 .setCancelable(false)
                 .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
-                        gotoSelectActorFragment();
+                        NavigationUtils.gotoSelectActorFragment(GameActivity.this);
                         broadcastRematchAccepted();
                     }
                 })
@@ -495,23 +467,23 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         if (multiplayer) {
             selectHost();
         }
-        gotoSelectActorFragment();
+        NavigationUtils.gotoSelectActorFragment(this);
     }
 
 
     // Show error message about game being cancelled and return to main screen.
-    private void showGameError() {
+    public void showGameError() {
         Dialog dialog = BaseGameUtils.makeSimpleDialog(this, getString(R.string.game_problem));
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                gotoSplashFragment();
+                NavigationUtils.gotoSplashFragment(GameActivity.this);
             }
         });
         dialog.show();
     }
 
-    private void updateRoom(Room room) {
+    public void updateRoom(Room room) {
         if (room != null) {
             mParticipants = room.getParticipants();
         }
@@ -519,7 +491,7 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
 
     // Show the waiting room UI to track the progress of other players as they enter the
     // room and get connected.
-    private void showWaitingRoom(Room room) {
+    public void showWaitingRoom(Room room) {
 
         // Number of players required to start the game
         final int MIN_PLAYERS = 0;
@@ -532,13 +504,13 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
     // Leave the room.
     public void leaveRoom() {
         Log.d(TAG, "Leaving room.");
-        stopKeepingScreenOn();
+        SixDegreesUtils.stopKeepingScreenOn(this);
         if (mRoomId != null) {
-            Games.RealTimeMultiplayer.leave(mGoogleApiClient, mSixDegreesRoomUpdateListener, mRoomId);
+            Games.RealTimeMultiplayer.leave(mGoogleApiClient, mRoomUpdateListener, mRoomId);
             mRoomId = null;
             //switchToScreen(R.id.screen_wait);
         } else {
-            gotoSplashFragment();
+            NavigationUtils.gotoSplashFragment(this);
         }
     }
 
@@ -569,8 +541,8 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
         final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
         Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
                 MAX_OPPONENTS, 0);
-        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(mSixDegreesRoomUpdateListener);
-        rtmConfigBuilder.setMessageReceivedListener(this);
+        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(mRoomUpdateListener);
+        rtmConfigBuilder.setMessageReceivedListener(mRealTimeMessageReceivedListener);
         rtmConfigBuilder.setRoomStatusUpdateListener(mSixDegreesRoomStatusUpdateListener);
         rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
 
@@ -584,283 +556,9 @@ public class GameActivity extends FragmentActivity implements RealTimeMessageRec
     }
 
 
-    // Takes in a list of hollywood objects and produces a byte[] for messaging
-    // The format starts with a 'W' to signal win game, after that every four
-    // bytes represents the integer id of a hollywood object from the list
-    private byte[] HollywoodListToByteArray (IHollywoodObject[] list) {
-
-        int[] idList = new int[list.length];
-        for (int i=0; i<list.length; i++) {
-            idList[i] = Integer.valueOf(list[i].getId());
-        }
-
-        int idListLength = idList.length;
-        byte[]dst = new byte[(idListLength * 4)+1];
-        dst[0] = 'W';
-        int j=1;
-        for (int i=0; i<idListLength; i++) {
-            int x = idList[i];
-            byte[] xArr = IntToByteArray(x);
-            dst[j] = (byte) (xArr[0]);
-            dst[j+1] = (byte) (xArr[1]);
-            dst[j+2] = (byte) (xArr[2]);
-            dst[j+3] = (byte) (xArr[3]);
-            j = j+4;
-        }
-        return dst;
-    }
-
-    private static int byteArrayToInt (byte[] arr) {
-        ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
-        int num = wrapped.getInt(); // 1
-        return num;
-    }
-
-    private static byte[] IntToByteArray (int num) {
-        ByteBuffer dbuf = ByteBuffer.allocate(4);
-        dbuf.putInt(num);
-        byte[] bytes = dbuf.array(); // { 0, 1 }
-        return bytes;
-    }
-
-    // Sets the flag to keep this screen on. It's recommended to do that during
-    // the handshake when setting up a game, because if the screen turns off, the
-    // game will be cancelled.
-    private void keepScreenOn() {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    // Clears the flag that keeps the screen on.
-    private void stopKeepingScreenOn() {
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
 
 
-    private class SixDegreesConnectionCallback implements  GoogleApiClient.ConnectionCallbacks {
-
-        GameActivity mActivity;
-
-        SixDegreesConnectionCallback(GameActivity activity) {
-            mActivity = activity;
-        }
-
-        @Override
-        public void onConnected(Bundle connectionHint) {
-            Log.d(TAG, "onConnected() called. Sign in successful!");
-
-            Log.d(TAG, "Sign-in succeeded.");
-
-            // register listener so we are notified if we receive an invitation to play
-            // while we are in the game
-            Games.Invitations.registerInvitationListener(mGoogleApiClient, mSixDegreesInvitationReceivedListener);
-
-            if (connectionHint != null) {
-                Log.d(TAG, "onConnected: connection hint provided. Checking for invite.");
-                Invitation inv = connectionHint
-                        .getParcelable(Multiplayer.EXTRA_INVITATION);
-                if (inv != null && inv.getInvitationId() != null) {
-                    // retrieve and cache the invitation ID
-                    Log.d(TAG,"onConnected: connection hint has a room invite!");
-                    acceptInviteToRoom(inv.getInvitationId());
-                    return;
-                }
-            }
-            gotoSplashFragment();
-
-        }
-
-        @Override
-        public void onConnectionSuspended(int i) {
-            Log.d(TAG, "onConnectionSuspended() called. Trying to reconnect.");
-            mGoogleApiClient.connect();
-        }
-    }
-
-    private class SixDegreesConnectionFailedListener implements GoogleApiClient.OnConnectionFailedListener {
-        GameActivity mActivity;
-
-        SixDegreesConnectionFailedListener (GameActivity activity) {
-            mActivity = activity;
-        }
-
-        @Override
-        public void onConnectionFailed(ConnectionResult connectionResult) {
-            Log.d(TAG, "onConnectionFailed() called, result: " + connectionResult);
-
-            if (mResolvingConnectionFailure) {
-                Log.d(TAG, "onConnectionFailed() ignoring connection failure; already resolving.");
-                return;
-            }
-
-            if (mSignInClicked || mAutoStartSignInFlow) {
-                mAutoStartSignInFlow = false;
-                mSignInClicked = false;
-                mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(mActivity, mGoogleApiClient,
-                        connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
-            }
-
-            //gotoSplashFragment();
-        }
-    }
-
-    private class SixDegreesRoomUpdateListener implements RoomUpdateListener {
-        GameActivity mActivity;
-
-        SixDegreesRoomUpdateListener (GameActivity activity) {
-            mActivity = activity;
-        }
-
-        // Called when we've successfully left the room (this happens a result of voluntarily leaving
-        // via a call to leaveRoom(). If we get disconnected, we get onDisconnectedFromRoom()).
-        @Override
-        public void onLeftRoom(int statusCode, String roomId) {
-            // we have left the room; return to main screen.
-            Log.d(TAG, "onLeftRoom, code " + statusCode);
-            gotoSplashFragment();
-        }
-
-        // Called when room has been created
-        @Override
-        public void onRoomCreated(int statusCode, Room room) {
-            Log.d(TAG, "onRoomCreated(" + statusCode + ", " + room + ")");
-            if (statusCode != GamesStatusCodes.STATUS_OK) {
-                Log.e(TAG, "*** Error: onRoomCreated, status " + statusCode);
-                showGameError();
-                return;
-            }
-
-            // show the waiting room UI
-            showWaitingRoom(room);
-        }
-
-        // Called when room is fully connected.
-        @Override
-        public void onRoomConnected(int statusCode, Room room) {
-            Log.d(TAG, "onRoomConnected(" + statusCode + ", " + room + ")");
-            if (statusCode != GamesStatusCodes.STATUS_OK) {
-                Log.e(TAG, "*** Error: onRoomConnected, status " + statusCode);
-                showGameError();
-                return;
-            }
-            updateRoom(room);
-        }
-
-        @Override
-        public void onJoinedRoom(int statusCode, Room room) {
-            Log.d(TAG, "onJoinedRoom(" + statusCode + ", " + room + ")");
-            if (statusCode != GamesStatusCodes.STATUS_OK) {
-                Log.e(TAG, "*** Error: onRoomConnected, status " + statusCode);
-                showGameError();
-                return;
-            }
-
-            // show the waiting room UI
-            showWaitingRoom(room);
-        }
-
-    }
-
-    private class SixDegreesRoomStatusUpdateListener implements RoomStatusUpdateListener {
-        // We treat most of the room update callbacks in the same way: we update our list of
-        // participants and update the display. In a real game we would also have to check if that
-        // change requires some action like removing the corresponding player avatar from the screen,
-        // etc.
-
-        private GameActivity mActivity;
-
-        public SixDegreesRoomStatusUpdateListener (GameActivity activity) {
-            mActivity = activity;
-        }
-
-        // Called when we get disconnected from the room. We return to the main screen.
-        @Override
-        public void onDisconnectedFromRoom(Room room) {
-            mRoomId = null;
-            Fragment frag = mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-            if (frag instanceof GameOverFragment) {
-
-            } else {
-                showGameError();
-            }
-        }
-
-        // Called when we are connected to the room. We're not ready to play yet! (maybe not everybody
-        // is connected yet).
-        @Override
-        public void onConnectedToRoom(Room room) {
-            Log.d(TAG, "onConnectedToRoom.");
-
-            // get room ID, participants and my ID:
-            mRoomId = room.getRoomId();
-            mParticipants = room.getParticipants();
-            mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
-
-            // print out the list of participants (for debug purposes)
-            Log.d(TAG, "Room ID: " + mRoomId);
-            Log.d(TAG, "My ID " + mMyId);
-            Log.d(TAG, "<< CONNECTED TO ROOM>>");
-        }
 
 
-        @Override
-        public void onPeerDeclined(Room room, List<String> arg1) {
-            updateRoom(room);
-        }
 
-        @Override
-        public void onPeerInvitedToRoom(Room room, List<String> arg1) {
-            updateRoom(room);
-        }
-
-        @Override
-        public void onP2PDisconnected(String participant) {
-        }
-
-        @Override
-        public void onP2PConnected(String participant) {
-        }
-
-        @Override
-        public void onPeerJoined(Room room, List<String> arg1) {
-            updateRoom(room);
-        }
-
-        @Override
-        public void onPeerLeft(Room room, List<String> peersWhoLeft) {
-            updateRoom(room);
-
-        }
-
-        @Override
-        public void onRoomAutoMatching(Room room) {
-            updateRoom(room);
-        }
-
-        @Override
-        public void onRoomConnecting(Room room) {
-            updateRoom(room);
-        }
-
-        @Override
-        public void onPeersConnected(Room room, List<String> peers) {
-            updateRoom(room);
-        }
-
-        @Override
-        public void onPeersDisconnected(Room room, List<String> peers) {
-            updateRoom(room);
-        }
-    }
-
-    private class SixDegreesInvitationReceivedListener implements OnInvitationReceivedListener {
-         @Override
-         public void onInvitationReceived(Invitation invitation) {
-
-         }
-
-         @Override
-         public void onInvitationRemoved(String s) {
-
-         }
-     }
 }

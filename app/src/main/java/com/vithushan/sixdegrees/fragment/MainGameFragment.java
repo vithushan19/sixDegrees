@@ -41,6 +41,7 @@ import java.util.Stack;
 import javax.inject.Inject;
 
 import com.vithushan.sixdegrees.util.DividerItemDecoration;
+import com.vithushan.sixdegrees.util.NavigationUtils;
 import com.vithushan.sixdegrees.util.StringUtil;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
@@ -187,7 +188,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
             historyIdsArr[i] = historyArr[i].getId();
         }
         // Pass the id list of the our (winning) history
-        ((GameActivity) getActivity()).gotoGameOverFragment(true, historyIdsArr);
+        NavigationUtils.gotoGameOverFragment(getActivity(), true, historyIdsArr);
     }
 
     public void onItemClick(IHollywoodObject obj) {
