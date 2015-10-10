@@ -3,8 +3,11 @@ package com.vithushan.sixdegrees.fragment;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,7 +23,7 @@ import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.R;
-import com.vithushan.sixdegrees.adapter.RecycleViewAdapter;
+import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.animator.SlideAnimator;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.model.Actor;
@@ -37,12 +40,14 @@ import java.util.Stack;
 
 import javax.inject.Inject;
 
+import com.vithushan.sixdegrees.util.DividerItemDecoration;
 import com.vithushan.sixdegrees.util.StringUtil;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 /**
  * Created by Vithushan on 7/5/2015.
  */
-public class MainGameFragment extends Fragment implements RecycleViewAdapter.ItemClickListener {
+public class MainGameFragment extends Fragment implements RecyclerViewAdapter.ItemClickListener {
     private ArrayList<IHollywoodObject> mCurrentList;
     private Stack<IHollywoodObject> mHistory;
     private Actor mStartingActor;
@@ -56,7 +61,7 @@ public class MainGameFragment extends Fragment implements RecycleViewAdapter.Ite
     private ImageView mEndingImageView;
 
     private RecyclerView mRecyclerView;
-    private RecycleViewAdapter mAdapter;
+    private RecyclerViewAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
     @Inject
@@ -155,12 +160,12 @@ public class MainGameFragment extends Fragment implements RecycleViewAdapter.Ite
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mRecyclerView.setItemAnimator(new SlideAnimator());
-        mRecyclerView.getItemAnimator().setAddDuration(500);
-        mRecyclerView.getItemAnimator().setRemoveDuration(500);
+        Drawable gradient = getResources().getDrawable(R.drawable.blue_gradient);
+        mRecyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity()).drawable(gradient).size(5).build());
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // specify an adapter (see also next example)
-        mAdapter = new RecycleViewAdapter(mCurrentList,getActivity(), this);
+        mAdapter = new RecyclerViewAdapter(mCurrentList,getActivity(), this);
         mRecyclerView.setAdapter(mAdapter);
     }
 

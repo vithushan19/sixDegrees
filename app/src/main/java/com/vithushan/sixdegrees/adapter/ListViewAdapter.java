@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.R;
+import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.util.StringUtil;
 
@@ -67,6 +68,7 @@ public class ListViewAdapter extends BaseAdapter {
 	@Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
+        IHollywoodObject item = getItem(position);
         if (convertView == null) {
             final LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             convertView = inflater.inflate(R.layout.listrow, parent, false);
@@ -78,13 +80,17 @@ public class ListViewAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        holder.textView.setText(getItem(position).getName());
+        holder.textView.setText(item.getName());
 
-        if (StringUtil.isEmpty(getItem(position).getImageURL())) {
+        if (StringUtil.isEmpty(item.getImageURL())) {
         	// TODO get a better asset/
         	holder.imageView.setImageResource(R.drawable.question_mark);
         } else {
-        	Picasso.with(mContext).load(getItem(position).getImageURL()).into(holder.imageView);
+            if (item instanceof Actor) {
+                Picasso.with(mContext).load(item.getImageURL()).into(holder.imageView);
+            }
+            holder.imageView.setImageResource(R.drawable.question_mark);
+
         }
 
         if (position == selectedIndex) {

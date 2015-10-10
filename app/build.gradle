@@ -3,26 +3,32 @@ apply plugin: 'com.android.application'
 
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'production'
+            keyPassword 'android'
+            storeFile file('C:/code/keystore_prod.jks')
+            storePassword 'android'
+        }
+    }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
-
     defaultConfig {
         applicationId "com.vithushan.sixdegrees"
         minSdkVersion 14
         targetSdkVersion 22
+        signingConfig signingConfigs.config
     }
-
     sourceSets {
         instrumentTest.setRoot('src/test')
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.config
         }
     }
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES.txt'
         exclude 'META-INF/LICENSE.txt'
@@ -35,7 +41,8 @@ android {
         exclude 'META-INF/dependencies.txt'
         exclude 'META-INF/LGPL2.1'
     }
-
+    productFlavors {
+    }
 }
 
 dependencies {
@@ -46,14 +53,12 @@ dependencies {
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile 'org.mockito:mockito-core:1.+'
     androidTestCompile 'com.android.support.test:runner:0.3'
-    androidTestCompile "com.google.dexmaker:dexmaker:1.2"
-    androidTestCompile "com.google.dexmaker:dexmaker-mockito:1.2"
-
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     // the following is required ot use Mockito and JUnit for your unit
     // tests on the JVM
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.+'
-
     compile 'com.android.support:support-v4:22.2.0'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
@@ -64,6 +69,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'jp.wasabeef:recyclerview-animators:1.2.1@aar'
+    compile 'com.yqritc:recyclerview-flexibledivider:1.2.5'
 }
 
 

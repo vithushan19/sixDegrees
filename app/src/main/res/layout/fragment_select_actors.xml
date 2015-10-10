@@ -15,13 +15,14 @@
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <ListView
-        android:id="@android:id/list"
+
+    <com.vithushan.sixdegrees.view.MyRecyclerView
+        android:id="@+id/my_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:choiceMode="singleChoice"
-        android:descendantFocusability="beforeDescendants"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:scrollbars="vertical" />
+
 
     <Button
         android:id="@+id/submit"

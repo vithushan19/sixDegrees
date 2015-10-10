@@ -35,7 +35,7 @@ public class MyRecyclerView extends RecyclerView{
         try {
             super.scrollTo(x,y);
         } catch (Exception e) {
-            Log.e(TAG, "CustomRecyclerView does not support scrolling to an absolute position.");
+            //Log.e(TAG, "CustomRecyclerView does not support scrolling to an absolute position.");
         }
         // Either don't call super here or call just for some phones, or try catch it. From default implementation we have removed the Runtime Exception trown
     }

@@ -1,6 +1,7 @@
 package com.vithushan.sixdegrees.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,25 +12,27 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.R;
+import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.util.StringUtil;
 
 import java.util.ArrayList;
 
 
-public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ViewHolder> {
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
     public interface ItemClickListener {
         void onItemClick(IHollywoodObject obj);
     }
 
-    private ArrayList<IHollywoodObject> mDataset;
-    private Context mContext;
+    protected ArrayList<IHollywoodObject> mDataset;
+    protected Context mContext;
     private ItemClickListener mListener;
 
 
+
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecycleViewAdapter(ArrayList<IHollywoodObject> myDataset, Context context, ItemClickListener listener) {
+    public RecyclerViewAdapter(ArrayList<IHollywoodObject> myDataset, Context context, ItemClickListener listener) {
         mDataset = myDataset;
         mContext = context;
         mListener = listener;
@@ -41,7 +44,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             for (int i = 0; i < oldSize; i++) {
                 this.mDataset.remove(0);
             }
-            notifyItemRangeRemoved(0,oldSize);
+            notifyItemRangeRemoved(0, oldSize);
         }
 
     }
@@ -76,7 +79,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
     // Create new views (invoked by the layout manager)
     @Override
-    public RecycleViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+    public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                    int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.listrow, parent, false);
@@ -95,7 +98,12 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             // TODO get a better asset/
             holder.imgHeader.setImageResource(R.drawable.question_mark);
         } else {
-            Picasso.with(mContext).load(mDataset.get(position).getImageURL()).into(holder.imgHeader);
+            if (name instanceof Actor) {
+                Picasso.with(mContext).load(mDataset.get(position).getImageURL()).into(holder.imgHeader);
+            } else {
+                holder.imgHeader.setImageResource(R.drawable.question_mark);
+            }
+
         }
 
         holder.txtFooter.setOnClickListener(new View.OnClickListener() {
@@ -106,13 +114,16 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         });
 
         holder.txtFooter.setText(mDataset.get(position).getName());
-
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return mDataset.size();
+    }
+
+    public IHollywoodObject getItem (int index) {
+        return this.mDataset.get(index);
     }
 
 }
