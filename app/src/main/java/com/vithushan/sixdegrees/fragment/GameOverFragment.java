@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -18,7 +17,6 @@ import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
-import com.vithushan.sixdegrees.adapter.ListViewAdapter;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.model.Actor;
@@ -27,14 +25,12 @@ import com.vithushan.sixdegrees.model.Movie;
 import com.vithushan.sixdegrees.util.Constants;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
@@ -108,15 +104,12 @@ public class GameOverFragment extends Fragment {
         // Get all the actor/movie info using the passed in ids
         mResultList = new ArrayList<>(mWinningHistory.length);
 
-
-
-
         Subscriber<String> historySubscriber = new Subscriber<String>() {
-            int index = 0;
 
-            final Subscriber<Actor> actorSubscriber = new Subscriber<Actor>() {
+            final Subscriber<Actor> finalActorSubscriber = new Subscriber<Actor>() {
                 @Override
                 public void onCompleted() {
+                    mProgress.setVisibility(View.GONE);
                     mAdapter.removeAll();
                     mAdapter.refreshWithNewList(mResultList);
                 }
@@ -132,12 +125,24 @@ public class GameOverFragment extends Fragment {
                 }
             };
 
+            int index = 0;
+            Observable<Actor> _actor;
+            Observable<Movie> _movie;
+
+            final Func2<Actor, Movie, Pair<Actor, Movie>> zipFunc = new Func2<Actor, Movie, Pair<Actor, Movie>>() {
+                @Override
+                public Pair<Actor, Movie> call(Actor actor, Movie movie) {
+                    return new Pair<> (actor, movie);
+                }
+            };
+
             final Subscriber<Pair<Actor, Movie>> zipSubscriber = new Subscriber<Pair<Actor, Movie>>() {
+
                 @Override
                 public void onCompleted() {
                     _actor.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(actorSubscriber);
+                    .subscribe(finalActorSubscriber);
                 }
 
                 @Override
@@ -154,26 +159,12 @@ public class GameOverFragment extends Fragment {
 
             @Override
             public void onCompleted() {
-                mProgress.setVisibility(View.GONE);
-
-                mAdapter.removeAll();
-                mAdapter.refreshWithNewList(mResultList);
             }
 
             @Override
             public void onError(Throwable e) {
 
             }
-
-            Observable<Actor> _actor;
-            Observable<Movie> _movie;
-
-            Func2<Actor, Movie, Pair<Actor, Movie>> zipFunc = new Func2<Actor, Movie, Pair<Actor, Movie>>() {
-                @Override
-                public Pair<Actor, Movie> call(Actor actor, Movie movie) {
-                    return new Pair<> (actor, movie);
-                }
-            };
 
             @Override
             public void onNext(String objectId) {
@@ -190,8 +181,6 @@ public class GameOverFragment extends Fragment {
 
         Observable.from(mWinningHistory)
         .subscribe(historySubscriber);
-
-
  }
 
     public void showRematchDeclined() {

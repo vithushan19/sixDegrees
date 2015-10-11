@@ -39,7 +39,6 @@ import javax.inject.Inject;
 
 import com.vithushan.sixdegrees.util.NavigationUtils;
 import com.vithushan.sixdegrees.util.StringUtil;
-import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -114,7 +113,6 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         Drawable gradient = getResources().getDrawable(R.drawable.blue_gradient);
-        mRecyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity()).drawable(gradient).size(5).build());
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // specify an adapter (see also next example)

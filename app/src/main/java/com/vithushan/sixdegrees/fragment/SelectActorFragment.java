@@ -22,7 +22,6 @@ import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.model.PopularPeople;
 import com.vithushan.sixdegrees.util.Constants;
 import com.vithushan.sixdegrees.util.NavigationUtils;
-import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +88,6 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         Drawable gradient = getResources().getDrawable(R.drawable.blue_gradient);
-        mRecyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity()).drawable(gradient).size(5).build());
         mRecyclerView.setAdapter(mAdapter);
 
         mButton.setOnClickListener(new View.OnClickListener() {
