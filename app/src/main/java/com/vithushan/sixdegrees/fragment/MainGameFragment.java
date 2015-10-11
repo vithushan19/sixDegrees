@@ -2,20 +2,17 @@ package com.vithushan.sixdegrees.fragment;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -24,10 +21,9 @@ import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
-import com.vithushan.sixdegrees.animator.SlideAnimator;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.model.Actor;
-import com.vithushan.sixdegrees.model.Cast;
+import com.vithushan.sixdegrees.model.CastResponse;
 import com.vithushan.sixdegrees.model.MovieCredits;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.model.Movie;
@@ -36,14 +32,21 @@ import com.vithushan.sixdegrees.util.Constants;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Stack;
 
 import javax.inject.Inject;
 
-import com.vithushan.sixdegrees.util.DividerItemDecoration;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 import com.vithushan.sixdegrees.util.StringUtil;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Vithushan on 7/5/2015.
@@ -55,7 +58,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
     private Actor mEndingActor;
     private int mClickCount;
 
-    private ProgressBar mProgress;
+    private ProgressDialog mProgress;
     private TextView mStartingActortv;
     private TextView mEndingActortv;
     private ImageView mStartingImageView;
@@ -72,7 +75,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main_game, container,false);
+        View view = inflater.inflate(R.layout.fragment_main_game, container, false);
         ((GameApplication) getActivity().getApplication()).inject(this);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
@@ -80,13 +83,17 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         mEndingActortv = (TextView) view.findViewById(R.id.textViewEnding);
         mStartingImageView = (ImageView) view.findViewById(R.id.imageview_starting_actor);
         mEndingImageView = (ImageView) view.findViewById(R.id.imageview_ending_actor);
-        mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
 
-        mCurrentList = new ArrayList<IHollywoodObject>();
+        mProgress = new ProgressDialog(getActivity());
+        mProgress.setMessage("Loading");
+        mProgress.setCancelable(false);
+        mProgress.setIndeterminate(true);
+
+        mCurrentList = new ArrayList<>();
 
         mClickCount = 0;
 
-        mHistory = new Stack<IHollywoodObject>();
+        mHistory = new Stack<>();
         return view;
     }
 
@@ -100,62 +107,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
 
         // The actor your opponent chose
         final String oppSelectedActorId = String.valueOf(getArguments().getInt("OppSelectedActorId"));
-        new AsyncTask<Void, Void, Actor>() {
 
-            @Override
-            protected void onPreExecute() {
-                mProgress.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected Actor doInBackground(Void... params) {
-
-                Actor oppSelectedActor = mAPIClient.getActor(oppSelectedActorId, Constants.API_KEY);
-
-                return oppSelectedActor;
-            }
-
-            @Override
-            protected void onPostExecute(Actor actor) {
-
-
-                boolean isHost = ((GameActivity)getActivity()).getIsHost();
-
-                if (isHost) {
-                    setupStartingActor(mySelectedActor);
-                    setupEndingActor(actor);
-                } else {
-                    setupStartingActor(actor);
-                    setupEndingActor(mySelectedActor);
-                }
-                mProgress.setVisibility(View.GONE);
-            }
-
-            //TODO Duplicate setup code
-            private void setupStartingActor(Actor result) {
-                mStartingActor = result;
-                new NetworkTask().execute(mStartingActor);
-                mStartingActortv.setText(mStartingActor.getName());
-
-                if (StringUtil.isEmpty(mStartingActor.getImageURL())) {
-                    mStartingImageView.setImageResource(R.drawable.question_mark);
-                } else {
-                    //TODO check if getbasebcontext part is needed
-                    Picasso.with(getActivity().getBaseContext()).load(mStartingActor.getImageURL()).into(mStartingImageView);
-                }
-            }
-
-            private void setupEndingActor(Actor result) {
-                mEndingActor = result;
-                mEndingActortv.setText(mEndingActor.getName());
-
-                if (StringUtil.isEmpty(mEndingActor.getImageURL())) {
-                    mEndingImageView.setImageResource(R.drawable.question_mark);
-                } else {
-                    Picasso.with(getActivity().getBaseContext()).load(mEndingActor.getImageURL()).into(mEndingImageView);
-                }
-            }
-        }.execute();
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -168,6 +120,52 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         // specify an adapter (see also next example)
         mAdapter = new RecyclerViewAdapter(mCurrentList,getActivity(), this);
         mRecyclerView.setAdapter(mAdapter);
+
+        Action1<Actor> nextAction = new Action1<Actor>() {
+            @Override
+            public void call(Actor actor) {
+
+                boolean isHost = ((GameActivity)getActivity()).getIsHost();
+
+                if (isHost) {
+                    mStartingActor = mySelectedActor;
+
+                    setupActorViews(mySelectedActor, mStartingActortv, mStartingImageView);
+
+                    mEndingActor = actor;
+                    setupActorViews(actor, mEndingActortv, mEndingImageView);
+                } else {
+                    mStartingActor = actor;
+                    setupActorViews(actor, mStartingActortv, mStartingImageView);
+
+                    mEndingActor = mySelectedActor;
+                    setupActorViews(mySelectedActor, mEndingActortv, mEndingImageView);
+                }
+
+                handleItemSelect(mStartingActor);
+                mProgress.hide();
+            }
+        };
+
+        mProgress.show();
+        Observable<Actor> oppSelectedActor = mAPIClient.getActor(oppSelectedActorId, Constants.API_KEY);
+        oppSelectedActor.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(nextAction);
+    }
+
+
+    //TODO Duplicate setup code
+    private void setupActorViews (Actor result, TextView actorTextView, ImageView actorImageView ) {
+//        new NetworkTask().execute(mStartingActor);
+        actorTextView.setText(result.getName());
+
+        if (StringUtil.isEmpty(result.getImageURL())) {
+            actorImageView.setImageResource(R.drawable.question_mark);
+        } else {
+            //TODO check if getbasebcontext part is needed
+            Picasso.with(getActivity().getBaseContext()).load(result.getImageURL()).into(actorImageView);
+        }
     }
 
     // TODO change this to a postgame fragment
@@ -198,7 +196,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
             return;
         }
 
-        new NetworkTask().execute(obj);
+        handleItemSelect(obj);
     }
 
     public void handleBackPress() {
@@ -236,76 +234,115 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
             // show it
             alertDialog.show();
         } else {
+
+
             //Go to previous IHollywooObject
             IHollywoodObject obj = mHistory.pop();
-            new NetworkTask().execute(obj);
+            handleItemSelect(obj);
         }
-
     }
 
-    public Actor getStartingActor() {
-        return mStartingActor;
-    }
+    private void handleItemSelect(IHollywoodObject obj) {
+        Subscriber<Actor> actorSubscriber = new Subscriber<Actor>() {
+            @Override
+            public void onCompleted() {
 
-    public Actor getEndingActor() {
-        return mEndingActor;
-    }
+                //TODO: keep the actors in order
 
-    public Stack<IHollywoodObject> getHistory() {
-        return mHistory;
-    }
-
-    private class NetworkTask extends
-            AsyncTask<IHollywoodObject, Void, ArrayList<IHollywoodObject>> {
-
-        protected ArrayList<IHollywoodObject> doInBackground(IHollywoodObject... params) {
-
-            IHollywoodObject obj = params[0];
-
-            try {
-                mHistory.push(obj);
-                if (obj instanceof Actor) {
-                    Actor actor = (Actor) obj;
-                    MovieCredits res =  mAPIClient.getMediaForActor(actor.getId(),Constants.API_KEY);
-                    ArrayList<Movie> mediaList = new ArrayList<>();
-                    ArrayList<IHollywoodObject> resList = new ArrayList<>();
-                    for (Movie m : res.cast) {
-                        mediaList.add(m);
-                    }
-                    //Sort movies alphabetically
-                    Collections.sort(mediaList);
-                    for (Movie m : mediaList) {
-                        resList.add(m);
-                    }
-                    Log.d("FINISHED", "TTT");
-                    return resList;
-                } else if (obj instanceof Movie){
-                    Movie movie = (Movie) obj;
-                    Cast res = null;
-                    res =  mAPIClient.getCastForMovie(obj.getId(),Constants.API_KEY);
-
-                    ArrayList<IHollywoodObject> resList = new ArrayList<>();
-                    for (Actor m : res.cast) {
-                        resList.add(m);
-                    }
-
-                   return resList;
-                }
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                mIsRefreshing = true;
+                mAdapter.removeAll();
+                mAdapter.refreshWithNewList(mCurrentList);
+                mIsRefreshing = false;
             }
 
-            return null;
-        }
+            @Override
+            public void onError(Throwable e) {
 
-        protected void onPostExecute(ArrayList<IHollywoodObject> result) {
-            mCurrentList = result;
-            mIsRefreshing = true;
+            }
 
-            mAdapter.removeAll();
-            mAdapter.refreshWithNewList(mCurrentList);
-            mIsRefreshing = false;
+            @Override
+            public void onNext(Actor object) {
+                mCurrentList.add(object);
+            }
+        };
+
+        Subscriber<Movie> movieSubscriber = new Subscriber<Movie>() {
+            @Override
+            public void onCompleted() {
+
+                ArrayList<Movie> mediaList = new ArrayList<>();
+                ArrayList<IHollywoodObject> resultList = new ArrayList<>();
+
+                for (IHollywoodObject m : mCurrentList) {
+                    Movie movie = (Movie) m;
+                    mediaList.add(movie);
+                }
+
+                //Sort movies alphabetically
+                Collections.sort(mediaList);
+                for (Movie m : mediaList) {
+                    resultList.add(m);
+                }
+
+                mCurrentList = resultList;
+                mIsRefreshing = true;
+                mAdapter.removeAll();
+                mAdapter.refreshWithNewList(resultList);
+                mIsRefreshing = false;
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(Movie object) {
+                mCurrentList.add(object);
+            }
+        };
+
+        mHistory.push(obj);
+        mCurrentList.clear();
+        if (obj instanceof Actor) {
+            Actor actor = (Actor) obj;
+
+            Observable<MovieCredits> movieCredits = mAPIClient.getMediaForActor(actor.getId(), Constants.API_KEY);
+            movieCredits.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .map(new Func1<MovieCredits, List<Movie>>() {
+                        @Override
+                        public List<Movie> call(MovieCredits credits) {
+                            return credits.cast;
+                        }
+                    })
+                    .flatMap(new Func1<List<Movie>, Observable<Movie>>() {
+                        @Override
+                        public Observable<Movie> call(List<Movie> movies) {
+                            return Observable.from(movies);
+                        }
+                    })
+                    .subscribe(movieSubscriber);
+        } else if (obj instanceof Movie) {
+            Movie movie = (Movie) obj;
+
+            Observable<CastResponse> cast =  mAPIClient.getCastForMovie(movie.getId(),Constants.API_KEY);
+            cast.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .map(new Func1<CastResponse, List<Actor>>() {
+                        @Override
+                        public List<Actor> call(CastResponse castResponse) {
+                            return castResponse.cast;
+                        }
+                    })
+                    .flatMap(new Func1<List<Actor>, Observable<Actor>>() {
+                        @Override
+                        public Observable<Actor> call(List<Actor> actors) {
+                            return Observable.from(actors);
+                        }
+                    })
+                   .subscribe(actorSubscriber);
+
         }
     }
 

@@ -1,7 +1,7 @@
 package com.vithushan.sixdegrees;
 
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
-import com.vithushan.sixdegrees.model.Cast;
+import com.vithushan.sixdegrees.model.CastResponse;
 import com.vithushan.sixdegrees.model.Movie;
 import com.vithushan.sixdegrees.model.MovieCredits;
 import com.vithushan.sixdegrees.model.PopularPeople;
@@ -54,7 +54,7 @@ public class MovieAPIClientTest {
         Movie m = new Movie("8592","ASDSAD", "SADSAD");
         //TODO try with caps
 
-        Cast combinedCredits = mMovieAPIClient.getCastForTV(m.id, API_KEY);
+        CastResponse combinedCredits = mMovieAPIClient.getCastForTV(m.id, API_KEY);
         assertNotNull(combinedCredits);
         assertNotNull(combinedCredits.cast);
         assertNotEquals(combinedCredits.cast.size(), 0);
@@ -65,7 +65,7 @@ public class MovieAPIClientTest {
         Movie m = new Movie("21862", "SASDASD", "SDASDAS");
         //TODO try with caps
 
-        Cast combinedCredits = mMovieAPIClient.getCastForMovie(m.id,API_KEY);
+        CastResponse combinedCredits = mMovieAPIClient.getCastForMovie(m.id,API_KEY);
         assertNotNull(combinedCredits);
         assertNotNull(combinedCredits.cast);
         assertNotEquals(combinedCredits.cast.size(), 0);

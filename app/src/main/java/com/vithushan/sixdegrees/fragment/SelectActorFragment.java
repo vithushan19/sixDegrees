@@ -121,7 +121,7 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
                     } while (randomActorId == mMySelectedActor.getId());
 
                     mOppSelectedActorId = Integer.valueOf(randomActorId);
-                    NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, mOppSelectedActorId);
+                    NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(mMySelectedActor.getId()));
                 }
 
             }
