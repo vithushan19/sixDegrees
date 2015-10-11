@@ -109,6 +109,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.txtFooter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mListener == null) return;
                 mListener.onItemClick(mDataset.get(position));
             }
         });

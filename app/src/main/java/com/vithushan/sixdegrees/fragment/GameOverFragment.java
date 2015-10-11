@@ -1,11 +1,10 @@
 package com.vithushan.sixdegrees.fragment;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,25 +19,36 @@ import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.adapter.ListViewAdapter;
+import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
+import com.vithushan.sixdegrees.model.Movie;
 import com.vithushan.sixdegrees.util.Constants;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func2;
+import rx.schedulers.Schedulers;
 
 
 public class GameOverFragment extends Fragment {
 	private TextView mStateTextView;
 	private Button mRematch;
     private Button mMainMenu;
-    private ListViewAdapter mAdapter;
-    private ListView mListView;
+    private RecyclerViewAdapter mAdapter;
+    private RecyclerView mRecyclerView;
     private ProgressBar mProgress;
 
     private String [] mWinningHistory;
+    private ArrayList <IHollywoodObject> mResultList;
     private boolean mWonGame;
 
     @Inject
@@ -79,7 +89,7 @@ public class GameOverFragment extends Fragment {
         mWinningHistory = getArguments().getStringArray("History");
 
         mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
-        mListView = (ListView) view.findViewById(android.R.id.list);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
 
 		return view;
 	}
@@ -88,42 +98,101 @@ public class GameOverFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        new AsyncTask<Void, Void, ArrayList<IHollywoodObject>>() {
+        mProgress.setVisibility(View.VISIBLE);
 
-            @Override
-            protected void onPreExecute() {
-                mProgress.setVisibility(View.VISIBLE);
-            }
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        mAdapter = new RecyclerViewAdapter(new ArrayList<IHollywoodObject>(),getActivity(),null);
+        mRecyclerView.setAdapter(mAdapter);
 
-            @Override
-            protected ArrayList<IHollywoodObject> doInBackground(Void... params) {
+        // Get all the actor/movie info using the passed in ids
+        mResultList = new ArrayList<>(mWinningHistory.length);
 
-                // Get all the actor/movie info using the passed in ids
-                ArrayList<IHollywoodObject> resultList = new ArrayList<IHollywoodObject>(mWinningHistory.length);
 
-                for (int i=0; i<mWinningHistory.length; i++) {
-                    IHollywoodObject item = null;
-                    if ((i%2)==0) {
-                        item = mAPIClient.getActor(mWinningHistory[i], Constants.API_KEY);
-                    } else {
-                        item = mAPIClient.getMovie(mWinningHistory[i], Constants.API_KEY);
-                    }
-                    resultList.add(item);
+
+
+        Subscriber<String> historySubscriber = new Subscriber<String>() {
+            int index = 0;
+
+            final Subscriber<Actor> actorSubscriber = new Subscriber<Actor>() {
+                @Override
+                public void onCompleted() {
+                    mAdapter.removeAll();
+                    mAdapter.refreshWithNewList(mResultList);
                 }
 
+                @Override
+                public void onError(Throwable e) {
 
-                return resultList;
+                }
+
+                @Override
+                public void onNext(Actor actor) {
+                    mResultList.add(actor);
+                }
+            };
+
+            final Subscriber<Pair<Actor, Movie>> zipSubscriber = new Subscriber<Pair<Actor, Movie>>() {
+                @Override
+                public void onCompleted() {
+                    _actor.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(actorSubscriber);
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+
+                @Override
+                public void onNext(Pair<Actor, Movie> actorMoviePair) {
+                    mResultList.add(actorMoviePair.first);
+                    mResultList.add(actorMoviePair.second);
+                }
+            };
+
+            @Override
+            public void onCompleted() {
+                mProgress.setVisibility(View.GONE);
+
+                mAdapter.removeAll();
+                mAdapter.refreshWithNewList(mResultList);
             }
 
             @Override
-            protected void onPostExecute(ArrayList<IHollywoodObject> objects) {
-                mAdapter = new ListViewAdapter(getActivity(), objects);
-                mListView.setAdapter(mAdapter);
-                mProgress.setVisibility(View.GONE);
+            public void onError(Throwable e) {
+
             }
 
-        }.execute();
-    }
+            Observable<Actor> _actor;
+            Observable<Movie> _movie;
+
+            Func2<Actor, Movie, Pair<Actor, Movie>> zipFunc = new Func2<Actor, Movie, Pair<Actor, Movie>>() {
+                @Override
+                public Pair<Actor, Movie> call(Actor actor, Movie movie) {
+                    return new Pair<> (actor, movie);
+                }
+            };
+
+            @Override
+            public void onNext(String objectId) {
+                if ((index % 2)==0) {
+                    _actor = mAPIClient.getActor(objectId, Constants.API_KEY);
+                } else {
+                    _movie = mAPIClient.getMovie(objectId, Constants.API_KEY);
+                    Observable.zip(_actor, _movie, zipFunc)
+                    .subscribe(zipSubscriber);
+                }
+                index++;
+            }
+        };
+
+        Observable.from(mWinningHistory)
+        .subscribe(historySubscriber);
+
+
+ }
 
     public void showRematchDeclined() {
         mRematch.setText("Opponent Declined");
