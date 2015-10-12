@@ -37,6 +37,8 @@ import java.util.Stack;
 
 import javax.inject.Inject;
 
+import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
+import com.vithushan.sixdegrees.util.MessageBroadcaster;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 import com.vithushan.sixdegrees.util.StringUtil;
 
@@ -173,7 +175,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         mHistory.push(mEndingActor);
 
         // Broadcast our (winning) history to the other player
-        ((GameActivity)getActivity()).broadcastGameOver(mHistory);
+        MessageBroadcastUtils.broadcastGameOver(mHistory, (MessageBroadcaster)getActivity(), getActivity());
 
         IHollywoodObject[] historyArr = new IHollywoodObject[mHistory.size()];
         mHistory.toArray(historyArr);

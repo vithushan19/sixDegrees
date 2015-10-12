@@ -17,6 +17,8 @@ public class SplashFragment extends Fragment {
 
     private String TAG = "SplashFragment";
     private Button mQuickGame;
+    private Button mInvitePlayers;
+    private Button mMyInvitations;
     private Button mSinglePlayer;
 
 
@@ -28,6 +30,20 @@ public class SplashFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ((GameActivity)getActivity()).startQuickGame();
+            }
+        });
+        mInvitePlayers = (Button) view.findViewById(R.id.invite_players_button);
+        mInvitePlayers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((GameActivity)getActivity()).invitePlayers();
+            }
+        });
+        mMyInvitations = (Button) view.findViewById(R.id.my_invitations_button);
+        mMyInvitations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((GameActivity)getActivity()).showInvitationInbox();
             }
         });
         mSinglePlayer = (Button) view.findViewById(R.id.button_single_player);

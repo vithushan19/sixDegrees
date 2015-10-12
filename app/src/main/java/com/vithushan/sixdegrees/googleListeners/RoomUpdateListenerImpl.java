@@ -7,6 +7,7 @@ import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.util.NavigationUtils;
+import com.vithushan.sixdegrees.util.SixDegreesUtils;
 
 /**
  * Created by vnama on 10/10/2015.

@@ -23,6 +23,8 @@ import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.model.Movie;
 import com.vithushan.sixdegrees.util.Constants;
+import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
+import com.vithushan.sixdegrees.util.MessageBroadcaster;
 
 import java.util.ArrayList;
 
@@ -61,7 +63,7 @@ public class GameOverFragment extends Fragment {
             public void onClick(View v) {
                 mRematch.setEnabled(false);
                 mRematch.setText("Waiting for response...");
-                ((GameActivity)getActivity()).broadcastRematchRequest();
+                MessageBroadcastUtils.broadcastRematchRequest((MessageBroadcaster) getActivity());
             }
         });
 

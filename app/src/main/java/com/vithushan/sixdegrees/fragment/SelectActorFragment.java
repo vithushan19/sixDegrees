@@ -21,6 +21,8 @@ import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.model.PopularPeople;
 import com.vithushan.sixdegrees.util.Constants;
+import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
+import com.vithushan.sixdegrees.util.MessageBroadcaster;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 
 import java.util.ArrayList;
@@ -70,7 +72,7 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
         mProgress.setCancelable(false);
         mProgress.setIndeterminate(true);
 
-        mPopularActorList = new ArrayList<IHollywoodObject>();
+        mPopularActorList = new ArrayList<>();
 
         return view;
     }
@@ -87,7 +89,6 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        Drawable gradient = getResources().getDrawable(R.drawable.blue_gradient);
         mRecyclerView.setAdapter(mAdapter);
 
         mButton.setOnClickListener(new View.OnClickListener() {
@@ -98,7 +99,7 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
 
                 if (((GameActivity) getActivity()).getIsMultiplayer()) {
                     // Broadcast your selection to other player(s)
-                    ((GameActivity) getActivity()).broadcastSelectedActorToOpp(Integer.valueOf(mMySelectedActor.getId()));
+                    MessageBroadcastUtils.broadcastSelectedActorToOpp(Integer.valueOf(mMySelectedActor.getId()), (MessageBroadcaster) getActivity());
 
                     // If you already have your opponenet's selection, start the mainfragment
                     if (mOppSelectedActorId != 0) {
@@ -116,7 +117,7 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
                         Random r = new Random();
                         int i = r.nextInt(mAdapter.getItemCount());
                         randomActorId = mAdapter.getItem(i).getId();
-                    } while (randomActorId == mMySelectedActor.getId());
+                    } while (randomActorId.equals(mMySelectedActor.getId()));
 
                     mOppSelectedActorId = Integer.valueOf(randomActorId);
                     NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(mMySelectedActor.getId()));

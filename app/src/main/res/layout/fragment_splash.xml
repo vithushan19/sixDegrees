@@ -19,16 +19,30 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/button_single_player"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/single_player"/>
+
+            <Button
                 android:id="@+id/quick_game_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/quick_game"/>
 
             <Button
-                android:id="@+id/button_single_player"
+                android:id="@+id/invite_players_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/invite_players"/>
+
+            <Button
+                android:id="@+id/my_invitations_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/single_player"/>
+                android:text="@string/my_invitations"/>
+
+
 
         </LinearLayout>
 
