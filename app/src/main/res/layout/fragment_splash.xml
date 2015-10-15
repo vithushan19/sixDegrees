@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
 
 
@@ -13,10 +14,19 @@
         android:background="@drawable/blue_gradient"
         android:orientation="vertical">
 
+        <com.vithushan.sixdegrees.view.Circle
+            android:id="@+id/circles"
+            android:background="@color/abc_primary_text_disable_only_material_dark"
+            android:layout_width="256dp"
+            android:layout_height="256dp"
+            custom:circleColor="#FFF233"
+            android:visibility="gone"/>
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <Button
                 android:id="@+id/button_single_player"
