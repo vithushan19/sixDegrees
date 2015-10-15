@@ -15,6 +15,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.GameApplication;
@@ -65,6 +68,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
     private ImageView mStartingImageView;
     private ImageView mEndingImageView;
 
+    private AdView mAdView;
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -84,6 +88,11 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         mEndingActortv = (TextView) view.findViewById(R.id.textViewEnding);
         mStartingImageView = (ImageView) view.findViewById(R.id.imageview_starting_actor);
         mEndingImageView = (ImageView) view.findViewById(R.id.imageview_ending_actor);
+        mAdView = (AdView) view.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("347FE137FE7B045143C25D3825D6BEA3")
+                .build();
+        mAdView.loadAd(adRequest);
 
         mProgress = new ProgressDialog(getActivity());
         mProgress.setMessage("Loading");

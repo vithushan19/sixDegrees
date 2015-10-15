@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -111,6 +112,8 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
     private OnInvitationReceivedListener mInvitationReceivedListener;
     private RealTimeMessageReceivedListener mRealTimeMessageReceivedListener;
 
+    private ProgressDialog mProgress;
+
 	/*
 		LIFECYCLE METHODS
 	 */
@@ -133,6 +136,12 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
 				.addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
 				.addApi(Games.API).addScope(Games.SCOPE_GAMES)
 				.build();
+
+
+        mProgress = new ProgressDialog(this);
+        mProgress.setMessage("Loading");
+        mProgress.setCancelable(false);
+        mProgress.setIndeterminate(true);
 
         setContentView(R.layout.activity_game);
 
@@ -196,6 +205,7 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
                 break;
             case RC_WAITING_ROOM:
                 // we got the result from the "waiting room" UI.
+                mProgress.hide();
                 if (responseCode == Activity.RESULT_OK) {
                     // ready to start playing
                     Log.d(TAG, "Starting game (waiting room returned OK).");
@@ -428,6 +438,7 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
     // Should only be called one enough players are in the room
     public void startGame(boolean multiplayer) {
         mMultiplayer = multiplayer;
+
         if (multiplayer) {
             selectHost();
         }
@@ -507,6 +518,7 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
     }
 
     public void startQuickGame() {
+        mProgress.show();
         createGameRoom();
     }
 

@@ -53,9 +53,9 @@ public class RealTimeMessageReceivedListenerImpl implements RealTimeMessageRecei
         } else if (buf[0] == 'R') { //Rematch Request
             // handle end game broadcast
             mActivity.askForRematch();
-        } else if (buf[0] == 'A') { //Win game
+        } else if (buf[0] == 'A') { //Rematch Request Accepted
             NavigationUtils.gotoSelectActorFragment(mActivity);
-        } else if (buf[0] == 'D') { //Rematch Request
+        } else if (buf[0] == 'D') { //Rematch Request Declined
             // handle end game broadcast
             Fragment frag = mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
             if (frag instanceof GameOverFragment) {
