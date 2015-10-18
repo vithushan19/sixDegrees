@@ -73,12 +73,12 @@ public class SplashFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        LogoAnimator logoAnimator = new LogoAnimator(mCircle, "color", 0);
-        LogoAnimator logoAnimator2 = new LogoAnimator(mCircle, "color2", 500);
-        LogoAnimator logoAnimator3 = new LogoAnimator(mCircle, "color3", 1000);
-        LogoAnimator logoAnimator4 = new LogoAnimator(mCircle, "color4", 1500);
-        LogoAnimator logoAnimator5 = new LogoAnimator(mCircle, "color5", 2000);
-        LogoAnimator logoAnimator6 = new LogoAnimator(mCircle, "color6", 2500);
+        LogoAnimator logoAnimator = new LogoAnimator(mCircle, "color1", 0);
+        LogoAnimator logoAnimator2 = new LogoAnimator(mCircle, "color2", 250);
+        LogoAnimator logoAnimator3 = new LogoAnimator(mCircle, "color3", 500);
+        LogoAnimator logoAnimator4 = new LogoAnimator(mCircle, "color4", 750);
+        LogoAnimator logoAnimator5 = new LogoAnimator(mCircle, "color5", 1000);
+        LogoAnimator logoAnimator6 = new LogoAnimator(mCircle, "color6", 1250);
 
         logoAnimator.getAnim().start();
         logoAnimator2.getAnim().start();
@@ -89,8 +89,8 @@ public class SplashFragment extends Fragment {
 
         ValueAnimator anim = ObjectAnimator.ofInt
                 (mTransparentRect, "backgroundColor",
-                        Color.argb(0x80, 0xFF, 0xFF, 0xFF), Color.argb(0x50, 0xFF, 0xFF, 0xFF));
-        anim.setDuration(3000);
+                        Color.argb(0xA0, 0xFF, 0xFF, 0xFF), Color.argb(0x50, 0xFF, 0xFF, 0xFF));
+        anim.setDuration(1500);
         anim.setRepeatCount(ValueAnimator.INFINITE);
         anim.setRepeatMode(ValueAnimator.REVERSE);
         anim.setEvaluator(new ArgbEvaluator());

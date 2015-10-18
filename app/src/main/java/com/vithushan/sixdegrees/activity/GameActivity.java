@@ -399,6 +399,13 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
         return mMultiplayer;
     }
 
+    public void handleRematch() {
+        if (mMultiplayer) {
+            MessageBroadcastUtils.broadcastRematchRequest(this);
+        } else {
+            NavigationUtils.gotoSelectActorFragment(this);
+        }
+    }
     public void askForRematch() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 

@@ -3,14 +3,14 @@
     android:id="@+id/linearlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/blue_gradient"
+    android:background="@drawable/blue_panel"
     android:orientation="vertical" >
 
     <TextView
         android:id="@+id/textview_status"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/blue_gradient"
+        android:textColor="@color/black"
         android:gravity="center_horizontal"
         android:padding="40dp"
         android:text="Large Text"
@@ -41,7 +41,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/blue_gradient"
+        android:textColor="@color/black"
         android:gravity="center_horizontal"
         android:padding="15dp"
         android:text="@string/winning_path" />
@@ -62,8 +62,5 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:scrollbars="vertical" />
-
-
-
 
 </LinearLayout>

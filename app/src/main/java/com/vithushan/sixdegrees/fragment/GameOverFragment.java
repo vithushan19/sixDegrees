@@ -63,7 +63,7 @@ public class GameOverFragment extends Fragment {
             public void onClick(View v) {
                 mRematch.setEnabled(false);
                 mRematch.setText("Waiting for response...");
-                MessageBroadcastUtils.broadcastRematchRequest((MessageBroadcaster) getActivity());
+                ((GameActivity)getActivity()).handleRematch();
             }
         });
 

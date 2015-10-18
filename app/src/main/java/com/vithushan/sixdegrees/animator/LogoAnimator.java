@@ -18,9 +18,9 @@ public class LogoAnimator {
     public LogoAnimator (Circle circle, String circleNumber, long delay) {
         mAnim = ObjectAnimator.ofInt
                 (circle, circleNumber,
-                        Color.rgb(0x00, 0xAC, 0xC1), Color.rgb(0x26, 0xC6, 0xDA));
+                        Color.rgb(0x00, 0xAC, 0xC1), Color.rgb(0x85, 0xC8, 0xC5));
 
-        mAnim.setDuration(3000);
+        mAnim.setDuration(1500);
         mAnim.setStartDelay(delay);
         mAnim.setRepeatCount(ValueAnimator.INFINITE);
         mAnim.setRepeatMode(ValueAnimator.REVERSE);

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.vithushan.sixdegrees.BuildConfig;
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
@@ -120,7 +121,12 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
                     } while (randomActorId.equals(mMySelectedActor.getId()));
 
                     mOppSelectedActorId = Integer.valueOf(randomActorId);
-                    NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(mMySelectedActor.getId()));
+                    if (BuildConfig.DEBUG) {
+                        NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(mMySelectedActor.getId()));
+                    } else {
+                        NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(randomActorId));
+                    }
+
                 }
 
             }

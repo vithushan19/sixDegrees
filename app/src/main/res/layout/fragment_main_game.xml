@@ -42,7 +42,7 @@
                 android:id="@+id/imageview_starting_actor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/question_mark"/>
+                android:src="@drawable/movie_placeholder"/>
 
         </LinearLayout>
 
@@ -58,7 +58,7 @@
                 android:id="@+id/imageview_ending_actor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/question_mark"/>
+                android:src="@drawable/movie_placeholder"/>
 
             <TextView
                 android:id="@+id/textViewEnding"

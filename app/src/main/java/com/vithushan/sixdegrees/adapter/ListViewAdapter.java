@@ -84,12 +84,12 @@ public class ListViewAdapter extends BaseAdapter {
 
         if (StringUtil.isEmpty(item.getImageURL())) {
         	// TODO get a better asset/
-        	holder.imageView.setImageResource(R.drawable.question_mark);
+        	holder.imageView.setImageResource(R.drawable.movie_placeholder);
         } else {
             if (item instanceof Actor) {
                 Picasso.with(mContext).load(item.getImageURL()).into(holder.imageView);
             }
-            holder.imageView.setImageResource(R.drawable.question_mark);
+            holder.imageView.setImageResource(R.drawable.movie_placeholder);
 
         }
 
