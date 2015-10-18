@@ -1,7 +1,6 @@
 package com.vithushan.sixdegrees.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -96,12 +95,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         final IHollywoodObject name = mDataset.get(position);
         if (StringUtil.isEmpty(mDataset.get(position).getImageURL())) {
             // TODO get a better asset/
-            holder.imgHeader.setImageResource(R.drawable.question_mark);
+            Picasso.with(mContext).load(R.drawable.movie_placeholder).into(holder.imgHeader);
         } else {
             if (name instanceof Actor) {
                 Picasso.with(mContext).load(mDataset.get(position).getImageURL()).into(holder.imgHeader);
             } else {
-                holder.imgHeader.setImageResource(R.drawable.question_mark);
+                Picasso.with(mContext).load(R.drawable.movie_placeholder).into(holder.imgHeader);
             }
 
         }

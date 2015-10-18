@@ -170,7 +170,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         actorTextView.setText(result.getName());
 
         if (StringUtil.isEmpty(result.getImageURL())) {
-            actorImageView.setImageResource(R.drawable.question_mark);
+            Picasso.with(getActivity().getBaseContext()).load(R.drawable.question_mark).into(actorImageView);
         } else {
             //TODO check if getbasebcontext part is needed
             Picasso.with(getActivity().getBaseContext()).load(result.getImageURL()).into(actorImageView);
