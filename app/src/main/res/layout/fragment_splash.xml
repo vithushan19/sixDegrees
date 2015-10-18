@@ -14,18 +14,34 @@
         android:background="@drawable/blue_gradient"
         android:orientation="vertical">
 
-        <com.vithushan.sixdegrees.view.Circle
-            android:id="@+id/circles"
-            android:background="@color/abc_primary_text_disable_only_material_dark"
-            android:layout_width="256dp"
-            android:layout_height="256dp"
-            custom:circleColor="#FFF233"
-            android:visibility="gone"/>
+        <RelativeLayout
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="25dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <View
+                android:id="@+id/transparentRect"
+                android:background="#80FFFFFF"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <com.vithushan.sixdegrees.view.Circle
+                android:id="@+id/circles"
+                android:layout_centerInParent="true"
+                android:layout_width="256dp"
+                android:layout_height="256dp"/>
+
+        </RelativeLayout>
+
+
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingBottom="25dp"
             android:visibility="visible">
 
             <Button

@@ -1,15 +1,11 @@
 package com.vithushan.sixdegrees.view;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.animation.Animation;
 
 import com.vithushan.sixdegrees.R;
 
@@ -18,81 +14,110 @@ import com.vithushan.sixdegrees.R;
  */
 public class Circle extends View {
 
-    private String _colorString = "#FFFFFF";
-    private int _backgroundColor;
-    private Paint paint = new Paint();
+    private int color1 = getResources().getColor(R.color.dark_blue);
+    private int color2 = getResources().getColor(R.color.dark_blue);
+    private int color3 = getResources().getColor(R.color.dark_blue);
+    private int color4 = getResources().getColor(R.color.dark_blue);
+    private int color5 = getResources().getColor(R.color.dark_blue);
+    private int color6 = getResources().getColor(R.color.dark_blue);
+
+    Paint paint = new Paint();
+    private Paint paintBorder = new Paint();
 
     public Circle(Context context) {
         super(context);
+        paintBorder.setStyle(Paint.Style.STROKE);
+        paintBorder.setStrokeWidth(2);
     }
 
     public Circle(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-
-        ColorDrawable colorDrawable = (ColorDrawable) getBackground();
-        _backgroundColor = colorDrawable.getColor();
-        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.Circle);
-
-        _colorString = a.getString(R.styleable.Circle_circleColor);
-
     }
 
-    private void animate2() {
-        final float[] from = new float[3],
-                to =   new float[3];
+    public void setColor1(int color) {
+        color1 = color;
+        invalidate();
+    }
 
-        Color.colorToHSV(Color.parseColor("#FFFFFFFF"), from);   // from white
-        Color.colorToHSV(Color.parseColor(_colorString), to);     // to red
+    public void setColor2(int color) {
+        color2 = color;
+        invalidate();
+    }
 
-        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);   // animate from 0 to 1
-        anim.setDuration(300);                              // for 300 ms
+    public void setColor3(int color) {
+        color3 = color;
+        invalidate();
+    }
 
-        final float[] hsv  = new float[3];                  // transition color
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
-            @Override public void onAnimationUpdate(ValueAnimator animation) {
-                // Transition along each axis of HSV (hue, saturation, value)
-                hsv[0] = from[0] + (to[0] - from[0])*animation.getAnimatedFraction();
-                hsv[1] = from[1] + (to[1] - from[1])*animation.getAnimatedFraction();
-                hsv[2] = from[2] + (to[2] - from[2])*animation.getAnimatedFraction();
 
-                paint.setColor(Color.HSVToColor(hsv));
-                setBackgroundColor(Color.HSVToColor(hsv));
-                invalidate();
-            }
-        });
+    public void setColor4(int color) {
+        color4 = color;
+        invalidate();
+    }
 
-        anim.setRepeatCount(Animation.INFINITE);
-        anim.start();
+
+    public void setColor5(int color) {
+        color5 = color;
+        invalidate();
+    }
+
+
+    public void setColor6(int color) {
+        color6 = color;
+        invalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         // TODO Auto-generated method stub
         super.onDraw(canvas);
-        float x = getWidth();
-        float y = getHeight();
+        float width = getWidth();
+        float height = getHeight();
+
+        float halfWidth = width/2;
+        float halfHeight = height/2;
+
+        float quarterWidth = width/4;
+
         float radius;
 
         radius = getWidth()/8;
+
+        // The height of an equilateral triangle with a side length equal to the radius
         float heightShift = (float) (Math.sqrt((radius * radius) - ((radius/2) * (radius/2))));
 
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.WHITE);
-        canvas.drawPaint(paint);
-        paint.setColor(_backgroundColor);
-        // Use Color.parseColor to define HTML colors
-        //paint.setColor(Color.parseColor(_colorString));
-        //canvas.drawCircle(x / 2, y / 2, radius, paint);
+        /*
+            Logo is drawn using hexagonal circle packing. Then changing the radius of certain circles
+         */
 
-        canvas.drawCircle(x / 2 - (x / 4), y / 2, (float) (radius/1.5), paint);
-        canvas.drawCircle(x / 2 + (x/4), y / 2, (float) (radius/1.5), paint);
+        // This is the center circle that all other circle draw around
+        //canvas.drawCircle(halfWidth, halfHeight, radius, paint);
 
-        canvas.drawCircle(x/2 + ((x/2) - (x/4))/2, y / 2 + 2*heightShift, radius, paint);
-        canvas.drawCircle(x / 2 - ((x / 2) - (x / 4)) / 2, y / 2 + 2 * heightShift, radius, paint);
+        //bottom right
+        paint.setColor(color3);
+        drawBorderedCircle(canvas, halfWidth + (halfWidth - quarterWidth) / 2, halfHeight + 2 * heightShift, radius);
+        //bottom left
+        paint.setColor(color4);
+        drawBorderedCircle(canvas, halfWidth - (halfWidth - quarterWidth) / 2, halfHeight + 2 * heightShift, radius);
 
-        canvas.drawCircle(x / 2 + ((x / 2) - (x / 4)) / 2, y / 2 - 2 * heightShift, radius / 2, paint);
-        canvas.drawCircle(x / 2 - ((x / 2) - (x / 4)) / 2, y / 2 - 2 * heightShift, radius / 2, paint);
+        //middle right
+        paint.setColor(color2);
+        drawBorderedCircle(canvas, halfWidth + quarterWidth, halfHeight, (float) (radius / 1.5));
+        //middle left
+        paint.setColor(color5);
+        drawBorderedCircle(canvas, halfWidth - quarterWidth, halfHeight, (float) (radius / 1.5));
 
-        //animate2();
+        //top right
+        paint.setColor(color1);
+        drawBorderedCircle(canvas, halfWidth + (halfWidth - quarterWidth) / 2, halfHeight - 2 * heightShift, radius / 2);
+        //top left
+        paint.setColor(color6);
+        drawBorderedCircle(canvas, halfWidth - (halfWidth - quarterWidth) / 2, halfHeight - 2 * heightShift, radius / 2);
+
+    }
+
+    private void drawBorderedCircle(Canvas canvas, float x, float y, float radius) {
+        canvas.drawCircle(x, y, radius+2, paintBorder);
+        canvas.drawCircle(x, y, radius, paint);
     }
 }

@@ -9,10 +9,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 import android.widget.Button;
 
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
+import com.vithushan.sixdegrees.animator.LogoAnimator;
 import com.vithushan.sixdegrees.view.Circle;
 
 /**
@@ -22,6 +24,7 @@ public class SplashFragment extends Fragment {
 
     private String TAG = "SplashFragment";
 
+    private View mTransparentRect;
     private Circle mCircle;
     private Button mQuickGame;
     private Button mInvitePlayers;
@@ -33,6 +36,8 @@ public class SplashFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_splash, container, false);
         mCircle = (Circle) view.findViewById(R.id.circles);
+        mTransparentRect = view.findViewById(R.id.transparentRect);
+
         mQuickGame = (Button) view.findViewById(R.id.quick_game_button);
         mQuickGame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,13 +72,28 @@ public class SplashFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ValueAnimator skyAnim = ObjectAnimator.ofInt
-                (mCircle, "backgroundColor",
-                        Color.rgb(0x66, 0xcc, 0xff), Color.rgb(0x00, 0x66, 0x99));
-        skyAnim.setDuration(3000);
-        skyAnim.setRepeatCount(ValueAnimator.INFINITE);
-        skyAnim.setRepeatMode(ValueAnimator.REVERSE);
-        skyAnim.setEvaluator(new ArgbEvaluator());
-        skyAnim.start();
+
+        LogoAnimator logoAnimator = new LogoAnimator(mCircle, "color", 0);
+        LogoAnimator logoAnimator2 = new LogoAnimator(mCircle, "color2", 500);
+        LogoAnimator logoAnimator3 = new LogoAnimator(mCircle, "color3", 1000);
+        LogoAnimator logoAnimator4 = new LogoAnimator(mCircle, "color4", 1500);
+        LogoAnimator logoAnimator5 = new LogoAnimator(mCircle, "color5", 2000);
+        LogoAnimator logoAnimator6 = new LogoAnimator(mCircle, "color6", 2500);
+
+        logoAnimator.getAnim().start();
+        logoAnimator2.getAnim().start();
+        logoAnimator3.getAnim().start();
+        logoAnimator4.getAnim().start();
+        logoAnimator5.getAnim().start();
+        logoAnimator6.getAnim().start();
+
+        ValueAnimator anim = ObjectAnimator.ofInt
+                (mTransparentRect, "backgroundColor",
+                        Color.argb(0x80, 0xFF, 0xFF, 0xFF), Color.argb(0x50, 0xFF, 0xFF, 0xFF));
+        anim.setDuration(3000);
+        anim.setRepeatCount(ValueAnimator.INFINITE);
+        anim.setRepeatMode(ValueAnimator.REVERSE);
+        anim.setEvaluator(new ArgbEvaluator());
+        anim.start();
     }
 }
