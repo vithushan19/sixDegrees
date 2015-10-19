@@ -24,6 +24,7 @@ import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
+import com.vithushan.sixdegrees.dagger.ApplicationComponent;
 import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.CastResponse;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
@@ -42,7 +43,6 @@ import java.util.Stack;
 
 import javax.inject.Inject;
 
-import dagger.ApplicationComponent;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;

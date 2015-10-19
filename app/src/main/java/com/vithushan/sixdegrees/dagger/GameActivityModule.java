@@ -1,4 +1,4 @@
-package dagger;
+package com.vithushan.sixdegrees.dagger;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -15,6 +15,9 @@ import com.vithushan.sixdegrees.googleListeners.RealTimeMessageReceivedListenerI
 import com.vithushan.sixdegrees.googleListeners.RoomStatusUpdateListenerImpl;
 import com.vithushan.sixdegrees.googleListeners.RoomUpdateListenerImpl;
 
+import dagger.Module;
+import dagger.Provides;
+
 /**
  * Created by vnama on 10/19/2015.
  */
@@ -26,7 +29,8 @@ public class GameActivityModule {
         this.activity = activity;
     }
 
-    @Provides @PerActivity
+    @Provides
+    @PerActivity
     GameActivity activity() {
         return this.activity;
     }

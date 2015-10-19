@@ -1,4 +1,4 @@
-package dagger;
+package com.vithushan.sixdegrees.dagger;
 
 import android.content.Context;
 
@@ -8,6 +8,8 @@ import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 
 import javax.inject.Singleton;
+
+import dagger.Component;
 
 /**
  * A component whose lifetime is the life of the application.

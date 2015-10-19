@@ -1,4 +1,4 @@
-package dagger;
+package com.vithushan.sixdegrees.dagger;
 
 import java.lang.annotation.Retention;
 

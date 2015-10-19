@@ -1,9 +1,11 @@
 package com.vithushan.sixdegrees;
 
 import android.app.Application;
-import dagger.ApplicationComponent;
-import dagger.DaggerApplicationComponent;
-import dagger.GameApplicationModule;
+
+import com.vithushan.sixdegrees.dagger.ApplicationComponent;
+import com.vithushan.sixdegrees.dagger.DaggerApplicationComponent;
+import com.vithushan.sixdegrees.dagger.GameApplicationModule;
+
 
 
 /**

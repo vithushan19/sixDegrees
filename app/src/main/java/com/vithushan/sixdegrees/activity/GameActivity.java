@@ -26,6 +26,9 @@ import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListene
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vithushan.sixdegrees.R;
+import com.vithushan.sixdegrees.dagger.ActivityComponent;
+import com.vithushan.sixdegrees.dagger.DaggerActivityComponent;
+import com.vithushan.sixdegrees.dagger.GameActivityModule;
 import com.vithushan.sixdegrees.fragment.GameOverFragment;
 import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
@@ -39,10 +42,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.inject.Inject;
-
-import dagger.ActivityComponent;
-import dagger.DaggerActivityComponent;
-import dagger.GameActivityModule;
 
 public class GameActivity extends FragmentActivity implements MessageBroadcaster {
 
