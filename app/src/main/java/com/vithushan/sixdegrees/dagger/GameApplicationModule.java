@@ -50,6 +50,4 @@ public class GameApplicationModule {
 
         return restAdapter.create(IMovieAPIClient.class);
     }
-
-
 }

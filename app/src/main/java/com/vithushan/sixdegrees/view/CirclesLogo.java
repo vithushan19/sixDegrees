@@ -12,7 +12,7 @@ import com.vithushan.sixdegrees.R;
 /**
  * Created by vnama on 10/14/2015.
  */
-public class Circle extends View {
+public class CirclesLogo extends View {
 
     private int color1 = getResources().getColor(R.color.dark_blue);
     private int color2 = getResources().getColor(R.color.dark_blue);
@@ -24,13 +24,13 @@ public class Circle extends View {
     Paint paint = new Paint();
     private Paint paintBorder = new Paint();
 
-    public Circle(Context context) {
+    public CirclesLogo(Context context) {
         super(context);
         paintBorder.setStyle(Paint.Style.STROKE);
         paintBorder.setStrokeWidth(2);
     }
 
-    public Circle(Context context, AttributeSet attributeSet) {
+    public CirclesLogo(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
     }
 

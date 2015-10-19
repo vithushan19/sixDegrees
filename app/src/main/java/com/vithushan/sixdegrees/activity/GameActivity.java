@@ -25,6 +25,7 @@ import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.example.games.basegameutils.BaseGameUtils;
+import com.vithushan.sixdegrees.BuildConfig;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.dagger.ActivityComponent;
 import com.vithushan.sixdegrees.dagger.DaggerActivityComponent;
@@ -142,7 +143,9 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
 	@Override
 	protected void onStart() {
 		super.onStart();
-		mGoogleApiClient.connect();
+        if (!BuildConfig.DEBUG) {
+            mGoogleApiClient.connect();
+        }
         SixDegreesUtils.keepScreenOn(this);
 	}
 

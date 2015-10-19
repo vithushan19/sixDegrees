@@ -102,7 +102,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             } else {
                 Picasso.with(mContext).load(R.drawable.movie_placeholder).into(holder.imgHeader);
             }
-
         }
 
         holder.txtFooter.setOnClickListener(new View.OnClickListener() {

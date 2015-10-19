@@ -7,6 +7,7 @@ import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceived
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.android.gms.plus.Plus;
+import com.vithushan.sixdegrees.BuildConfig;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.googleListeners.ConnectionCallbacksImpl;
 import com.vithushan.sixdegrees.googleListeners.OnConnectionFailedListenerImpl;
@@ -65,8 +66,6 @@ public class GameActivityModule {
         return new OnInvitationReceivedListenerImpl(activity);
     }
 
-
-
     @Provides @PerActivity
     GoogleApiClient provideGoogleApiClient(GoogleApiClient.ConnectionCallbacks connectionCallbacks, GoogleApiClient.OnConnectionFailedListener connectionFailedListener) {
         return new GoogleApiClient.Builder(activity)
@@ -76,7 +75,4 @@ public class GameActivityModule {
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
                 .build();
     }
-
-
-
 }

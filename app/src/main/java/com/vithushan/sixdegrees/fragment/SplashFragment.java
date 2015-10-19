@@ -9,13 +9,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
 import android.widget.Button;
 
+import com.vithushan.sixdegrees.BuildConfig;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.animator.LogoAnimator;
-import com.vithushan.sixdegrees.view.Circle;
+import com.vithushan.sixdegrees.view.CirclesLogo;
 
 /**
  * Created by vnama on 7/9/2015.
@@ -25,7 +25,7 @@ public class SplashFragment extends Fragment {
     private String TAG = "SplashFragment";
 
     private View mTransparentRect;
-    private Circle mCircle;
+    private CirclesLogo mCirclesLogo;
     private Button mQuickGame;
     private Button mInvitePlayers;
     private Button mMyInvitations;
@@ -35,7 +35,7 @@ public class SplashFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_splash, container, false);
-        mCircle = (Circle) view.findViewById(R.id.circles);
+        mCirclesLogo = (CirclesLogo) view.findViewById(R.id.circles);
         mTransparentRect = view.findViewById(R.id.transparentRect);
 
         mQuickGame = (Button) view.findViewById(R.id.quick_game_button);
@@ -66,6 +66,12 @@ public class SplashFragment extends Fragment {
                 ((GameActivity)getActivity()).startGame(false);
             }
         });
+
+        if (BuildConfig.DEBUG) {
+            mQuickGame.setEnabled(false);
+            mInvitePlayers.setEnabled(false);
+            mMyInvitations.setEnabled(false);
+        }
         return view;
     }
 
@@ -73,12 +79,12 @@ public class SplashFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        LogoAnimator logoAnimator = new LogoAnimator(mCircle, "color1", 0);
-        LogoAnimator logoAnimator2 = new LogoAnimator(mCircle, "color2", 250);
-        LogoAnimator logoAnimator3 = new LogoAnimator(mCircle, "color3", 500);
-        LogoAnimator logoAnimator4 = new LogoAnimator(mCircle, "color4", 750);
-        LogoAnimator logoAnimator5 = new LogoAnimator(mCircle, "color5", 1000);
-        LogoAnimator logoAnimator6 = new LogoAnimator(mCircle, "color6", 1250);
+        LogoAnimator logoAnimator = new LogoAnimator(mCirclesLogo, "color1", 0);
+        LogoAnimator logoAnimator2 = new LogoAnimator(mCirclesLogo, "color2", 250);
+        LogoAnimator logoAnimator3 = new LogoAnimator(mCirclesLogo, "color3", 500);
+        LogoAnimator logoAnimator4 = new LogoAnimator(mCirclesLogo, "color4", 750);
+        LogoAnimator logoAnimator5 = new LogoAnimator(mCirclesLogo, "color5", 1000);
+        LogoAnimator logoAnimator6 = new LogoAnimator(mCirclesLogo, "color6", 1250);
 
         logoAnimator.getAnim().start();
         logoAnimator2.getAnim().start();
