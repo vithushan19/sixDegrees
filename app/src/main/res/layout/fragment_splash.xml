@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
-            <com.vithushan.sixdegrees.view.Circle
+            <com.vithushan.sixdegrees.view.CirclesLogo
                 android:id="@+id/circles"
                 android:layout_centerInParent="true"
                 android:layout_width="256dp"

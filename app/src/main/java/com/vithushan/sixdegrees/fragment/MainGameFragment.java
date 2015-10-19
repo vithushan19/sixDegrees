@@ -91,7 +91,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         mEndingImageView = (ImageView) view.findViewById(R.id.imageview_ending_actor);
         mAdView = (AdView) view.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("347FE137FE7B045143C25D3825D6BEA3")
+                //.addTestDevice("347FE137FE7B045143C25D3825D6BEA3")
                 .build();
         mAdView.loadAd(adRequest);
 
