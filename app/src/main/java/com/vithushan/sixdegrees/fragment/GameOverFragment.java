@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import dagger.ApplicationComponent;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -52,10 +53,14 @@ public class GameOverFragment extends Fragment {
     @Inject
     IMovieAPIClient mAPIClient;
 
+    protected ApplicationComponent getApplicationComponent() {
+        return ((GameApplication) getActivity().getApplication()).getApplicationComponent();
+    }
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_game_over, container, false);
-        ((GameApplication) getActivity().getApplication()).inject(this);
+        getApplicationComponent().inject(this);
 
         mRematch = (Button) view.findViewById(R.id.button_rematch);
         mRematch.setOnClickListener(new OnClickListener() {

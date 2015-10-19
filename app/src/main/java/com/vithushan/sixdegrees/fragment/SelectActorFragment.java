@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
 import com.vithushan.sixdegrees.BuildConfig;
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
@@ -32,6 +31,7 @@ import java.util.Random;
 
 import javax.inject.Inject;
 
+import dagger.ApplicationComponent;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -59,10 +59,14 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
     private Button mButton;
     private LinearLayoutManager mLayoutManager;
 
+    protected ApplicationComponent getApplicationComponent() {
+        return ((GameApplication)getActivity().getApplication()).getApplicationComponent();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        ((GameApplication) getActivity().getApplication()).inject(this);
+        getApplicationComponent().inject(this);
 
         View view = inflater.inflate(R.layout.fragment_select_actors, container, false);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);

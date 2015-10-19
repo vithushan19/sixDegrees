@@ -4,56 +4,45 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.WindowManager;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.games.Game;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
-import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.multiplayer.Invitation;
 import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.Participant;
-import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
-import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.fragment.GameOverFragment;
 import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
-import com.vithushan.sixdegrees.googleListeners.ConnectionCallbacksImpl;
-import com.vithushan.sixdegrees.googleListeners.OnConnectionFailedListenerImpl;
-import com.vithushan.sixdegrees.googleListeners.OnInvitationReceivedListenerImpl;
-import com.vithushan.sixdegrees.googleListeners.RealTimeMessageReceivedListenerImpl;
-import com.vithushan.sixdegrees.googleListeners.RoomStatusUpdateListenerImpl;
-import com.vithushan.sixdegrees.googleListeners.RoomUpdateListenerImpl;
-import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
 import com.vithushan.sixdegrees.util.MessageBroadcaster;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 import com.vithushan.sixdegrees.util.SixDegreesUtils;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Stack;
+
+import javax.inject.Inject;
+
+import dagger.ActivityComponent;
+import dagger.DaggerActivityComponent;
+import dagger.GameActivityModule;
 
 public class GameActivity extends FragmentActivity implements MessageBroadcaster {
 
@@ -72,7 +61,8 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
 	final static  int RC_SIGN_IN = 9001;
 
 	// Client used to interact with Google APIs.
-	protected GoogleApiClient mGoogleApiClient;
+	@Inject
+    protected GoogleApiClient mGoogleApiClient;
 
 	// Are we currently resolving a connection failure?
 	protected boolean mResolvingConnectionFailure = false;
@@ -105,14 +95,14 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
 
-    private ConnectionCallbacksImpl mConnectionCallbacks;
-    private GoogleApiClient.OnConnectionFailedListener mConnectionFailedListener;
-    private RoomUpdateListenerImpl mRoomUpdateListener;
-    private RoomStatusUpdateListener mSixDegreesRoomStatusUpdateListener;
-    private OnInvitationReceivedListener mInvitationReceivedListener;
-    private RealTimeMessageReceivedListener mRealTimeMessageReceivedListener;
+    @Inject protected RoomUpdateListener mRoomUpdateListener;
+    @Inject protected RoomStatusUpdateListener mSixDegreesRoomStatusUpdateListener;
+    @Inject protected OnInvitationReceivedListener mInvitationReceivedListener;
+    @Inject protected RealTimeMessageReceivedListener mRealTimeMessageReceivedListener;
 
     private ProgressDialog mProgress;
+
+    private ActivityComponent mActivityComponent;
 
 	/*
 		LIFECYCLE METHODS
@@ -122,21 +112,9 @@ public class GameActivity extends FragmentActivity implements MessageBroadcaster
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        mConnectionCallbacks = new ConnectionCallbacksImpl(this);
-        mConnectionFailedListener = new OnConnectionFailedListenerImpl(this);
-        mRoomUpdateListener = new RoomUpdateListenerImpl(this);
-        mSixDegreesRoomStatusUpdateListener = new RoomStatusUpdateListenerImpl(this);
-        mInvitationReceivedListener = new OnInvitationReceivedListenerImpl(this);
-        mRealTimeMessageReceivedListener = new RealTimeMessageReceivedListenerImpl(this);
+        mActivityComponent = DaggerActivityComponent.builder().gameActivityModule(new GameActivityModule(GameActivity.this)).build();
 
-		// Create the Google Api Client with access to Plus and Games
-		mGoogleApiClient = new GoogleApiClient.Builder(this)
-				.addConnectionCallbacks(mConnectionCallbacks)
-				.addOnConnectionFailedListener(mConnectionFailedListener)
-				.addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
-				.addApi(Games.API).addScope(Games.SCOPE_GAMES)
-				.build();
-
+        mActivityComponent.inject(this);
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Loading");

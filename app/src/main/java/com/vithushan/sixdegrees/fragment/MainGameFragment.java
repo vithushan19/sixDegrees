@@ -17,21 +17,23 @@ import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.GameApplication;
-import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.R;
+import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.CastResponse;
-import com.vithushan.sixdegrees.model.MovieCredits;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.model.Movie;
+import com.vithushan.sixdegrees.model.MovieCredits;
 import com.vithushan.sixdegrees.util.Constants;
-
+import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
+import com.vithushan.sixdegrees.util.MessageBroadcaster;
+import com.vithushan.sixdegrees.util.NavigationUtils;
+import com.vithushan.sixdegrees.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,11 +42,7 @@ import java.util.Stack;
 
 import javax.inject.Inject;
 
-import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
-import com.vithushan.sixdegrees.util.MessageBroadcaster;
-import com.vithushan.sixdegrees.util.NavigationUtils;
-import com.vithushan.sixdegrees.util.StringUtil;
-
+import dagger.ApplicationComponent;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -77,11 +75,14 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
     IMovieAPIClient mAPIClient;
     private boolean mIsRefreshing = false;
 
+    protected ApplicationComponent getApplicationComponent() {
+        return ((GameApplication)getActivity().getApplication()).getApplicationComponent();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main_game, container, false);
-        ((GameApplication) getActivity().getApplication()).inject(this);
+        getApplicationComponent().inject(this);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
         mStartingActortv = (TextView) view.findViewById(R.id.textViewStarting);
