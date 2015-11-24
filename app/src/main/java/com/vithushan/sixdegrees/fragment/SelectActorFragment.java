@@ -42,8 +42,7 @@ public class SelectActorFragment extends Fragment implements RecyclerViewAdapter
 
     @Inject IMovieAPIClient mAPIClient;
 
-    @Inject
-    SpotifyClientModule module;
+    @Inject SpotifyClientModule module;
 
     private ArrayList<IGameObject> mPopularActorList;
 
@@ -96,20 +95,7 @@ public class SelectActorFragment extends Fragment implements RecyclerViewAdapter
         mButton.setOnClickListener(view -> {
             //Save your selection
             mMySelectedActor = mAdapter.getLastClickedItem();
-
-            // If single player, we must set mOppSelectedActorId ourselves
-            String randomActorId = "";
-            do {
-                Random r = new Random();
-                int i = r.nextInt(mAdapter.getItemCount());
-                randomActorId = mAdapter.getItem(i).getId();
-            } while (randomActorId.equals(mMySelectedActor.getId()));
-
-            if (BuildConfig.DEBUG) {
-                NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, mMySelectedActor.getId());
-            } else {
-                NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, randomActorId);
-            }
+            NavigationUtils.gotoMainFragment(getActivity(), mAdapter.getLastClickedItem(), mAdapter.getSecondLastClickedItem());
         });
 
 

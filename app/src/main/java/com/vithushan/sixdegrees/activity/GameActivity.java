@@ -1,9 +1,7 @@
 package com.vithushan.sixdegrees.activity;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -14,7 +12,6 @@ import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.api.SpotifyClientModule;
 import com.vithushan.sixdegrees.dagger.ApplicationComponent;
-import com.vithushan.sixdegrees.fragment.GameOverFragment;
 import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
 import com.vithushan.sixdegrees.util.Constants;
@@ -23,8 +20,6 @@ import com.vithushan.sixdegrees.util.NavigationUtils;
 import javax.inject.Inject;
 
 public class GameActivity extends FragmentActivity  {
-
-	private String TAG = "Vithushan";
 
     private String mGameType;
 
@@ -108,44 +103,6 @@ public class GameActivity extends FragmentActivity  {
             }
         }
 
-    }
-
-    public void handleRematch() {
-            NavigationUtils.gotoSelectActorFragment(this);
-    }
-
-    public void askForRematch() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-        // set title
-        alertDialogBuilder.setTitle("Rematch?");
-
-        // set dialog message
-        alertDialogBuilder
-                .setMessage("Your opponent has requested a rematch. Would you like to accept?")
-                .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        NavigationUtils.gotoSelectActorFragment(GameActivity.this);
-                    }
-                })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        // if this button is clicked, just close
-                        // the dialog box and do nothing
-                        dialog.cancel();
-                        Fragment frag = getFragmentManager().findFragmentById(R.id.fragment_container);
-                        if (frag instanceof GameOverFragment) {
-                            ((GameOverFragment)frag).setmRematchDisabled();
-                        }
-                    }
-                });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
     }
 
     // Should only be called one enough players are in the room

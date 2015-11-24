@@ -30,11 +30,11 @@ public class NavigationUtils {
         ft.replace(R.id.fragment_container, selectActorFragment).commit();
     }
 
-    public static void gotoMainFragment(Activity a, IGameObject mySelectedActor, String oppSelectedActorId) {
+    public static void gotoMainFragment(Activity a, IGameObject mySelectedActor, IGameObject oppSelectedActorId) {
 
         Intent intent = new Intent(a, GameActivity.class);
         intent.putExtra("SelectedActor", new Gson().toJson(mySelectedActor));
-        intent.putExtra("OppSelectedActorId", oppSelectedActorId);
+        intent.putExtra("OppSelectedActor", new Gson().toJson(oppSelectedActorId));
 
         MainGameFragment fragment = new MainGameFragment();
         fragment.setArguments(intent.getExtras());
@@ -46,9 +46,8 @@ public class NavigationUtils {
         ft.replace(R.id.fragment_container, fragment).commit();
     }
 
-    public static void gotoGameOverFragment(Activity a, boolean won, String[] historyIds) {
+    public static void gotoGameOverFragment(Activity a, String[] historyIds) {
         Intent intent = new Intent(a, GameActivity.class);
-        intent.putExtra("Won", won);
         intent.putExtra("History", historyIds);
 
         GameOverFragment fragment = new GameOverFragment();

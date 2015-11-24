@@ -57,13 +57,13 @@ import rx.schedulers.Schedulers;
 public class MainGameFragment extends Fragment implements RecyclerViewAdapter.ItemClickListener {
     private ArrayList<IGameObject> mCurrentList;
     private Stack<IGameObject> mHistory;
-    private IGameObject mStartingActor;
-    private IGameObject mEndingActor;
+    private IGameObject mStartingPerson;
+    private IGameObject mEndingPerson;
     private int mClickCount;
 
     private ProgressDialog mProgress;
-    private TextView mStartingActortv;
-    private TextView mEndingActortv;
+    private TextView mStartingPersonTextView;
+    private TextView mEndingPersonTextView;
     private ImageView mStartingImageView;
     private ImageView mEndingImageView;
 
@@ -75,8 +75,6 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
     @Inject IMovieAPIClient mAPIClient;
     @Inject SpotifyClientModule mSpotifyClient;
 
-    private boolean mIsRefreshing = false;
-
     protected ApplicationComponent getApplicationComponent() {
         return ((GameApplication)getActivity().getApplication()).getApplicationComponent();
     }
@@ -87,8 +85,8 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         getApplicationComponent().inject(this);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
-        mStartingActortv = (TextView) view.findViewById(R.id.textViewStarting);
-        mEndingActortv = (TextView) view.findViewById(R.id.textViewEnding);
+        mStartingPersonTextView = (TextView) view.findViewById(R.id.textViewStarting);
+        mEndingPersonTextView = (TextView) view.findViewById(R.id.textViewEnding);
         mStartingImageView = (ImageView) view.findViewById(R.id.imageview_starting_actor);
         mEndingImageView = (ImageView) view.findViewById(R.id.imageview_ending_actor);
         mAdView = (AdView) view.findViewById(R.id.adView);
@@ -116,18 +114,17 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
 
         // The actor that you chose
         final String myActorJSONString = getArguments().getString("SelectedActor");
+        final String oppActorJSONString = getArguments().getString("OppSelectedActor");
         final IGameObject mySelectedActor;
+        final IGameObject oppSelectedActor;
 
         if (((GameActivity) getActivity()).getGameType().equals(Constants.MUSIC_GAME_TYPE)) {
             mySelectedActor = new Gson().fromJson(myActorJSONString, Artist.class);
+            oppSelectedActor = new Gson().fromJson(oppActorJSONString, Artist.class);
         } else {
             mySelectedActor = new Gson().fromJson(myActorJSONString, Actor.class);
+            oppSelectedActor = new Gson().fromJson(oppActorJSONString, Actor.class);
         }
-
-        // The actor your opponent chose
-        final String oppSelectedActorId = getArguments().getString("OppSelectedActorId");
-        // final String oppSelectedActorId = "1245";
-
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -140,40 +137,18 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         mAdapter = new RecyclerViewAdapter(new ArrayList<>(), getActivity(), this);
         mRecyclerView.setAdapter(mAdapter);
 
-        Action1<IGameObject> nextAction = actor -> {
+        mStartingPerson = mySelectedActor;
 
+        setupActorViews(mySelectedActor, mStartingPersonTextView, mStartingImageView);
 
-            mStartingActor = mySelectedActor;
+        mEndingPerson = oppSelectedActor;
+        setupActorViews(oppSelectedActor, mEndingPersonTextView, mEndingImageView);
 
-            setupActorViews(mySelectedActor, mStartingActortv, mStartingImageView);
-
-            mEndingActor = actor;
-            setupActorViews(actor, mEndingActortv, mEndingImageView);
-
-            handleItemSelect(mStartingActor);
-            mProgress.hide();
-        };
-
-        mProgress.show();
-
-        if (((GameActivity) getActivity()).getGameType().equals(Constants.MUSIC_GAME_TYPE)) {
-            Observable<Artist> oppSelectedArtist = mSpotifyClient.getArtist(oppSelectedActorId);
-            oppSelectedArtist.subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(nextAction);
-
-        } else {
-            Observable<Actor> oppSelectedActor = mAPIClient.getActor(oppSelectedActorId, Constants.API_KEY);
-            oppSelectedActor.subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(nextAction);
-
-        }
+        handleItemSelect(mStartingPerson);
     }
 
     //TODO Duplicate setup code
     private void setupActorViews (IGameObject result, TextView actorTextView, ImageView actorImageView ) {
-//        new NetworkTask().execute(mStartingActor);
         actorTextView.setText(result.getName());
 
         if (StringUtil.isEmpty(result.getImageURL())) {
@@ -188,7 +163,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
     protected void winGame() {
         // Broadcast your selection to other player(s)
         // TODO save scores/win record
-        mHistory.push(mEndingActor);
+        mHistory.push(mEndingPerson);
 
         IGameObject[] historyArr = new IGameObject[mHistory.size()];
         mHistory.toArray(historyArr);
@@ -199,12 +174,12 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
             historyIdsArr[i] = historyArr[i].getId();
         }
         // Pass the id list of the our (winning) history
-        NavigationUtils.gotoGameOverFragment(getActivity(), true, historyIdsArr);
+        NavigationUtils.gotoGameOverFragment(getActivity(), historyIdsArr);
     }
 
     public void onItemClick(IGameObject obj) {
         String text = obj.getName();
-        if (text.equals(mEndingActor.getName())) {
+        if (text.equals(mEndingPerson.getName())) {
             winGame();
             return;
         }
@@ -228,7 +203,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
                     .setCancelable(false)
                     .setPositiveButton("Yes", (dialog, id) -> {
                         dialog.cancel();
-                        //TODO: sgoto splash
+                        NavigationUtils.gotoSplashFragment(getActivity());
                     })
                     .setNegativeButton("No", (dialog, id) -> {
                         // if this button is clicked, just close
@@ -276,10 +251,8 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
                 //Sort alphabetically
                 Collections.sort(mCurrentList);
 
-                mIsRefreshing = true;
                 mAdapter.removeAll();
                 mAdapter.refreshWithNewList(mCurrentList);
-                mIsRefreshing = false;
             }
 
             @Override

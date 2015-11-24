@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class HighlightableRecyclerViewAdapter extends RecyclerViewAdapter {
 
     private IGameObject mLastClickedItem;
+    private IGameObject mSecondLastClickedItem;
 
 
     public HighlightableRecyclerViewAdapter(ArrayList<IGameObject> myDataset, Context context, ItemClickListener listener) {
@@ -22,6 +23,7 @@ public class HighlightableRecyclerViewAdapter extends RecyclerViewAdapter {
     }
 
     public void setLastClickedItem(IGameObject selectedItem) {
+        mSecondLastClickedItem = mLastClickedItem;
         mLastClickedItem = selectedItem;
     }
 
@@ -29,11 +31,15 @@ public class HighlightableRecyclerViewAdapter extends RecyclerViewAdapter {
         return mLastClickedItem;
     }
 
+    public IGameObject getSecondLastClickedItem() {
+        return mSecondLastClickedItem;
+    }
+
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-        if (mDataset.get(position).equals(mLastClickedItem)) {
+        if (mDataset.get(position).equals(mLastClickedItem) || mDataset.get(position).equals(mSecondLastClickedItem)) {
             Drawable background = mContext.getResources().getDrawable(R.drawable.blue_panel);
             holder.txtFooter.setBackgroundDrawable(background);
         } else {

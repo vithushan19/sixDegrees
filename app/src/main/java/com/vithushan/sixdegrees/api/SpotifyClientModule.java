@@ -1,5 +1,6 @@
 package com.vithushan.sixdegrees.api;
 
+import com.vithushan.sixdegrees.model.SeveralTracksResponse;
 import com.vithushan.sixdegrees.model.music.AlbumsForArtistResponse;
 import com.vithushan.sixdegrees.model.music.Artist;
 import com.vithushan.sixdegrees.model.music.SeveralAlbumsResponse;
@@ -45,5 +46,9 @@ public class SpotifyClientModule {
 
     public Observable<SeveralArtistsResponse> getArtists(String artistsIds) {
         return mClient.getArtists(artistsIds);
+    }
+
+    public Observable<SeveralTracksResponse> getTracks(String trackIds) {
+        return mClient.getTracks(trackIds);
     }
 }

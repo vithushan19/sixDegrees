@@ -25,7 +25,9 @@
     <string name="game_title">The Rotten Game</string>
     <string name="game_blurb">A sample game that tests your ability to click a button. Can you click faster than your friends? Only one way to find out! To play this game with friends, you must sign in with Google.</string>
     <string name="single_player">Single Player</string>
+    <string name="movie_game">Movie Game</string>
     <string name="music_game">Music Game</string>
+    <string name="choose">Choose Mode</string>
     <string name="single_player_explanation">Get some practice!</string>
     <string name="quick_game">Quick game</string>
     <string name="invite_players">Invite friends</string>

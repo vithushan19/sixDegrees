@@ -1,6 +1,7 @@
 package com.vithushan.sixdegrees.api;
 
 
+import com.vithushan.sixdegrees.model.SeveralTracksResponse;
 import com.vithushan.sixdegrees.model.music.AlbumsForArtistResponse;
 import com.vithushan.sixdegrees.model.music.Artist;
 import com.vithushan.sixdegrees.model.music.SeveralAlbumsResponse;
@@ -28,4 +29,7 @@ public interface ISpotifyAPIClient {
 
     @GET("/artists")
     Observable<SeveralArtistsResponse> getArtists(@Query("ids") String ids);
+
+    @GET("/tracks")
+    Observable<SeveralTracksResponse> getTracks(@Query("ids") String trackIds);
 }

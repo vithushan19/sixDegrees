@@ -1,6 +1,5 @@
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.AndroidTestRunner;
 
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
@@ -36,7 +35,7 @@ public class EspressoTest extends ActivityInstrumentationTestCase2<GameActivity>
     @Test
     public void testChangeText_sameActivity() {
         // Type text and then press the button.
-        onView(withId(R.id.button_single_player)).perform(click());
+        onView(withId(R.id.button_movie_game)).perform(click());
 
         onView(withId(R.id.my_recycler_view_select))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(4, click()));
