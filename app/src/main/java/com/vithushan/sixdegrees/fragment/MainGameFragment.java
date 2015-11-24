@@ -3,7 +3,6 @@ package com.vithushan.sixdegrees.fragment;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -24,22 +23,25 @@ import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
+import com.vithushan.sixdegrees.api.SpotifyClientModule;
 import com.vithushan.sixdegrees.dagger.ApplicationComponent;
-import com.vithushan.sixdegrees.model.Actor;
-import com.vithushan.sixdegrees.model.CastResponse;
-import com.vithushan.sixdegrees.model.IHollywoodObject;
-import com.vithushan.sixdegrees.model.Movie;
-import com.vithushan.sixdegrees.model.MovieCredits;
+import com.vithushan.sixdegrees.model.movie.Actor;
+import com.vithushan.sixdegrees.model.music.AlbumsForArtistResponse;
+import com.vithushan.sixdegrees.model.music.Artist;
+import com.vithushan.sixdegrees.model.movie.CastResponse;
+import com.vithushan.sixdegrees.model.IGameObject;
+import com.vithushan.sixdegrees.model.movie.Movie;
+import com.vithushan.sixdegrees.model.movie.MovieCredits;
+import com.vithushan.sixdegrees.model.music.Track;
 import com.vithushan.sixdegrees.util.Constants;
-import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
-import com.vithushan.sixdegrees.util.MessageBroadcaster;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 import com.vithushan.sixdegrees.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import javax.inject.Inject;
 
@@ -47,17 +49,16 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by Vithushan on 7/5/2015.
  */
 public class MainGameFragment extends Fragment implements RecyclerViewAdapter.ItemClickListener {
-    private ArrayList<IHollywoodObject> mCurrentList;
-    private Stack<IHollywoodObject> mHistory;
-    private Actor mStartingActor;
-    private Actor mEndingActor;
+    private ArrayList<IGameObject> mCurrentList;
+    private Stack<IGameObject> mHistory;
+    private IGameObject mStartingActor;
+    private IGameObject mEndingActor;
     private int mClickCount;
 
     private ProgressDialog mProgress;
@@ -71,8 +72,9 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
     private RecyclerViewAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
-    @Inject
-    IMovieAPIClient mAPIClient;
+    @Inject IMovieAPIClient mAPIClient;
+    @Inject SpotifyClientModule mSpotifyClient;
+
     private boolean mIsRefreshing = false;
 
     protected ApplicationComponent getApplicationComponent() {
@@ -114,10 +116,17 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
 
         // The actor that you chose
         final String myActorJSONString = getArguments().getString("SelectedActor");
-        final Actor mySelectedActor = new Gson().fromJson(myActorJSONString, Actor.class);
+        final IGameObject mySelectedActor;
+
+        if (((GameActivity) getActivity()).getGameType().equals(Constants.MUSIC_GAME_TYPE)) {
+            mySelectedActor = new Gson().fromJson(myActorJSONString, Artist.class);
+        } else {
+            mySelectedActor = new Gson().fromJson(myActorJSONString, Actor.class);
+        }
 
         // The actor your opponent chose
-        final String oppSelectedActorId = String.valueOf(getArguments().getInt("OppSelectedActorId"));
+        final String oppSelectedActorId = getArguments().getString("OppSelectedActorId");
+        // final String oppSelectedActorId = "1245";
 
 
         // use a linear layout manager
@@ -128,45 +137,42 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // specify an adapter (see also next example)
-        mAdapter = new RecyclerViewAdapter(mCurrentList,getActivity(), this);
+        mAdapter = new RecyclerViewAdapter(new ArrayList<>(), getActivity(), this);
         mRecyclerView.setAdapter(mAdapter);
 
-        Action1<Actor> nextAction = new Action1<Actor>() {
-            @Override
-            public void call(Actor actor) {
+        Action1<IGameObject> nextAction = actor -> {
 
-                boolean isHost = ((GameActivity)getActivity()).getIsHost();
 
-                if (isHost) {
-                    mStartingActor = mySelectedActor;
+            mStartingActor = mySelectedActor;
 
-                    setupActorViews(mySelectedActor, mStartingActortv, mStartingImageView);
+            setupActorViews(mySelectedActor, mStartingActortv, mStartingImageView);
 
-                    mEndingActor = actor;
-                    setupActorViews(actor, mEndingActortv, mEndingImageView);
-                } else {
-                    mStartingActor = actor;
-                    setupActorViews(actor, mStartingActortv, mStartingImageView);
+            mEndingActor = actor;
+            setupActorViews(actor, mEndingActortv, mEndingImageView);
 
-                    mEndingActor = mySelectedActor;
-                    setupActorViews(mySelectedActor, mEndingActortv, mEndingImageView);
-                }
-
-                handleItemSelect(mStartingActor);
-                mProgress.hide();
-            }
+            handleItemSelect(mStartingActor);
+            mProgress.hide();
         };
 
         mProgress.show();
-        Observable<Actor> oppSelectedActor = mAPIClient.getActor(oppSelectedActorId, Constants.API_KEY);
-        oppSelectedActor.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(nextAction);
+
+        if (((GameActivity) getActivity()).getGameType().equals(Constants.MUSIC_GAME_TYPE)) {
+            Observable<Artist> oppSelectedArtist = mSpotifyClient.getArtist(oppSelectedActorId);
+            oppSelectedArtist.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(nextAction);
+
+        } else {
+            Observable<Actor> oppSelectedActor = mAPIClient.getActor(oppSelectedActorId, Constants.API_KEY);
+            oppSelectedActor.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(nextAction);
+
+        }
     }
 
-
     //TODO Duplicate setup code
-    private void setupActorViews (Actor result, TextView actorTextView, ImageView actorImageView ) {
+    private void setupActorViews (IGameObject result, TextView actorTextView, ImageView actorImageView ) {
 //        new NetworkTask().execute(mStartingActor);
         actorTextView.setText(result.getName());
 
@@ -184,10 +190,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         // TODO save scores/win record
         mHistory.push(mEndingActor);
 
-        // Broadcast our (winning) history to the other player
-        MessageBroadcastUtils.broadcastGameOver(mHistory, (MessageBroadcaster)getActivity(), getActivity());
-
-        IHollywoodObject[] historyArr = new IHollywoodObject[mHistory.size()];
+        IGameObject[] historyArr = new IGameObject[mHistory.size()];
         mHistory.toArray(historyArr);
 
         // We only want the ids
@@ -199,7 +202,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
         NavigationUtils.gotoGameOverFragment(getActivity(), true, historyIdsArr);
     }
 
-    public void onItemClick(IHollywoodObject obj) {
+    public void onItemClick(IGameObject obj) {
         String text = obj.getName();
         if (text.equals(mEndingActor.getName())) {
             winGame();
@@ -210,7 +213,7 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
     }
 
     public void handleBackPress() {
-        final IHollywoodObject last = mHistory.pop();
+        final IGameObject last = mHistory.pop();
 
         //If we're at the beginning, ask if player wants to leave the game
         if (mHistory.size() == 0) {
@@ -223,19 +226,16 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
             alertDialogBuilder
                     .setMessage("Are you sure you want to quit the game?")
                     .setCancelable(false)
-                    .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog,int id) {
-                            ((GameActivity)getActivity()).leaveRoom();
-                        }
+                    .setPositiveButton("Yes", (dialog, id) -> {
+                        dialog.cancel();
+                        //TODO: sgoto splash
                     })
-                    .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog,int id) {
-                            // if this button is clicked, just close
-                            // the dialog box and do nothing
-                            dialog.cancel();
-                            // false alarm add the last object back on
-                            mHistory.push(last);
-                        }
+                    .setNegativeButton("No", (dialog, id) -> {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        dialog.cancel();
+                        // false alarm add the last object back on
+                        mHistory.push(last);
                     });
 
             // create alert dialog
@@ -247,17 +247,34 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
 
 
             //Go to previous IHollywooObject
-            IHollywoodObject obj = mHistory.pop();
+            IGameObject obj = mHistory.pop();
             handleItemSelect(obj);
         }
     }
 
-    private void handleItemSelect(IHollywoodObject obj) {
-        Subscriber<Actor> actorSubscriber = new Subscriber<Actor>() {
+    private void handleItemSelect(IGameObject obj) {
+
+        Subscriber<IGameObject> subscriber = new Subscriber<IGameObject>() {
             @Override
             public void onCompleted() {
 
-                //TODO: keep the actors in order
+                mProgress.hide();
+
+                //Remove duplicates
+                Set<IGameObject> s = new TreeSet<>((o1, o2) -> {
+                    if (o1.getName().equals(o2.getName())) {
+                        return 0;
+                    } else {
+                        return o1.getName().compareTo(o2.getName());
+                    }
+                });
+
+                s.addAll(mCurrentList);
+                mCurrentList.clear();
+                mCurrentList.addAll(s);
+
+                //Sort alphabetically
+                Collections.sort(mCurrentList);
 
                 mIsRefreshing = true;
                 mAdapter.removeAll();
@@ -271,88 +288,93 @@ public class MainGameFragment extends Fragment implements RecyclerViewAdapter.It
             }
 
             @Override
-            public void onNext(Actor object) {
-                mCurrentList.add(object);
-            }
-        };
-
-        Subscriber<Movie> movieSubscriber = new Subscriber<Movie>() {
-            @Override
-            public void onCompleted() {
-
-                ArrayList<Movie> mediaList = new ArrayList<>();
-                ArrayList<IHollywoodObject> resultList = new ArrayList<>();
-
-                for (IHollywoodObject m : mCurrentList) {
-                    Movie movie = (Movie) m;
-                    mediaList.add(movie);
-                }
-
-                //Sort movies alphabetically
-                Collections.sort(mediaList);
-                for (Movie m : mediaList) {
-                    resultList.add(m);
-                }
-
-                mCurrentList = resultList;
-                mIsRefreshing = true;
-                mAdapter.removeAll();
-                mAdapter.refreshWithNewList(resultList);
-                mIsRefreshing = false;
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(Movie object) {
+            public void onNext(IGameObject object) {
                 mCurrentList.add(object);
             }
         };
 
         mHistory.push(obj);
         mCurrentList.clear();
-        if (obj instanceof Actor) {
-            Actor actor = (Actor) obj;
 
-            Observable<MovieCredits> movieCredits = mAPIClient.getMediaForActor(actor.getId(), Constants.API_KEY);
-            movieCredits.subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .map(new Func1<MovieCredits, List<Movie>>() {
-                        @Override
-                        public List<Movie> call(MovieCredits credits) {
-                            return credits.cast;
-                        }
-                    })
-                    .flatMap(new Func1<List<Movie>, Observable<Movie>>() {
-                        @Override
-                        public Observable<Movie> call(List<Movie> movies) {
-                            return Observable.from(movies);
-                        }
-                    })
-                    .subscribe(movieSubscriber);
-        } else if (obj instanceof Movie) {
-            Movie movie = (Movie) obj;
+        if (((GameActivity)getActivity()).getGameType().equals(Constants.MUSIC_GAME_TYPE)) {
+            mProgress.show();
 
-            Observable<CastResponse> cast =  mAPIClient.getCastForMovie(movie.getId(),Constants.API_KEY);
-            cast.subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .map(new Func1<CastResponse, List<Actor>>() {
-                        @Override
-                        public List<Actor> call(CastResponse castResponse) {
-                            return castResponse.cast;
-                        }
-                    })
-                    .flatMap(new Func1<List<Actor>, Observable<Actor>>() {
-                        @Override
-                        public Observable<Actor> call(List<Actor> actors) {
-                            return Observable.from(actors);
-                        }
-                    })
-                   .subscribe(actorSubscriber);
+            if (obj instanceof Artist) {
+                Artist artist = (Artist) obj;
+                Observable<AlbumsForArtistResponse> albumsForArtist = mSpotifyClient.getAlbumsForArtist(artist.getId());
+                albumsForArtist.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .map(albumsForArtistResponse -> albumsForArtistResponse.getItems())
+                        .flatMap(albums -> Observable.from(albums))
+                        .map(album -> album.getId())
+                        .buffer(50)
+                        .map(strings -> {
+                            StringBuilder builder = new StringBuilder();
+                            for (String s : strings) {
+                                builder.append(s).append(',');
+                            }
+                            builder.deleteCharAt(builder.length() - 1);
+                            return builder.toString();
+                        })
+                        .map(s2 -> mSpotifyClient.getAlbums(s2))
+                        .toList()
+                        .flatMap(observables -> Observable.merge(observables))
+                        .map(severalAlbumsResponse -> severalAlbumsResponse.getItems())
+                        .flatMap(albums -> Observable.from(albums))
+                        .map(album1 -> album1.setAlbumCover())
+                        .map(album2 -> Observable.from(album2.getTracks().getItems()))
+                        .toList()
+                        .flatMap(observables1 -> Observable.merge(observables1))
+                        .distinct()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
+            } else if (obj instanceof Track) {
+                Track track = (Track) obj;
 
+                Observable.from(track.getTrackArtistList())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .map(trackArtist -> trackArtist.getId())
+                        .buffer(50)
+                        .map(strings -> {
+                            StringBuilder builder = new StringBuilder();
+                            for (String s : strings) {
+                                builder.append(s).append(',');
+                            }
+                            builder.deleteCharAt(builder.length() - 1);
+                            return builder.toString();
+                        })
+                        .map(s2 -> mSpotifyClient.getArtists(s2))
+                        .toList()
+                        .flatMap(observables -> Observable.merge(observables))
+                        .map(severalArtistsResponse -> severalArtistsResponse.getItems())
+                        .flatMap(artists -> Observable.from(artists))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
+            }
+        } else {
+            if (obj instanceof Actor) {
+                Actor actor = (Actor) obj;
+
+                Observable<MovieCredits> movieCredits = mAPIClient.getMediaForActor(actor.getId(), Constants.API_KEY);
+                movieCredits.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .map(credits -> credits.cast)
+                        .flatMap(movies -> Observable.from(movies))
+                        .subscribe(subscriber);
+            } else if (obj instanceof Movie) {
+                Movie movie = (Movie) obj;
+
+                Observable<CastResponse> cast = mAPIClient.getCastForMovie(movie.getId(), Constants.API_KEY);
+                cast.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .map(castResponse -> castResponse.cast)
+                        .flatMap(actors -> Observable.from(actors))
+                        .subscribe(subscriber);
+
+            }
         }
     }
 
