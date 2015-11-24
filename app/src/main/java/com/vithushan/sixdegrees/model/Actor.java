@@ -1,6 +1,6 @@
 package com.vithushan.sixdegrees.model;
 
-public class Actor implements IHollywoodObject {
+public class Actor extends IHollywoodObject {
 
 	private String id;
 	private String name;
@@ -43,6 +43,13 @@ public class Actor implements IHollywoodObject {
 		}
 		return false;
 		
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{ ID: " ).append(id).append(", NAME: ").append(name).append(" }");
+		return builder.toString();
 	}
 
 }

@@ -18,6 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <color name="GoldColor">#FFCCFF</color>
+    <color name="SplashScreenTransparentBlue">#80FFFFFF</color>
     <color name="BlueColor">#6699FF</color>
     <color name="DarkBlueColor">#66CCFF</color>
     <color name="PopupColor">@color/GoldColor</color>

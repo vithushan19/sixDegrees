@@ -6,7 +6,7 @@ import com.vithushan.sixdegrees.util.StringUtil;
 /**
  * Created by vnama on 7/8/2015.
  */
-public class Movie implements IHollywoodObject, Comparable<Movie> {
+public class Movie extends IHollywoodObject {
 
     public String id;
     public String poster_path;
@@ -38,7 +38,11 @@ public class Movie implements IHollywoodObject, Comparable<Movie> {
         return res;
     }
 
-    public int compareTo(Movie other) {
-        return (getName().compareTo(other.getName()));
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{ ID: " ).append(id).append(", NAME: ").append(title).append(" }");
+        return builder.toString();
     }
+
 }
