@@ -1,12 +1,12 @@
 package com.vithushan.sixdegrees.api;
 
 
-import com.vithushan.sixdegrees.model.Actor;
-import com.vithushan.sixdegrees.model.CastResponse;
-import com.vithushan.sixdegrees.model.Movie;
+import com.vithushan.sixdegrees.model.movie.Actor;
+import com.vithushan.sixdegrees.model.movie.CastResponse;
+import com.vithushan.sixdegrees.model.movie.Movie;
 
-import com.vithushan.sixdegrees.model.MovieCredits;
-import com.vithushan.sixdegrees.model.PopularPeople;
+import com.vithushan.sixdegrees.model.movie.MovieCredits;
+import com.vithushan.sixdegrees.model.movie.PopularPeople;
 
 import retrofit.http.GET;
 import retrofit.http.Path;

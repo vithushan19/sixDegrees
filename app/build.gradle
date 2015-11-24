@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 // Assists in working with annotation processors for Android Studio.
 apply plugin: 'com.neenbedankt.android-apt'
 
@@ -17,6 +18,7 @@ android {
         applicationId "com.vithushan.sixdegrees"
         minSdkVersion 14
         targetSdkVersion 22
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.config
     }
     sourceSets {
@@ -29,6 +31,12 @@ android {
             signingConfig signingConfigs.config
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES.txt'
         exclude 'META-INF/LICENSE.txt'
@@ -40,24 +48,44 @@ android {
         exclude 'META-INF/license.txt'
         exclude 'META-INF/dependencies.txt'
         exclude 'META-INF/LGPL2.1'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'LICENSE.txt'
+
     }
     productFlavors {
     }
 }
 
 dependencies {
-    compile project(':BaseGameUtils')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta11@aar'
+    compile(name:'spotify-web-api-android-0.1.1', ext:'aar')
     // the following is required to use Mockito and JUnit for your
     // instrumentation unit tests on the JVM
-    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'junit:junit:4.5+'
     androidTestCompile 'org.mockito:mockito-core:1.+'
     androidTestCompile 'com.android.support.test:runner:0.3'
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     // the following is required ot use Mockito and JUnit for your unit
     // tests on the JVM
-    testCompile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.5+'
     testCompile 'org.mockito:mockito-core:1.+'
+    instrumentTestCompile "junit:junit:4.5+"
+    androidTestCompile 'com.android.support.test:rules:0.3'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
+    // add this for intent mocking support
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2'
+    // add this for webview testing support
+    androidTestCompile 'com.android.support.test.espresso:espresso-web:2.2'
+    androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2')
+            {
+                exclude module: 'support-annotations'
+                exclude module: 'support-v4'
+                exclude module: 'support-v13'
+                exclude module: 'recyclerview-v7'
+            }
+
     compile 'com.android.support:support-v4:22.2.0'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
@@ -74,6 +102,9 @@ dependencies {
     compile 'jp.wasabeef:recyclerview-animators:1.2.1@aar'
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'io.reactivex:rxjava:1.0.14'
+    compile 'com.facebook.rebound:rebound:0.3.8'
+    compile 'com.tumblr:backboard:0.1.0'
+    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta11@aar'
 }
 
 

@@ -3,6 +3,8 @@ package com.vithushan.sixdegrees.dagger;
 import android.content.Context;
 
 import com.vithushan.sixdegrees.GameApplication;
+import com.vithushan.sixdegrees.activity.GameActivity;
+import com.vithushan.sixdegrees.api.SpotifyClientModule;
 import com.vithushan.sixdegrees.fragment.GameOverFragment;
 import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
@@ -19,6 +21,7 @@ import dagger.Component;
 public interface ApplicationComponent {
     // Field injections of any dependencies of the GameApplication
     void inject(GameApplication application);
+    void inject(GameActivity activity);
     void inject(MainGameFragment fragment);
     void inject(SelectActorFragment fragment);
     void inject(GameOverFragment fragment);
@@ -26,5 +29,5 @@ public interface ApplicationComponent {
 
     // Exported for child-components.
     Context context();
-
+    SpotifyClientModule spotifyClientModule();
 }

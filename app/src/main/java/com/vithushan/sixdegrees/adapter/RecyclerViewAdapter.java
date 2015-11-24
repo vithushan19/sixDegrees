@@ -11,8 +11,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.R;
-import com.vithushan.sixdegrees.model.Actor;
-import com.vithushan.sixdegrees.model.IHollywoodObject;
+import com.vithushan.sixdegrees.model.IGameObject;
 import com.vithushan.sixdegrees.util.StringUtil;
 
 import java.util.ArrayList;
@@ -21,17 +20,17 @@ import java.util.ArrayList;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
     public interface ItemClickListener {
-        void onItemClick(IHollywoodObject obj);
+        void onItemClick(IGameObject obj);
     }
 
-    protected ArrayList<IHollywoodObject> mDataset;
+    protected ArrayList<IGameObject> mDataset;
     protected Context mContext;
     private ItemClickListener mListener;
 
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecyclerViewAdapter(ArrayList<IHollywoodObject> myDataset, Context context, ItemClickListener listener) {
+    public RecyclerViewAdapter(ArrayList<IGameObject> myDataset, Context context, ItemClickListener listener) {
         mDataset = myDataset;
         mContext = context;
         mListener = listener;
@@ -48,7 +47,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     }
 
-    public void refreshWithNewList(ArrayList<IHollywoodObject> currentList) {
+    public void refreshWithNewList(ArrayList<IGameObject> currentList) {
 
         int newSize = currentList.size();
         if (newSize > 0) {
@@ -92,16 +91,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        final IHollywoodObject name = mDataset.get(position);
+        final IGameObject name = mDataset.get(position);
         if (StringUtil.isEmpty(mDataset.get(position).getImageURL())) {
-            // TODO get a better asset/
             Picasso.with(mContext).load(R.drawable.movie_placeholder).into(holder.imgHeader);
         } else {
-            if (name instanceof Actor) {
-                Picasso.with(mContext).load(mDataset.get(position).getImageURL()).into(holder.imgHeader);
-            } else {
-                Picasso.with(mContext).load(R.drawable.movie_placeholder).into(holder.imgHeader);
-            }
+            Picasso.with(mContext).load(mDataset.get(position).getImageURL()).into(holder.imgHeader);
+
         }
 
         holder.txtFooter.setOnClickListener(new View.OnClickListener() {
@@ -121,7 +116,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return mDataset.size();
     }
 
-    public IHollywoodObject getItem (int index) {
+    public IGameObject getItem (int index) {
         return this.mDataset.get(index);
     }
 

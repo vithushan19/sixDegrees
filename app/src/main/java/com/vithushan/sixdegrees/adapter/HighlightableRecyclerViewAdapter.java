@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import com.vithushan.sixdegrees.R;
-import com.vithushan.sixdegrees.model.IHollywoodObject;
+import com.vithushan.sixdegrees.model.IGameObject;
 
 import java.util.ArrayList;
 
@@ -14,18 +14,18 @@ import java.util.ArrayList;
 
 public class HighlightableRecyclerViewAdapter extends RecyclerViewAdapter {
 
-    private IHollywoodObject mLastClickedItem;
+    private IGameObject mLastClickedItem;
 
 
-    public HighlightableRecyclerViewAdapter(ArrayList<IHollywoodObject> myDataset, Context context, ItemClickListener listener) {
+    public HighlightableRecyclerViewAdapter(ArrayList<IGameObject> myDataset, Context context, ItemClickListener listener) {
         super(myDataset, context, listener);
     }
 
-    public void setLastClickedItem(IHollywoodObject selectedItem) {
+    public void setLastClickedItem(IGameObject selectedItem) {
         mLastClickedItem = selectedItem;
     }
 
-    public IHollywoodObject getLastClickedItem () {
+    public IGameObject getLastClickedItem () {
         return mLastClickedItem;
     }
 

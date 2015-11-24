@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,19 +14,16 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.dagger.ApplicationComponent;
-import com.vithushan.sixdegrees.model.Actor;
-import com.vithushan.sixdegrees.model.IHollywoodObject;
-import com.vithushan.sixdegrees.model.Movie;
+import com.vithushan.sixdegrees.model.movie.Actor;
+import com.vithushan.sixdegrees.model.IGameObject;
+import com.vithushan.sixdegrees.model.movie.Movie;
 import com.vithushan.sixdegrees.util.Constants;
-import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
-import com.vithushan.sixdegrees.util.MessageBroadcaster;
 
 import java.util.ArrayList;
 
@@ -47,7 +45,7 @@ public class GameOverFragment extends Fragment {
     private ProgressBar mProgress;
 
     private String [] mWinningHistory;
-    private ArrayList <IHollywoodObject> mResultList;
+    private ArrayList <IGameObject> mResultList;
     private boolean mWonGame;
 
     @Inject
@@ -76,7 +74,7 @@ public class GameOverFragment extends Fragment {
         mMainMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((GameActivity)getActivity()).leaveRoom();
+               //TODO: gotosplash
             }
         });
 
@@ -90,6 +88,10 @@ public class GameOverFragment extends Fragment {
 		}
 
         mWinningHistory = getArguments().getStringArray("History");
+        Log.d("VITHUSHAN", "GameOverFrag has received this winning history array");
+        for (String id : mWinningHistory) {
+            Log.d("VITHUSHAN", id);
+        }
 
         mProgress = (ProgressBar) view.findViewById(R.id.progressDialog);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
@@ -105,7 +107,7 @@ public class GameOverFragment extends Fragment {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(linearLayoutManager);
-        mAdapter = new RecyclerViewAdapter(new ArrayList<IHollywoodObject>(),getActivity(),null);
+        mAdapter = new RecyclerViewAdapter(new ArrayList<IGameObject>(),getActivity(),null);
         mRecyclerView.setAdapter(mAdapter);
 
         // Get all the actor/movie info using the passed in ids
@@ -119,6 +121,7 @@ public class GameOverFragment extends Fragment {
                     mProgress.setVisibility(View.GONE);
                     mAdapter.removeAll();
                     mAdapter.refreshWithNewList(mResultList);
+
                 }
 
                 @Override
@@ -147,9 +150,7 @@ public class GameOverFragment extends Fragment {
 
                 @Override
                 public void onCompleted() {
-                    _actor.subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(finalActorSubscriber);
+
                 }
 
                 @Override
@@ -161,11 +162,19 @@ public class GameOverFragment extends Fragment {
                 public void onNext(Pair<Actor, Movie> actorMoviePair) {
                     mResultList.add(actorMoviePair.first);
                     mResultList.add(actorMoviePair.second);
+
+                    for (IGameObject objectId : mResultList) {
+                        Log.d("VITHUSHAN", "HistorySubscriber: " + objectId.toString());
+                    }
+                    
                 }
             };
 
             @Override
             public void onCompleted() {
+                _actor.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(finalActorSubscriber);
             }
 
             @Override
@@ -192,7 +201,6 @@ public class GameOverFragment extends Fragment {
 
     public void showRematchDeclined() {
         mRematch.setText("Opponent Declined");
-        BaseGameUtils.makeSimpleDialog(getActivity(), "Your opponenet has declined a rematch");
     }
 
     public void setmRematchDisabled() {

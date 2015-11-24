@@ -25,12 +25,9 @@ public class LogoAnimator {
         mAnim.setRepeatCount(ValueAnimator.INFINITE);
         mAnim.setRepeatMode(ValueAnimator.REVERSE);
         mAnim.setEvaluator(new ArgbEvaluator());
-        mAnim.setInterpolator(new Interpolator() {
-            @Override
-            public float getInterpolation(float input) {
-                float result = (float) ((Math.cos((float)((input+1) * Math.PI)) / 2) + 0.5);
-                return result;
-            }
+        mAnim.setInterpolator(input -> {
+            float result = (float) ((Math.cos((float)((input+1) * Math.PI)) / 2) + 0.5);
+            return result;
         });
     }
 

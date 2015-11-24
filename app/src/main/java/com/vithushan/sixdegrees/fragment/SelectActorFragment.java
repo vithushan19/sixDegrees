@@ -2,7 +2,6 @@ package com.vithushan.sixdegrees.fragment;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,17 +16,15 @@ import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.adapter.HighlightableRecyclerViewAdapter;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
+import com.vithushan.sixdegrees.api.SpotifyClientModule;
 import com.vithushan.sixdegrees.dagger.ApplicationComponent;
-import com.vithushan.sixdegrees.model.Actor;
-import com.vithushan.sixdegrees.model.IHollywoodObject;
-import com.vithushan.sixdegrees.model.PopularPeople;
+import com.vithushan.sixdegrees.model.IGameObject;
+import com.vithushan.sixdegrees.model.movie.PopularPeople;
+import com.vithushan.sixdegrees.model.music.TopTracksResponse;
 import com.vithushan.sixdegrees.util.Constants;
-import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
-import com.vithushan.sixdegrees.util.MessageBroadcaster;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -35,22 +32,22 @@ import javax.inject.Inject;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by Vithushan on 7/6/2015.
  */
-public class SelectActorFragment extends Fragment implements GameActivity.onOppSelectedActorSetListener, RecyclerViewAdapter.ItemClickListener {
+public class SelectActorFragment extends Fragment implements RecyclerViewAdapter.ItemClickListener {
 
+
+    @Inject IMovieAPIClient mAPIClient;
 
     @Inject
-    IMovieAPIClient mAPIClient;
+    SpotifyClientModule module;
 
-    private ArrayList<IHollywoodObject> mPopularActorList;
+    private ArrayList<IGameObject> mPopularActorList;
 
-    private Actor mMySelectedActor;
-    private int mOppSelectedActorId = 0;
+    private IGameObject mMySelectedActor;
 
     private HighlightableRecyclerViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
@@ -69,7 +66,7 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
         getApplicationComponent().inject(this);
 
         View view = inflater.inflate(R.layout.fragment_select_actors, container, false);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view_select);
         mButton = (Button) view.findViewById(R.id.submit);
 
         mProgress = new ProgressDialog(getActivity());
@@ -89,54 +86,34 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
         mButton.setEnabled(true);
         mProgress.show();
 
-        mAdapter = new HighlightableRecyclerViewAdapter(new ArrayList<IHollywoodObject>(), getActivity(), SelectActorFragment.this);
+        mAdapter = new HighlightableRecyclerViewAdapter(new ArrayList<>(), getActivity(), SelectActorFragment.this);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Save your selection
-                mMySelectedActor = (Actor) mAdapter.getLastClickedItem();
+        mButton.setOnClickListener(view -> {
+            //Save your selection
+            mMySelectedActor = mAdapter.getLastClickedItem();
 
-                if (((GameActivity) getActivity()).getIsMultiplayer()) {
-                    // Broadcast your selection to other player(s)
-                    MessageBroadcastUtils.broadcastSelectedActorToOpp(Integer.valueOf(mMySelectedActor.getId()), (MessageBroadcaster) getActivity());
+            // If single player, we must set mOppSelectedActorId ourselves
+            String randomActorId = "";
+            do {
+                Random r = new Random();
+                int i = r.nextInt(mAdapter.getItemCount());
+                randomActorId = mAdapter.getItem(i).getId();
+            } while (randomActorId.equals(mMySelectedActor.getId()));
 
-                    // If you already have your opponenet's selection, start the mainfragment
-                    if (mOppSelectedActorId != 0) {
-                        NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, mOppSelectedActorId);
-                    } else {
-                        // Wait for opp selection
-                        mButton.setEnabled(false);
-                        mProgress.setMessage("Waiting for opponent to select");
-                        mProgress.show();
-                    }
-                } else {
-                    // If single player, we must set mOppSelectedActorId ourselves
-                    String randomActorId = "";
-                    do {
-                        Random r = new Random();
-                        int i = r.nextInt(mAdapter.getItemCount());
-                        randomActorId = mAdapter.getItem(i).getId();
-                    } while (randomActorId.equals(mMySelectedActor.getId()));
-
-                    mOppSelectedActorId = Integer.valueOf(randomActorId);
-                    if (BuildConfig.DEBUG) {
-                        NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(mMySelectedActor.getId()));
-                    } else {
-                        NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(randomActorId));
-                    }
-
-                }
-
+            if (BuildConfig.DEBUG) {
+                NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, mMySelectedActor.getId());
+            } else {
+                NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, randomActorId);
             }
         });
 
-        Subscriber<Actor> subscriber = new Subscriber<Actor>() {
+
+        Subscriber<IGameObject> subscriber = new Subscriber<IGameObject>() {
             @Override
             public void onCompleted() {
                 mProgress.hide();
@@ -150,46 +127,56 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
             }
 
             @Override
-            public void onNext(Actor actor) {
+            public void onNext(IGameObject actor) {
                 mPopularActorList.add(actor);
             }
         };
 
-
-        Observable<PopularPeople> popularPeople = mAPIClient.getPopularActors(Constants.API_KEY);
-        popularPeople.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(new Func1<PopularPeople, List<Actor>>() {
-                    @Override
-                    public List<Actor> call(PopularPeople popularPeople) {
-                        return popularPeople.results;
-                    }
-                })
-                .flatMap(new Func1<List<Actor>, Observable<Actor>>() {
-                    @Override
-                    public Observable<Actor> call(List<Actor> actors) {
-                        return Observable.from(actors);
-                    }
-                })
-                .subscribe(subscriber);
-    }
-
-
-
-    public void setOppSelectedActor(int id) {
-        mOppSelectedActorId = id;
-    }
-
-    @Override
-    public void onSet() {
-        if (this.mMySelectedActor != null) {
-            mProgress.hide();
-            NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, mOppSelectedActorId);
+        if ( ((GameActivity) getActivity()).getGameType().equals(Constants.MUSIC_GAME_TYPE)) {
+            displayPopularArtists(subscriber);
+        } else {
+            displayPopularActors(subscriber);
         }
     }
 
+    private void displayPopularArtists(Subscriber<IGameObject> subscriber) {
+        Observable<TopTracksResponse> topTracks = module.getTopTracks();
+        topTracks.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(topTracksResponse -> topTracksResponse.getItems())
+                .flatMap(trackResponses -> Observable.from(trackResponses))
+                .map(trackResponse -> trackResponse.getTrack().getTrackArtistList().get(0).getId())
+                .distinct()
+                .buffer(50)
+                .map(strings -> {
+                    StringBuilder builder = new StringBuilder();
+                    for (String s : strings) {
+                        builder.append(s).append(',');
+                    }
+                    builder.deleteCharAt(builder.length() - 1);
+                    return builder.toString();
+                })
+                .map(s2 -> module.getArtists(s2))
+                .toList()
+                .flatMap(observables -> Observable.merge(observables))
+                .map(severalArtistsResponse -> severalArtistsResponse.getItems())
+                .flatMap(artists -> Observable.from(artists))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
+    }
+
+    private void displayPopularActors(Subscriber<IGameObject> subscriber) {
+        Observable<PopularPeople> popularPeople = mAPIClient.getPopularActors(Constants.API_KEY);
+        popularPeople.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(popularPeople1 -> popularPeople1.results)
+                .flatMap(actors -> Observable.from(actors))
+                .subscribe(subscriber);
+    }
+
     @Override
-    public void onItemClick(IHollywoodObject obj) {
+    public void onItemClick(IGameObject obj) {
         mAdapter.setLastClickedItem(obj);
         mAdapter.notifyDataSetChanged();
     }
