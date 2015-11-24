@@ -1,6 +1,8 @@
-package com.vithushan.sixdegrees.model;
+package com.vithushan.sixdegrees.model.movie;
 
-public class Actor extends IHollywoodObject {
+import com.vithushan.sixdegrees.model.IGameObject;
+
+public class Actor extends IGameObject {
 
 	private String id;
 	private String name;

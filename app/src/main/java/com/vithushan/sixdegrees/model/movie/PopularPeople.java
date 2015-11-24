@@ -1,4 +1,4 @@
-package com.vithushan.sixdegrees.model;
+package com.vithushan.sixdegrees.model.movie;
 
 import java.util.List;
 

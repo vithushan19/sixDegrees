@@ -1,12 +1,11 @@
-package com.vithushan.sixdegrees.model;
+package com.vithushan.sixdegrees.model.movie;
 
-import com.google.gson.annotations.SerializedName;
-import com.vithushan.sixdegrees.util.StringUtil;
+import com.vithushan.sixdegrees.model.IGameObject;
 
 /**
  * Created by vnama on 7/8/2015.
  */
-public class Movie extends IHollywoodObject {
+public class Movie extends IGameObject {
 
     public String id;
     public String poster_path;

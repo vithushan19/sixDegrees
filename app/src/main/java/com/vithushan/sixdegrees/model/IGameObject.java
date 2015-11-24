@@ -1,6 +1,6 @@
 package com.vithushan.sixdegrees.model;
 
-public abstract class IHollywoodObject implements Comparable<IHollywoodObject> {
+public abstract class IGameObject implements Comparable<IGameObject> {
 
 	public String getId() {
 		return "";
@@ -16,15 +16,15 @@ public abstract class IHollywoodObject implements Comparable<IHollywoodObject> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof IHollywoodObject) {
-			IHollywoodObject object = (IHollywoodObject)o;
+		if (o instanceof IGameObject) {
+			IGameObject object = (IGameObject)o;
 			return getName().equals(object.getName());
 		}
 		return false;
 	}
 
     @Override
-    public int compareTo(IHollywoodObject another) {
+    public int compareTo(IGameObject another) {
         return getName().compareTo(another.getName());
     }
 }

@@ -3,7 +3,6 @@ package com.vithushan.sixdegrees.util;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 
 import com.google.gson.Gson;
@@ -13,7 +12,7 @@ import com.vithushan.sixdegrees.fragment.GameOverFragment;
 import com.vithushan.sixdegrees.fragment.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
-import com.vithushan.sixdegrees.model.Actor;
+import com.vithushan.sixdegrees.model.IGameObject;
 
 /**
  * Created by vnama on 10/10/2015.
@@ -31,7 +30,7 @@ public class NavigationUtils {
         ft.replace(R.id.fragment_container, selectActorFragment).commit();
     }
 
-    public static void gotoMainFragment(Activity a, Actor mySelectedActor, int oppSelectedActorId) {
+    public static void gotoMainFragment(Activity a, IGameObject mySelectedActor, String oppSelectedActorId) {
 
         Intent intent = new Intent(a, GameActivity.class);
         intent.putExtra("SelectedActor", new Gson().toJson(mySelectedActor));
