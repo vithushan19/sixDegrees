@@ -3,7 +3,7 @@
     android:id="@+id/linearlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/blue_panel"
+    android:background="@color/light_blue"
     android:orientation="vertical" >
 
     <TextView
@@ -26,15 +26,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/rematch"
+            android:padding="@dimen/button_padding"
+            android:layout_margin="@dimen/button_padding"
             android:layout_gravity="center_horizontal"
             android:id="@+id/button_rematch"
-            />
+            android:background="@color/dark_blue" />
+
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/main_menu"
+            android:layout_gravity="center_horizontal"
+            android:padding="@dimen/button_padding"
+            android:layout_margin="@dimen/button_padding"
             android:id="@+id/button_main_menu"
+            android:background="@color/dark_blue"
             />
     </LinearLayout>
 
@@ -60,6 +67,7 @@
         android:id="@+id/my_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/white"
         android:layout_weight="1"
         android:scrollbars="vertical" />
 

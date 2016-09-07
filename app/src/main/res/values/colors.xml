@@ -3,7 +3,7 @@
     <color name="pressed_color">#4d90fe</color>
     <color name="default_color">#ffffff</color>
     <color name="main_blue">#01ABCE</color>
-    <color name="light_blue">#85C8C5</color>
-    <color name="dark_blue">#00ACC1</color>
+    <color name="light_blue">#5dd2f3</color>
+    <color name="dark_blue">#027bec</color>
 
 </resources>

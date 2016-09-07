@@ -18,7 +18,7 @@ public class LogoAnimator {
     public LogoAnimator (CirclesLogo circlesLogo, String circleNumber, long delay) {
         mAnim = ObjectAnimator.ofInt
                 (circlesLogo, circleNumber,
-                        Color.rgb(0x00, 0xAC, 0xC1), Color.rgb(0x85, 0xC8, 0xC5));
+                        Color.rgb(0x02, 0x7B, 0xEC), Color.rgb(0x5D, 0xD2, 0xF3));
 
         mAnim.setDuration(1500);
         mAnim.setStartDelay(delay);

@@ -10,10 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import com.vithushan.sixdegrees.BuildConfig;
+
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
-import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.adapter.HighlightableRecyclerViewAdapter;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
@@ -22,8 +21,8 @@ import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.model.PopularPeople;
 import com.vithushan.sixdegrees.util.Constants;
-import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
-import com.vithushan.sixdegrees.util.MessageBroadcaster;
+import com.vithushan.sixdegrees.util.DebugFlag;
+import com.vithushan.sixdegrees.util.DividerItemDecoration;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by Vithushan on 7/6/2015.
  */
-public class SelectActorFragment extends Fragment implements GameActivity.onOppSelectedActorSetListener, RecyclerViewAdapter.ItemClickListener {
+public class SelectActorFragment extends Fragment implements RecyclerViewAdapter.ItemClickListener {
 
 
     @Inject
@@ -50,7 +49,6 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
     private ArrayList<IHollywoodObject> mPopularActorList;
 
     private Actor mMySelectedActor;
-    private int mOppSelectedActorId = 0;
 
     private HighlightableRecyclerViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
@@ -94,6 +92,8 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
+        Drawable divider = getActivity().getDrawable(R.drawable.divider);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
         mRecyclerView.setAdapter(mAdapter);
 
         mButton.setOnClickListener(new View.OnClickListener() {
@@ -102,35 +102,18 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
                 //Save your selection
                 mMySelectedActor = (Actor) mAdapter.getLastClickedItem();
 
-                if (((GameActivity) getActivity()).getIsMultiplayer()) {
-                    // Broadcast your selection to other player(s)
-                    MessageBroadcastUtils.broadcastSelectedActorToOpp(Integer.valueOf(mMySelectedActor.getId()), (MessageBroadcaster) getActivity());
+                // If single player, we must set mOppSelectedActorId ourselves
+                String randomActorId = "";
+                do {
+                    Random r = new Random();
+                    int i = r.nextInt(mAdapter.getItemCount());
+                    randomActorId = mAdapter.getItem(i).getId();
+                } while (randomActorId.equals(mMySelectedActor.getId()));
 
-                    // If you already have your opponenet's selection, start the mainfragment
-                    if (mOppSelectedActorId != 0) {
-                        NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, mOppSelectedActorId);
-                    } else {
-                        // Wait for opp selection
-                        mButton.setEnabled(false);
-                        mProgress.setMessage("Waiting for opponent to select");
-                        mProgress.show();
-                    }
+                if (DebugFlag.USE_SAME_START_END_ACTORS) {
+                    NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(mMySelectedActor.getId()));
                 } else {
-                    // If single player, we must set mOppSelectedActorId ourselves
-                    String randomActorId = "";
-                    do {
-                        Random r = new Random();
-                        int i = r.nextInt(mAdapter.getItemCount());
-                        randomActorId = mAdapter.getItem(i).getId();
-                    } while (randomActorId.equals(mMySelectedActor.getId()));
-
-                    mOppSelectedActorId = Integer.valueOf(randomActorId);
-                    if (BuildConfig.DEBUG) {
-                        NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(mMySelectedActor.getId()));
-                    } else {
-                        NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(randomActorId));
-                    }
-
+                    NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, Integer.valueOf(randomActorId));
                 }
 
             }
@@ -172,20 +155,6 @@ public class SelectActorFragment extends Fragment implements GameActivity.onOppS
                     }
                 })
                 .subscribe(subscriber);
-    }
-
-
-
-    public void setOppSelectedActor(int id) {
-        mOppSelectedActorId = id;
-    }
-
-    @Override
-    public void onSet() {
-        if (this.mMySelectedActor != null) {
-            mProgress.hide();
-            NavigationUtils.gotoMainFragment(getActivity(), mMySelectedActor, mOppSelectedActorId);
-        }
     }
 
     @Override

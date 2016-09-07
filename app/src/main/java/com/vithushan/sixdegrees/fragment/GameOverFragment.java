@@ -1,6 +1,7 @@
 package com.vithushan.sixdegrees.fragment;
 
 import android.app.Fragment;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +14,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
@@ -24,8 +24,8 @@ import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 import com.vithushan.sixdegrees.model.Movie;
 import com.vithushan.sixdegrees.util.Constants;
-import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
-import com.vithushan.sixdegrees.util.MessageBroadcaster;
+import com.vithushan.sixdegrees.util.DividerItemDecoration;
+import com.vithushan.sixdegrees.util.NavigationUtils;
 
 import java.util.ArrayList;
 
@@ -76,7 +76,7 @@ public class GameOverFragment extends Fragment {
         mMainMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((GameActivity)getActivity()).leaveRoom();
+                NavigationUtils.gotoSplashFragment(getActivity());
             }
         });
 
@@ -105,6 +105,8 @@ public class GameOverFragment extends Fragment {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(linearLayoutManager);
+        Drawable divider = getActivity().getDrawable(R.drawable.divider);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
         mAdapter = new RecyclerViewAdapter(new ArrayList<IHollywoodObject>(),getActivity(),null);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -189,14 +191,4 @@ public class GameOverFragment extends Fragment {
         Observable.from(mWinningHistory)
         .subscribe(historySubscriber);
  }
-
-    public void showRematchDeclined() {
-        mRematch.setText("Opponent Declined");
-        BaseGameUtils.makeSimpleDialog(getActivity(), "Your opponenet has declined a rematch");
-    }
-
-    public void setmRematchDisabled() {
-        mRematch.setEnabled(false);
-    }
-
 }

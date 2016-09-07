@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.GameApplication;
 import com.vithushan.sixdegrees.R;
-import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.adapter.RecyclerViewAdapter;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
 import com.vithushan.sixdegrees.dagger.ApplicationComponent;
@@ -32,8 +31,7 @@ import com.vithushan.sixdegrees.model.Movie;
 import com.vithushan.sixdegrees.model.MovieCredits;
 import com.vithushan.sixdegrees.util.CircleTransform;
 import com.vithushan.sixdegrees.util.Constants;
-import com.vithushan.sixdegrees.util.MessageBroadcastUtils;
-import com.vithushan.sixdegrees.util.MessageBroadcaster;
+import com.vithushan.sixdegrees.util.DividerItemDecoration;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 import com.vithushan.sixdegrees.util.StringUtil;
 
@@ -121,16 +119,14 @@ public class MainGameFragment extends Fragment implements MainGameViewBinder, Re
         // The actor your opponent chose
         final String oppSelectedActorId = String.valueOf(getArguments().getInt(OPP_SELECTED_ACTOR_ID));
 
-        boolean isHost = ((GameActivity)getActivity()).getIsHost();
-
-        mPresenter = new MainGamePresenter(this, mAPIClient, isHost, mySelectedActor, oppSelectedActorId);
+        mPresenter = new MainGamePresenter(this, mAPIClient, mySelectedActor, oppSelectedActorId);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-        Drawable gradient = getResources().getDrawable(R.drawable.blue_gradient);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        Drawable divider = getActivity().getDrawable(R.drawable.divider);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
 
         // specify an adapter (see also next example)
         mAdapter = new RecyclerViewAdapter(mCurrentList,getActivity(), this);
@@ -166,7 +162,7 @@ public class MainGameFragment extends Fragment implements MainGameViewBinder, Re
                 .setCancelable(false)
                 .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
-                        ((GameActivity)getActivity()).leaveRoom();
+                        NavigationUtils.gotoSplashFragment(getActivity());
                     }
                 })
                 .setNegativeButton("No",new DialogInterface.OnClickListener() {
@@ -299,9 +295,6 @@ public class MainGameFragment extends Fragment implements MainGameViewBinder, Re
 
     @Override
     public void navigateToGameOver(Stack<IHollywoodObject> mHistory) {
-        // Broadcast our (winning) history to the other player
-        MessageBroadcastUtils.broadcastGameOver(mHistory, (MessageBroadcaster) getActivity(), getActivity());
-
         IHollywoodObject[] historyArr = new IHollywoodObject[mHistory.size()];
         mHistory.toArray(historyArr);
 

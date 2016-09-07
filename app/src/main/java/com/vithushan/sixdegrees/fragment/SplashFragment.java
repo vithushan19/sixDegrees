@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.vithushan.sixdegrees.BuildConfig;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.animator.LogoAnimator;
@@ -26,9 +25,6 @@ public class SplashFragment extends Fragment {
 
     private View mTransparentRect;
     private CirclesLogo mCirclesLogo;
-    private Button mQuickGame;
-    private Button mInvitePlayers;
-    private Button mMyInvitations;
     private Button mSinglePlayer;
 
 
@@ -38,27 +34,6 @@ public class SplashFragment extends Fragment {
         mCirclesLogo = (CirclesLogo) view.findViewById(R.id.circles);
         mTransparentRect = view.findViewById(R.id.transparentRect);
 
-        mQuickGame = (Button) view.findViewById(R.id.quick_game_button);
-        mQuickGame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((GameActivity)getActivity()).startQuickGame();
-            }
-        });
-        mInvitePlayers = (Button) view.findViewById(R.id.invite_players_button);
-        mInvitePlayers.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((GameActivity)getActivity()).invitePlayers();
-            }
-        });
-        mMyInvitations = (Button) view.findViewById(R.id.my_invitations_button);
-        mMyInvitations.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((GameActivity)getActivity()).showInvitationInbox();
-            }
-        });
         mSinglePlayer = (Button) view.findViewById(R.id.button_single_player);
         mSinglePlayer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,11 +42,6 @@ public class SplashFragment extends Fragment {
             }
         });
 
-        if (BuildConfig.DEBUG) {
-            mQuickGame.setEnabled(false);
-            mInvitePlayers.setEnabled(false);
-            mMyInvitations.setEnabled(false);
-        }
         return view;
     }
 
@@ -95,11 +65,11 @@ public class SplashFragment extends Fragment {
 
         ValueAnimator anim = ObjectAnimator.ofInt
                 (mTransparentRect, "backgroundColor",
-                        Color.argb(0xA0, 0xFF, 0xFF, 0xFF), Color.argb(0x50, 0xFF, 0xFF, 0xFF));
+                        Color.argb(0x02, 0x7B, 0xEC, 0xFF), Color.argb(0x5D, 0xD2, 0xF3, 0xFF));
         anim.setDuration(1500);
         anim.setRepeatCount(ValueAnimator.INFINITE);
         anim.setRepeatMode(ValueAnimator.REVERSE);
         anim.setEvaluator(new ArgbEvaluator());
-        anim.start();
+        //anim.start();
     }
 }

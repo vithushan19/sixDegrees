@@ -1,16 +1,9 @@
 package com.vithushan.sixdegrees.dagger;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.games.Games;
-import com.google.android.gms.plus.Plus;
 import com.vithushan.sixdegrees.api.IMovieAPIClient;
-import com.vithushan.sixdegrees.fragment.GameOverFragment;
-import com.vithushan.sixdegrees.maingame.MainGameFragment;
-import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 
 import javax.inject.Singleton;
 

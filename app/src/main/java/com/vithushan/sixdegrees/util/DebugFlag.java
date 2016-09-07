@@ -5,4 +5,5 @@ package com.vithushan.sixdegrees.util;
  */
 public class DebugFlag {
     public static final boolean SHOW_MOVIE_IMAGES = true;
+    public static final boolean USE_SAME_START_END_ACTORS = true;
 }

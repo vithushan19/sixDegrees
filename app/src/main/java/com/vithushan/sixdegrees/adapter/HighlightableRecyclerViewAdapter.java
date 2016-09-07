@@ -34,11 +34,11 @@ public class HighlightableRecyclerViewAdapter extends RecyclerViewAdapter {
         super.onBindViewHolder(holder, position);
 
         if (mDataset.get(position).equals(mLastClickedItem)) {
-            Drawable background = mContext.getResources().getDrawable(R.drawable.blue_panel);
-            holder.txtFooter.setBackgroundDrawable(background);
+            Drawable background = mContext.getResources().getDrawable(R.drawable.list_selector_focused);
+            holder.container.setBackgroundDrawable(background);
         } else {
-            Drawable background = mContext.getResources().getDrawable(R.drawable.background);
-            holder.txtFooter.setBackgroundDrawable(background);
+            Drawable background = mContext.getResources().getDrawable(R.drawable.list_selector_focused);
+            //holder.container.setBackgroundDrawable(background);
         }
     }
 }

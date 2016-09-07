@@ -20,17 +20,15 @@ public class MainGamePresenter {
 
     private final MainGameViewBinder mViewBinder;
     private final IMovieAPIClient mAPIClient;
-    private final boolean mIsHost;
     private final Actor mMySelectedActor;
     private final String mOppSelectedActorId;
     private Actor mStartingActor;
     private Actor mEndingActor;
     private Stack<IHollywoodObject> mHistory;
 
-    public MainGamePresenter(MainGameViewBinder viewBinder, IMovieAPIClient apiClient, boolean isHost, Actor mySelectedActor, String oppSelectedActorId) {
+    public MainGamePresenter(MainGameViewBinder viewBinder, IMovieAPIClient apiClient, Actor mySelectedActor, String oppSelectedActorId) {
         mViewBinder = viewBinder;
         mAPIClient = apiClient;
-        mIsHost = isHost;
         mMySelectedActor = mySelectedActor;
         mOppSelectedActorId = oppSelectedActorId;
         mHistory = new Stack<>();
@@ -41,13 +39,8 @@ public class MainGamePresenter {
         Action1<Actor> nextAction = new Action1<Actor>() {
             @Override
             public void call(Actor actor) {
-                if (mIsHost) {
-                    mStartingActor = mMySelectedActor;
-                    mEndingActor = actor;
-                } else {
-                    mStartingActor = actor;
-                    mEndingActor = mMySelectedActor;
-                }
+                mStartingActor = actor;
+                mEndingActor = mMySelectedActor;
 
                 mViewBinder.bindStartingActor(mStartingActor);
                 mViewBinder.bindEndingActor(mEndingActor);

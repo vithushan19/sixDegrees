@@ -11,13 +11,14 @@ android {
             storePassword 'android'
         }
     }
-    compileSdkVersion 22
+    compileSdkVersion 24
     buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "com.vithushan.sixdegrees"
-        minSdkVersion 14
+        minSdkVersion 21
         targetSdkVersion 22
         signingConfig signingConfigs.config
+        multiDexEnabled true
     }
     sourceSets {
         instrumentTest.setRoot('src/test')
@@ -46,9 +47,10 @@ android {
 }
 
 dependencies {
-    compile project(':BaseGameUtils')
+
     // the following is required to use Mockito and JUnit for your
     // instrumentation unit tests on the JVM
+    androidTestCompile 'com.android.support:support-annotations:24.2.0'
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile 'org.mockito:mockito-core:1.+'
     androidTestCompile 'com.android.support.test:runner:0.3'
@@ -58,22 +60,23 @@ dependencies {
     // tests on the JVM
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.+'
-    compile 'com.android.support:support-v4:22.2.0'
+    // Dagger 2 and Compiler
+    apt "com.google.dagger:dagger-compiler:2.0.1"
+    // Needed for @Generated annotation (missing in Java <= 1.6; therefore, Android)
+    compile 'com.android.support:support-v4:24.2.0'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    // Dagger 2 and Compiler
     compile 'com.google.dagger:dagger:2.0.1'
-    apt "com.google.dagger:dagger-compiler:2.0.1"
-    // Needed for @Generated annotation (missing in Java <= 1.6; therefore, Android)
     compile 'javax.annotation:jsr250-api:1.0'
-    compile 'com.google.android.gms:play-services:7.5.0'
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
+    compile 'com.google.android.gms:play-services:9.4.0'
+    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.android.support:recyclerview-v7:24.2.0'
     compile 'jp.wasabeef:recyclerview-animators:1.2.1@aar'
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'io.reactivex:rxjava:1.0.14'
+    compile 'com.google.android.gms:play-services-ads:9.4.0'
 }
 
 
