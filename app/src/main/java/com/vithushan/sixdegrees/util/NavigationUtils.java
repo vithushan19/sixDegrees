@@ -3,16 +3,15 @@ package com.vithushan.sixdegrees.util;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 
 import com.google.gson.Gson;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.fragment.GameOverFragment;
-import com.vithushan.sixdegrees.maingame.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
+import com.vithushan.sixdegrees.maingame.MainGameFragment;
 import com.vithushan.sixdegrees.model.Actor;
 
 /**
@@ -69,6 +68,7 @@ public class NavigationUtils {
         // Add the fragment to the 'fragment_container' FrameLayout
         FragmentManager fm = a.getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
         ft.replace(R.id.fragment_container, fragment).commit();
     }
 

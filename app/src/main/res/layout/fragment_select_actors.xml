@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:background="@color/dark_blue"
         android:padding="@dimen/button_padding"
+        android:textColor="@color/white"
         android:text="Submit"/>
 
 

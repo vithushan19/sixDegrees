@@ -33,7 +33,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Starting Actor"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 android:singleLine="false"
                 android:layout_gravity="center_vertical"
@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="Ending Actor"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 android:gravity="center" />
         </LinearLayout>

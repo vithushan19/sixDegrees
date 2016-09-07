@@ -1,7 +1,6 @@
 package com.vithushan.sixdegrees.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
@@ -34,11 +33,7 @@ public class HighlightableRecyclerViewAdapter extends RecyclerViewAdapter {
         super.onBindViewHolder(holder, position);
 
         if (mDataset.get(position).equals(mLastClickedItem)) {
-            Drawable background = mContext.getResources().getDrawable(R.drawable.list_selector_focused);
-            holder.container.setBackgroundDrawable(background);
-        } else {
-            Drawable background = mContext.getResources().getDrawable(R.drawable.list_selector_focused);
-            //holder.container.setBackgroundDrawable(background);
+            holder.container.setBackgroundColor(mContext.getResources().getColor(R.color.light_blue));
         }
     }
 }
