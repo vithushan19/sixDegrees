@@ -13,6 +13,8 @@ import com.squareup.picasso.Picasso;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.model.Actor;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
+import com.vithushan.sixdegrees.util.CircleTransform;
+import com.vithushan.sixdegrees.util.DebugFlag;
 import com.vithushan.sixdegrees.util.StringUtil;
 
 import java.util.ArrayList;
@@ -98,9 +100,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             Picasso.with(mContext).load(R.drawable.movie_placeholder).into(holder.imgHeader);
         } else {
             if (name instanceof Actor) {
-                Picasso.with(mContext).load(mDataset.get(position).getImageURL()).into(holder.imgHeader);
+                Picasso.with(mContext).load(mDataset.get(position).getImageURL()).transform(new CircleTransform()).into(holder.imgHeader);
             } else {
-                Picasso.with(mContext).load(R.drawable.movie_placeholder).into(holder.imgHeader);
+                if (DebugFlag.SHOW_MOVIE_IMAGES) {
+                    Picasso.with(mContext).load(mDataset.get(position).getImageURL()).transform(new CircleTransform()).into(holder.imgHeader);
+                } else {
+                    Picasso.with(mContext).load(R.drawable.movie_placeholder).into(holder.imgHeader);
+                }
             }
         }
 

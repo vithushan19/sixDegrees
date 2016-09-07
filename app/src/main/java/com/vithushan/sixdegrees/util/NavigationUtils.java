@@ -10,7 +10,7 @@ import com.google.gson.Gson;
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.fragment.GameOverFragment;
-import com.vithushan.sixdegrees.fragment.MainGameFragment;
+import com.vithushan.sixdegrees.maingame.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
 import com.vithushan.sixdegrees.model.Actor;

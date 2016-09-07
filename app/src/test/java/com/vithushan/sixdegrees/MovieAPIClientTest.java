@@ -9,6 +9,8 @@ import com.vithushan.sixdegrees.model.PopularPeople;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import retrofit.RestAdapter;
@@ -36,17 +38,25 @@ public class MovieAPIClientTest {
 
     @Test
     public void testGetPopularPeopleReturnsList() {
-        PopularPeople actors = mMovieAPIClient.getPopularActors(API_KEY);
+        PopularPeople actors = mMovieAPIClient.getPopularActors(API_KEY).toBlocking().first();
         assertNotNull(actors);
         assertNotEquals(actors.results.size(), 0);
     }
 
     @Test
     public void testGetCombinedCredits() {
-        MovieCredits movieCredits = mMovieAPIClient.getMediaForActor("18918", API_KEY);
+        MovieCredits movieCredits = mMovieAPIClient.getMediaForActor("18918", API_KEY).toBlocking().first();
         assertNotNull(movieCredits);
         assertNotNull(movieCredits.cast);
         assertNotEquals(movieCredits.cast.size(),0);
+    }
+
+    @Test
+    public void testGetCombinedCreditsList() {
+        List<MovieCredits> movieCredits = mMovieAPIClient.getMediaForActorList("18918", API_KEY).toBlocking().first();
+        assertNotNull(movieCredits);
+        assertNotNull(movieCredits.get(0).cast);
+        assertNotEquals(movieCredits.get(0).cast.size(),0);
     }
 
     @Test
@@ -65,7 +75,7 @@ public class MovieAPIClientTest {
         Movie m = new Movie("21862", "SASDASD", "SDASDAS");
         //TODO try with caps
 
-        CastResponse combinedCredits = mMovieAPIClient.getCastForMovie(m.id,API_KEY);
+        CastResponse combinedCredits = mMovieAPIClient.getCastForMovie(m.id,API_KEY).toBlocking().first();
         assertNotNull(combinedCredits);
         assertNotNull(combinedCredits.cast);
         assertNotEquals(combinedCredits.cast.size(), 0);

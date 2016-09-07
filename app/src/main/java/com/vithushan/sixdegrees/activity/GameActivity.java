@@ -31,7 +31,7 @@ import com.vithushan.sixdegrees.dagger.ActivityComponent;
 import com.vithushan.sixdegrees.dagger.DaggerActivityComponent;
 import com.vithushan.sixdegrees.dagger.GameActivityModule;
 import com.vithushan.sixdegrees.fragment.GameOverFragment;
-import com.vithushan.sixdegrees.fragment.MainGameFragment;
+import com.vithushan.sixdegrees.maingame.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.fragment.SplashFragment;
 import com.vithushan.sixdegrees.util.MessageBroadcastUtils;

@@ -7,7 +7,7 @@ import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceived
 import com.vithushan.sixdegrees.R;
 import com.vithushan.sixdegrees.activity.GameActivity;
 import com.vithushan.sixdegrees.fragment.GameOverFragment;
-import com.vithushan.sixdegrees.fragment.MainGameFragment;
+import com.vithushan.sixdegrees.maingame.MainGameFragment;
 import com.vithushan.sixdegrees.fragment.SelectActorFragment;
 import com.vithushan.sixdegrees.util.NavigationUtils;
 import com.vithushan.sixdegrees.util.SixDegreesUtils;

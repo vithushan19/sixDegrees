@@ -5,7 +5,7 @@ import android.app.Fragment;
 import android.content.Context;
 
 import com.vithushan.sixdegrees.R;
-import com.vithushan.sixdegrees.fragment.MainGameFragment;
+import com.vithushan.sixdegrees.maingame.MainGameFragment;
 import com.vithushan.sixdegrees.model.IHollywoodObject;
 
 import java.util.Stack;

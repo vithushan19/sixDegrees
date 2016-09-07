@@ -7,7 +7,7 @@ android {
         config {
             keyAlias 'production'
             keyPassword 'android'
-            storeFile file('C:/code/keystore_prod.jks')
+            storeFile file('/Users/vithushan/Documents/code/sixDegrees/keystore_prod.jks')
             storePassword 'android'
         }
     }
